@@ -1,0 +1,15 @@
+<svg width="48" height="48" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="faviconGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Rounded Background -->
+  <rect width="48" height="48" rx="12" fill="url(#faviconGradient)"/>
+  
+  <!-- Microphone Icon (White) -->
+  <rect x="19" y="14" width="10" height="14" rx="5" fill="white"/>
+  <path d="M15 27C15 29.5 17 31.5 19.5 32V36M28.5 32C31 31.5 33 29.5 33 27M19.5 36H28.5M19.5 36V38H28.5V36" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+</svg>

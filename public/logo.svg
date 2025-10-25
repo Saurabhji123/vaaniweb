@@ -1,0 +1,20 @@
+<svg width="180" height="50" viewBox="0 0 180 50" fill="none" xmlns="http://www.w3.org/2000/svg">
+  <!-- Microphone Icon with Gradient -->
+  <defs>
+    <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+      <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+    </linearGradient>
+  </defs>
+  
+  <!-- Microphone Shape -->
+  <rect x="18" y="8" width="10" height="18" rx="5" fill="url(#logoGradient)"/>
+  <path d="M13 24C13 27.5 15.5 30 19 31V36M25 31C28.5 30 31 27.5 31 24M19 36H25M19 36V38H25V36" stroke="url(#logoGradient)" stroke-width="2.5" stroke-linecap="round"/>
+  
+  <!-- Sound Waves -->
+  <path d="M8 20C8 16 10 12 13 10M36 20C36 16 34 12 31 10" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.6"/>
+  <path d="M5 20C5 14 8 8 13 5M39 20C39 14 36 8 31 5" stroke="url(#logoGradient)" stroke-width="2" stroke-linecap="round" opacity="0.3"/>
+  
+  <!-- Text: VaaniWeb -->
+  <text x="50" y="32" font-family="Arial, sans-serif" font-size="24" font-weight="bold" fill="url(#logoGradient)">VaaniWeb</text>
+</svg>
