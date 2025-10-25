@@ -1,16 +1,63 @@
-MIT License
+MIT License with Commercial Use RestrictionsMIT License
 
-Copyright (c) 2025 VaaniWeb Team
 
-Permission is hereby granted, free of charge, to any person obtaining a copy
-of this software and associated documentation files (the "Software"), to deal
-in the Software without restriction, including without limitation the rights
-to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
-copies of the Software, and to permit persons to whom the Software is
+
+Copyright (c) 2025 VaaniWeb. All Rights Reserved.Copyright (c) 2025 VaaniWeb Team
+
+
+
+Permission is hereby granted, free of charge, to any person obtaining a copyPermission is hereby granted, free of charge, to any person obtaining a copy
+
+of this software and associated documentation files (the "Software"), to dealof this software and associated documentation files (the "Software"), to deal
+
+in the Software for PERSONAL AND EDUCATIONAL USE ONLY, including without in the Software without restriction, including without limitation the rights
+
+limitation the rights to use, copy, modify, merge, publish, and distribute to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+
+copies of the Software, subject to the following conditions:copies of the Software, and to permit persons to whom the Software is
+
 furnished to do so, subject to the following conditions:
 
-The above copyright notice and this permission notice shall be included in all
-copies or substantial portions of the Software.
+ATTRIBUTION REQUIREMENTS:
+
+1. The above copyright notice and this permission notice shall be included in The above copyright notice and this permission notice shall be included in all
+
+   all copies or substantial portions of the Software.copies or substantial portions of the Software.
+
+2. Any derivative work must prominently display:
+
+   "Based on VaaniWeb" or "Powered by VaaniWeb"THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+
+   with a link to: https://vaaniweb.vercel.appIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+
+FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+
+COMMERCIAL USE RESTRICTIONS:AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+
+1. Commercial use of this software is STRICTLY PROHIBITED without explicit LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+
+   written permission from VaaniWeb team.OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
+
+2. "Commercial use" includes but is not limited to:SOFTWARE.
+
+   - Offering this as a paid service
+   - Incorporating into commercial products
+   - Using in any business or revenue-generating context
+   - Selling or sublicensing the software
+3. For commercial licensing inquiries, contact: vaaniweb@gmail.com
+
+TRADEMARK & BRANDING:
+1. The "VaaniWeb" name, logo, and branding are protected trademarks.
+2. Use of VaaniWeb branding requires explicit written authorization.
+3. You may not imply endorsement or affiliation without permission.
+
+PROHIBITED ACTIONS:
+You MAY NOT:
+- Remove or alter copyright notices
+- Use for commercial purposes without permission
+- Create competing services using this codebase
+- Claim this work as your own
+- Reverse engineer proprietary algorithms
 
 THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
 IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
@@ -19,3 +66,27 @@ AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
 LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
 OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE
 SOFTWARE.
+
+ENFORCEMENT & LEGAL ACTION:
+Violation of these terms will result in:
+- Immediate termination of all rights under this license
+- DMCA takedown notices
+- Legal action seeking injunctive relief
+- Claims for actual and statutory damages
+- Recovery of attorney fees and court costs
+- Criminal prosecution where applicable
+
+PATENT NOTICE:
+Certain AI algorithms, voice processing methods, and unique features of this
+software may be protected by pending patent applications. Use of patented
+features requires separate licensing.
+
+UPDATES TO LICENSE:
+VaaniWeb reserves the right to modify these terms. Continued use constitutes
+acceptance of modified terms.
+
+For questions, permissions, or commercial licensing:
+Email: vaaniweb@gmail.com
+Website: https://vaaniweb.vercel.app
+
+Last Updated: October 26, 2025
