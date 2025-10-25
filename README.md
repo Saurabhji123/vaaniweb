@@ -199,11 +199,38 @@ A: Currently supports English voice input.
 **Q: Is my data secure?**  
 A: Absolutely! We use industry-standard encryption and security practices.
 
-##  For Investors
+## 💼 For Investors
 
 VaaniWeb is democratizing web creation through voice technology. We're seeking strategic partners to scale this innovative platform.
 
 **Investment Inquiries**: vaaniweb@gmail.com
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions from the community! Whether you're fixing bugs, adding features, or improving documentation, your help is appreciated.
+
+### How to Contribute
+
+1. **Fork** the repository
+2. **Create** a feature branch
+3. **Make** your changes
+4. **Test** thoroughly
+5. **Submit** a pull request
+
+📖 Read our detailed [Contributing Guidelines](CONTRIBUTING.md) for:
+- Code style and standards
+- Testing requirements
+- Pull request process
+- Adding new templates
+- Security best practices
+
+### Quick Links
+
+- 🐛 [Report a Bug](https://github.com/Saurabhji123/vaaniweb/issues/new?labels=bug)
+- 💡 [Suggest a Feature](https://github.com/Saurabhji123/vaaniweb/issues/new?labels=enhancement)
+- 📖 [View Contributing Guide](CONTRIBUTING.md)
 
 ---
 
