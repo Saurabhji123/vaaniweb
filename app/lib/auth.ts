@@ -15,6 +15,10 @@ export interface User {
   monthlyLimit?: number;
   profilePicture?: string | null;
   authProvider?: 'email' | 'google';
+  isEmailVerified?: boolean;
+  emailVerificationOTP?: string;
+  otpExpiry?: Date;
+  verifiedAt?: Date;
 }
 
 export interface UserResponse {

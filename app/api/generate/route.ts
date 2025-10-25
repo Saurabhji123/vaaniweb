@@ -43,6 +43,18 @@ export async function POST(req: NextRequest) {
         );
       }
 
+      // Check email verification for email-based accounts
+      if (user.authProvider === 'email' && !user.isEmailVerified) {
+        return NextResponse.json(
+          { 
+            error: 'Email not verified',
+            message: 'Please verify your email before creating websites. Check your inbox for the verification code.',
+            requiresVerification: true
+          },
+          { status: 403 }
+        );
+      }
+
       // Check if user has reached monthly limit
       if (user.monthlyLimit !== -1 && user.sitesCreated >= user.monthlyLimit) {
         return NextResponse.json(

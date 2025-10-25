@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { connectDB } from '@/app/lib/mongodb';
+import { sendGoogleWelcomeEmail } from '@/app/lib/email';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -65,6 +66,8 @@ export async function POST(request: NextRequest) {
         monthlyLimit: 5,
         sitesCreated: 0,
         authProvider: 'google',
+        isEmailVerified: true, // Auto-verify Google accounts
+        verifiedAt: new Date(),
         createdAt: new Date(),
         lastLogin: new Date(),
         lastResetDate: new Date() // Track when monthly limit was last reset
@@ -72,6 +75,15 @@ export async function POST(request: NextRequest) {
 
       const result = await usersCollection.insertOne(newUser);
       user = { ...newUser, _id: result.insertedId };
+
+      // Send welcome email for new Google users (don't block registration)
+      try {
+        await sendGoogleWelcomeEmail(email, name || email.split('@')[0]);
+        console.log('✅ Welcome email sent to Google user:', email);
+      } catch (emailError) {
+        console.error('❌ Failed to send welcome email:', emailError);
+        // Continue even if email fails
+      }
     }
 
     // Generate JWT token for our application

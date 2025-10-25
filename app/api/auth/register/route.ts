@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/app/lib/mongodb';
 import { hashPassword, generateToken, sanitizeUser, getPlanLimits } from '@/app/lib/auth';
+import { generateOTP, sendOTPEmail } from '@/app/lib/email';
 
 export async function POST(req: NextRequest) {
   try {
@@ -46,6 +47,10 @@ export async function POST(req: NextRequest) {
     // Hash password
     const hashedPassword = await hashPassword(password);
 
+    // Generate OTP for email verification
+    const otp = generateOTP();
+    const otpExpiry = new Date(Date.now() + 10 * 60 * 1000); // 10 minutes from now
+
     // Create user
     const newUser = {
       email: email.toLowerCase(),
@@ -55,12 +60,24 @@ export async function POST(req: NextRequest) {
       sitesCreated: 0,
       monthlyLimit: getPlanLimits('free'),
       authProvider: 'email' as const,
+      isEmailVerified: false,
+      emailVerificationOTP: otp,
+      otpExpiry: otpExpiry,
       createdAt: new Date(),
       lastLogin: new Date(),
       lastResetDate: new Date()
     };
 
     const result = await usersCollection.insertOne(newUser);
+
+    // Send OTP email (don't block registration if email fails)
+    try {
+      await sendOTPEmail(email, otp, name);
+      console.log('✅ OTP email sent to:', email);
+    } catch (emailError) {
+      console.error('❌ Failed to send OTP email:', emailError);
+      // Continue with registration even if email fails
+    }
 
     // Generate token
     const token = generateToken(result.insertedId.toString());
@@ -73,7 +90,8 @@ export async function POST(req: NextRequest) {
 
     return NextResponse.json({
       success: true,
-      message: 'Registration successful',
+      message: 'Registration successful! Please check your email for verification code.',
+      requiresVerification: true,
       user: userResponse,
       token
     }, { status: 201 });

@@ -50,6 +50,16 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
+    // Check email verification for email-based accounts
+    if (user.authProvider === 'email' && !user.isEmailVerified) {
+      return NextResponse.json({
+        success: false,
+        message: 'Please verify your email before logging in. Check your inbox for the verification code.',
+        requiresVerification: true,
+        email: user.email
+      }, { status: 403 });
+    }
+
     // Generate token
     const token = generateToken(user._id.toString());
 
