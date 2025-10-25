@@ -1,12 +1,480 @@
-<div align="center"># 🌐 VaaniWeb - Voice-Powered Website Generator# VaaniWeb - Voice to Website Generator
+<div align="center">
 
+# �️ VaaniWeb
 
+### **Transform Your Voice into a Professional Website in Seconds**
 
-# 🎙️ VaaniWeb
+[![Next.js](https://img.shields.io/badge/Next.js-14-black?style=for-the-badge&logo=next.js&logoColor=white)](https://nextjs.org/)
+[![TypeScript](https://img.shields.io/badge/TypeScript-5.0-3178C6?style=for-the-badge&logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
+[![MongoDB](https://img.shields.io/badge/MongoDB-Atlas-47A248?style=for-the-badge&logo=mongodb&logoColor=white)](https://www.mongodb.com/)
+[![Groq AI](https://img.shields.io/badge/Groq-AI-FF6B35?style=for-the-badge)](https://groq.com/)
+[![License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](./LICENSE)
 
+**VaaniWeb is a revolutionary AI-powered platform that converts voice descriptions into fully functional, beautifully designed websites in under 10 seconds.**
 
+[🚀 Live Demo](https://vaaniweb.vercel.app) · [📖 Documentation](#-quick-start) · [🤝 Contributing](./CONTRIBUTING.md)
 
-### **Transform Your Voice into a Professional Website in Seconds**> **Transform your voice into stunning websites in seconds!** Create stunning websites just by speaking! VaaniWeb uses Google Cloud Speech-to-Text and Gemini AI to convert your voice descriptions into fully functional, beautifully designed web pages.
+</div>
+
+---
+
+## 🌟 Why VaaniWeb?
+
+<table>
+<tr>
+<td width="33%" align="center">
+<h3>⚡ Lightning Fast</h3>
+<p>Generate a complete website in <strong>under 10 seconds</strong>. No coding, no design skills required.</p>
+</td>
+<td width="33%" align="center">
+<h3>🤖 AI-Powered</h3>
+<p>Leveraging <strong>Groq AI (Llama 3.3 70B)</strong> for ultra-fast, intelligent content generation.</p>
+</td>
+<td width="33%" align="center">
+<h3>🎨 22+ Templates</h3>
+<p>Professional templates for cafes, gyms, salons, photographers, and more.</p>
+</td>
+</tr>
+</table>
+
+---
+
+## ✨ Key Features
+
+### 🎤 Voice-to-Website Magic
+- **Natural Language Processing**: Simply describe your business in your own words
+- **12-Second Capture**: Quick voice recording with instant transcription
+- **Multi-Language Support**: Works with various accents and speaking styles
+
+### 🧠 Intelligent AI Generation
+- **Groq AI Integration**: Lightning-fast LLM inference (Llama 3.3 70B)
+- **Smart Business Detection**: Automatically identifies cafe, gym, salon, photography, etc.
+- **SEO-Optimized Content**: Professional copywriting for taglines and descriptions
+- **Dynamic Color Themes**: 10 beautiful color schemes auto-selected for your brand
+
+### � Professional Templates
+- **22+ Unique Designs**: Handcrafted templates for different industries
+- **Responsive Layouts**: Mobile-first design that looks perfect on all devices
+- **Modern UI/UX**: Built with Tailwind CSS for stunning visuals
+- **Animation Effects**: Smooth transitions and engaging micro-interactions
+
+### 🔐 Secure Authentication
+- **Email/Password Authentication**: Secure bcrypt password encryption
+- **Google OAuth Integration**: One-click sign-in with Google
+- **JWT-Based Sessions**: Secure session management
+- **Account Management**: Password change & account deletion features
+
+### 📊 User Dashboard
+- **Personal Feed**: View all your generated websites
+- **Usage Analytics**: Track your monthly site creation limits
+- **Quick Access**: One-click access to all published pages
+- **Shareable URLs**: Unique links for each website
+
+---
+
+## 🚀 Quick Start
+
+### Prerequisites
+- **Node.js** 18+ and npm
+- **MongoDB Atlas** account (free tier)
+- **Groq API Key** (free at [console.groq.com](https://console.groq.com))
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Saurabhji123/vaaniweb.git
+   cd vaaniweb
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   
+   Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Fill in your credentials:
+   ```env
+   MONGODB_URI=mongodb+srv://...
+   JWT_SECRET=your_secret_key_here
+   GROQ_API_KEY=gsk_...
+   NEXT_PUBLIC_ROOT_URL=http://localhost:3000
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🎤 How to Use
+
+1. Click and **hold** the "Hold & Speak" button
+2. Describe your website in natural language:
+   
+   *Example: "Cake shop in Delhi, pink theme, three photos of cakes, Instagram cakedelhi, contact form with name email and message fields"*
+
+3. Release the button when done (or wait 12 seconds max)
+4. VaaniWeb will:
+   - Convert your speech to text
+   - Generate a JSON structure with AI
+   - Create a beautiful HTML page with Tailwind CSS
+   - Store it in MongoDB
+   - Open it in a new tab!
+
+---
+
+## 🛠️ Tech Stack
+
+### Frontend
+- **Next.js 14** - React framework with App Router
+- **TypeScript** - Type-safe development
+- **Tailwind CSS** - Utility-first styling
+- **Web Speech API** - Voice recording functionality
+
+### Backend
+- **Next.js API Routes** - Serverless backend
+- **MongoDB Atlas** - Cloud database
+- **JWT** - Secure authentication
+- **Bcrypt** - Password encryption
+
+### AI & APIs
+- **Groq AI** - Ultra-fast LLM (Llama 3.3 70B)
+- **Pexels API** - Professional stock images
+- **Google OAuth** - Social authentication
+
+---
+
+## 📁 Project Structure
+
+```
+VaaniWeb/
+├── app/
+│   ├── api/
+│   │   ├── auth/              # Authentication endpoints
+│   │   ├── generate/          # Website generation
+│   │   ├── feed/              # User's websites feed
+│   │   └── user/              # User management
+│   ├── lib/
+│   │   ├── mongodb.ts         # Database connection
+│   │   ├── auth.ts            # Authentication utilities
+│   │   ├── email.ts           # Email service (Resend)
+│   │   └── html-generator.ts # Template engine
+│   ├── types/
+│   │   └── index.ts           # TypeScript interfaces
+│   ├── page.tsx               # Landing page
+│   └── layout.tsx             # Root layout
+├── .env.local                 # Environment variables (gitignored)
+├── .env.example               # Example env file
+├── next.config.js             # Next.js configuration
+├── package.json               # Dependencies
+├── tailwind.config.js         # Tailwind configuration
+└── tsconfig.json              # TypeScript configuration
+```
+
+---
+
+## 🎨 Template Showcase
+
+| Category | Templates | Use Cases |
+|----------|-----------|-----------|
+| 🍰 **Cafes & Bakeries** | 5 | Coffee shops, bakeries, dessert parlors |
+| 💪 **Fitness & Wellness** | 4 | Gyms, yoga studios, spas, wellness centers |
+| 📸 **Photography** | 3 | Photographers, portfolios, studios |
+| 🏢 **Business & Corporate** | 3 | Consulting, professional services |
+| 🛍️ **E-commerce** | 3 | Online shops, boutiques, stores |
+| ⚖️ **Professional Services** | 2 | Law firms, consulting agencies |
+| 🏠 **Real Estate** | 1 | Property listings, luxury homes |
+| 💻 **Tech & Startups** | 1 | Tech companies, SaaS products |
+
+**All templates include:**
+- ✅ Responsive design
+- ✅ SEO optimization
+- ✅ Contact forms
+- ✅ Social media integration
+- ✅ "Made with ❤️ by VaaniWeb" footer
+
+---
+
+## 📊 Pricing Plans
+
+| Plan | Price | Sites/Month | Features |
+|------|-------|-------------|----------|
+| **Free** | $0 | 5 | Basic templates, Voice input, Public sharing |
+| **Pro** | $9.99 | 50 | All templates, Priority support, Custom domains |
+| **Business** | $29.99 | Unlimited | White-label, API access, Dedicated support |
+
+---
+
+## 🚢 Deployment
+
+### Deploy to Vercel (Recommended)
+
+1. **Push to GitHub**
+   ```bash
+   git push origin main
+   ```
+
+2. **Import to Vercel**
+   - Go to [vercel.com](https://vercel.com)
+   - Import your repository
+   - Add environment variables
+   - Deploy!
+
+3. **Add Environment Variables in Vercel Dashboard**
+   - `MONGODB_URI`
+   - `JWT_SECRET`
+   - `GROQ_API_KEY`
+   - `RESEND_API_KEY`
+   - `NEXT_PUBLIC_ROOT_URL`
+   - `NEXT_PUBLIC_GOOGLE_CLIENT_ID` (optional)
+   - `GOOGLE_CLIENT_SECRET` (optional)
+
+---
+
+## 📝 API Documentation
+
+### Authentication
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - User login
+- `POST /api/auth/google` - Google OAuth login
+- `POST /api/auth/verify-email` - Verify email with OTP
+- `POST /api/auth/resend-otp` - Resend verification OTP
+
+### User Management
+- `GET /api/user/me` - Get current user
+- `PUT /api/user/update` - Update user profile
+- `POST /api/user/change-password` - Change password
+- `DELETE /api/user/delete` - Delete account
+
+### Website Generation
+- `POST /api/generate` - Generate website from description
+- `GET /api/feed` - Get user's generated websites
+
+### Public Access
+- `GET /p/[id]` - View generated website
+
+---
+
+## 🔒 Security Features
+
+- ✅ **Encrypted passwords** using bcrypt (10 rounds)
+- ✅ **JWT token authentication** with secure cookies
+- ✅ **Environment variable protection** (.env.local gitignored)
+- ✅ **MongoDB injection prevention**
+- ✅ **XSS protection** with React's built-in sanitization
+- ✅ **Email verification** with OTP (10-minute expiry)
+- ✅ **Rate limiting** on OTP resend (60 seconds)
+
+---
+
+## 💡 Example Prompts
+
+- "Coffee shop in Brooklyn, brown theme, cozy interior photos, Instagram brooklyncoffee, contact form"
+- "Yoga studio, green theme, meditation photos, Instagram zenandyoga, booking form with name phone date"
+- "Pet grooming service, blue theme, cute dog pictures, Instagram pamperedpaws, contact form"
+- "Wedding photographer, rose theme, beautiful wedding photos, Instagram loveandlens, inquiry form"
+
+---
+
+## 📋 Environment Variables Reference
+
+| Variable | Description | Required | Example |
+|----------|-------------|----------|---------|
+| `MONGODB_URI` | MongoDB connection string | Yes | `mongodb+srv://...` |
+| `JWT_SECRET` | Secret for JWT tokens (min 32 chars) | Yes | `crypto.randomBytes(64)...` |
+| `GROQ_API_KEY` | Groq AI API key | Yes | `gsk_...` |
+| `RESEND_API_KEY` | Resend email API key | Yes | `re_...` |
+| `NEXT_PUBLIC_ROOT_URL` | Application URL | Yes | `http://localhost:3000` |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth Client ID | Optional | `...apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Optional | `GOCSPX-...` |
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! Here's how:
+
+1. Fork the repository
+2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
+3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
+4. Push to the branch (`git push origin feature/AmazingFeature`)
+5. Open a Pull Request
+
+For more details, see [CONTRIBUTING.md](./CONTRIBUTING.md)
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><strong>Is VaaniWeb really free?</strong></summary>
+Yes! The free tier includes 5 website generations per month, which resets monthly. Perfect for trying out the platform.
+</details>
+
+<details>
+<summary><strong>How accurate is the voice recognition?</strong></summary>
+VaaniWeb uses the Web Speech API with 95%+ accuracy for clear speech. For best results, speak clearly in a quiet environment.
+</details>
+
+<details>
+<summary><strong>Can I edit the generated website?</strong></summary>
+Currently, websites are generated as static HTML. Export and custom editing features are coming in future updates.
+</details>
+
+<details>
+<summary><strong>What languages are supported?</strong></summary>
+Currently English is supported. Multi-language support is planned for future releases.
+</details>
+
+<details>
+<summary><strong>Can I use my own domain?</strong></summary>
+Custom domain support is available on Pro and Business plans (coming soon).
+</details>
+
+<details>
+<summary><strong>How long does generation take?</strong></summary>
+Typically 5-10 seconds from voice input to live website. Powered by ultra-fast Groq AI.
+</details>
+
+<details>
+<summary><strong>Is my data secure?</strong></summary>
+Yes! We use industry-standard encryption (bcrypt for passwords, JWT for sessions). Your data is stored securely in MongoDB Atlas with encrypted connections.
+</details>
+
+<details>
+<summary><strong>Can I delete my websites?</strong></summary>
+Yes, you can delete individual websites or your entire account from the dashboard at any time.
+</details>
+
+<details>
+<summary><strong>What makes VaaniWeb different from Wix/Squarespace?</strong></summary>
+VaaniWeb is voice-first and AI-powered. Generate a complete website in 10 seconds vs hours on traditional builders. Perfect for quick prototyping and non-technical users.
+</details>
+
+<details>
+<summary><strong>Do I need coding knowledge?</strong></summary>
+Absolutely not! VaaniWeb is designed for everyone. Just describe your business and let AI handle the rest.
+</details>
+
+---
+
+## 🐛 Troubleshooting
+
+### Voice recording not working?
+- Ensure you're using HTTPS (or localhost)
+- Grant microphone permissions in browser
+- Check if browser supports Web Speech API
+
+### AI generation fails?
+- Verify GROQ_API_KEY is valid
+- Check API rate limits
+- System will fallback to static analysis automatically
+
+### Database connection issues?
+- Verify MongoDB URI format
+- Check IP whitelist in MongoDB Atlas (allow `0.0.0.0/0` for development)
+- Ensure network connectivity
+
+### Email verification not working?
+- Check RESEND_API_KEY is configured
+- Verify email in Resend dashboard
+- Check Vercel Function Logs for errors
+
+---
+
+## 🔮 Roadmap
+
+- [x] Voice-to-website generation
+- [x] 22+ professional templates
+- [x] User authentication & dashboard
+- [x] Email verification with OTP
+- [x] Google OAuth integration
+- [ ] Custom domain support
+- [ ] Export to HTML/CSS files
+- [ ] Template marketplace
+- [ ] Video tutorial integration
+- [ ] Mobile app (React Native)
+- [ ] Multi-language support
+- [ ] A/B testing for templates
+- [ ] Analytics dashboard
+
+---
+
+## 💼 For Investors
+
+**VaaniWeb** is revolutionizing website creation by eliminating technical barriers.
+
+### 📈 Market Opportunity
+- **$10B+ market** for website builders and no-code platforms
+- **71% of small businesses** lack a professional website
+- **Voice AI market** growing at 17% CAGR
+- **Unique positioning**: Only voice-first website builder in the market
+
+### 🎯 Competitive Advantages
+1. **Speed**: 10 seconds vs 30+ minutes with competitors
+2. **Accessibility**: No technical skills required, truly democratized
+3. **AI-First**: Leveraging latest Groq AI for unmatched performance
+4. **Affordable**: 5 free sites/month, Pro at $9.99 vs $30+ competitors
+
+### 💰 Revenue Model
+- **Freemium**: 5 sites/month free (customer acquisition)
+- **Pro Plan**: $9.99/month (target: 1000 users = $10K MRR)
+- **Business Plan**: $29.99/month (enterprises, agencies)
+- **API Access**: White-label licensing for partners
+
+### 📊 Traction
+- ✅ MVP launched and live
+- ✅ 22+ production-ready templates
+- ✅ Zero-cost infrastructure (Vercel free tier)
+- ✅ Scalable architecture (MongoDB Atlas)
+- ✅ 99.9% uptime
+
+**Contact**: vaaniweb@gmail.com
+
+---
+
+## 📄 License
+
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
+
+---
+
+## 👨‍💻 Authors
+
+**VaaniWeb Team**
+
+- 🌐 Website: [vaaniweb.vercel.app](https://vaaniweb.vercel.app)
+- 📧 Email: vaaniweb@gmail.com
+
+---
+
+## 🌟 Show Your Support
+
+Give a ⭐️ if this project helped you!
+
+---
+
+<div align="center">
+
+**Built with ❤️ by VaaniWeb Team**
+
+Made in India 🇮🇳 | Powered by AI 🤖 | Voice-First Innovation 🎤
+
+[Website](https://vaaniweb.vercel.app) • [Support](mailto:vaaniweb@gmail.com)
+
+</div>
 
 
 
@@ -280,562 +748,171 @@ graph LR3. Release the button when done (or wait 12 seconds max)
 
 6. **Share**: Get a shareable link to your new website immediately- **Groq AI** - Ultra-fast LLM (Llama 3.3 70B)## 📁 Project Structure
 
+---
 
+## 🛠️ Tech Stack
 
----- **Pexels API** - Professional stock images
-
-
-
-## 🛠️ Tech Stack```
-
-
-
-### **Frontend**---VaaniWeb/
-
+### Frontend
 - **Next.js 14** - React framework with App Router
-
-- **TypeScript** - Type-safe development├── app/
-
+- **TypeScript** - Type-safe development
 - **Tailwind CSS** - Utility-first styling
+- **Web Speech API** - Voice recording functionality
 
-- **Web Speech API** - Voice recording functionality## 🚀 Getting Started│   ├── api/
-
-
-
-### **Backend**│   │   ├── generate/route.ts    # Main generation endpoint
-
+### Backend
 - **Next.js API Routes** - Serverless backend
-
-- **MongoDB Atlas** - Cloud database### Prerequisites│   │   └── feed/route.ts        # Feed API endpoint
-
+- **MongoDB Atlas** - Cloud database
 - **JWT** - Secure authentication
+- **Bcrypt** - Password hashing
 
-- **Bcrypt** - Password encryption│   ├── feed/
-
-
-
-### **AI & APIs**- **Node.js** 18+ and npm│   │   └── page.tsx             # Feed page with all generated sites
-
+### AI & APIs
 - **Groq AI** - Ultra-fast LLM (Llama 3.3 70B)
-
-- **Pexels API** - Professional stock images- **MongoDB Atlas** account (free tier)│   ├── lib/
-
+- **Pexels API** - Professional stock images
 - **Google OAuth** - Social authentication
-
-- **Groq API Key** (free at [console.groq.com](https://console.groq.com))│   │   ├── mongodb.ts           # MongoDB singleton connection
-
----
-
-- **Google Cloud Console** (optional, for OAuth)│   │   └── html-generator.ts   # HTML template builder
-
-## 🎨 Template Showcase
-
-│   ├── p/
-
-| Category | Templates | Use Cases |
-
-|----------|-----------|-----------|### Installation│   │   └── [id]/route.ts        # Dynamic page route
-
-| 🍰 **Cafes & Bakeries** | 5 | Coffee shops, bakeries, dessert parlors |
-
-| 💪 **Fitness & Wellness** | 4 | Gyms, yoga studios, spas, wellness centers |│   ├── types/
-
-| 📸 **Photography** | 3 | Photographers, portfolios, studios |
-
-| 🏢 **Business & Corporate** | 3 | Consulting, professional services |1. **Clone the repository**│   │   └── index.ts             # TypeScript interfaces
-
-| 🛍️ **E-commerce** | 3 | Online shops, boutiques, stores |
-
-| ⚖️ **Professional Services** | 2 | Law firms, consulting agencies |   ```bash│   ├── globals.css              # Global styles
-
-| 🏠 **Real Estate** | 1 | Property listings, luxury homes |
-
-| 💻 **Tech & Startups** | 1 | Tech companies, SaaS products |   git clone https://github.com/yourusername/vaaniweb.git│   ├── layout.tsx               # Root layout
-
-
-
-**All templates include:**   cd vaaniweb│   └── page.tsx                 # Landing page with mic button
-
-- ✅ Responsive design
-
-- ✅ SEO optimization   ```├── .env.local                   # Your environment variables
-
-- ✅ Contact forms
-
-- ✅ Social media integration├── .env.example                 # Example env file
-
-- ✅ "Made with ❤️ by VaaniWeb" footer
-
-2. **Install dependencies**├── next.config.js               # Next.js configuration
-
----
-
-   ```bash├── package.json                 # Dependencies
-
-## 💼 Why Invest in VaaniWeb?
-
-   npm install├── tailwind.config.js           # Tailwind configuration
-
-### 📈 **Market Opportunity**
-
-- **$10B+ market** for website builders and no-code platforms   ```└── tsconfig.json                # TypeScript configuration
-
-- **71% of small businesses** lack a professional website
-
-- **Voice AI market** growing at 17% CAGR```
-
-- **Unique positioning**: Only voice-first website builder in the market
-
-3. **Set up environment variables**
-
-### 🎯 **Competitive Advantages**
-
-1. **Speed**: 10 seconds vs 30+ minutes with competitors   ## 🚢 Deployment
-
-2. **Accessibility**: No technical skills required, truly democratized
-
-3. **AI-First**: Leveraging latest Groq AI for unmatched performance   Copy `.env.example` to `.env.local`:
-
-4. **Affordable**: 5 free sites/month, Pro at $9.99 vs $30+ competitors
-
-   ```bash### Deploy to Vercel
-
-### 💰 **Revenue Model**
-
-- **Freemium**: 5 sites/month free (customer acquisition)   cp .env.example .env.local
-
-- **Pro Plan**: $9.99/month (target: 1000 users = $10K MRR)
-
-- **Business Plan**: $29.99/month (enterprises, agencies)   ```1. Push your code to GitHub
-
-- **API Access**: White-label licensing for partners
-
-   2. Import project in [Vercel](https://vercel.com)
-
-### 📊 **Traction**
-
-- ✅ MVP launched and live   Fill in your credentials:3. Add environment variables in Vercel dashboard
-
-- ✅ 22+ production-ready templates
-
-- ✅ Zero-cost infrastructure (Vercel free tier)   ```env4. Deploy!
-
-- ✅ Scalable architecture (MongoDB Atlas)
-
-- ✅ 99.9% uptime   MONGODB_URI=mongodb+srv://...
-
-
-
-### 🚀 **Roadmap**   JWT_SECRET=your_secret_key_hereYour edge functions will stay fast and within free tier limits.
-
-- [ ] Email verification & welcome onboarding
-
-- [ ] Custom domain support   GROQ_API_KEY=gsk_...
-
-- [ ] Template marketplace (revenue share)
-
-- [ ] Export to HTML/CSS/React   NEXT_PUBLIC_ROOT_URL=http://localhost:3000## 💡 Example Prompts
-
-- [ ] Video tutorials integration
-
-- [ ] Mobile app (iOS/Android)   ```
-
-- [ ] Multi-language support
-
-- [ ] Team collaboration features- "Coffee shop in Brooklyn, brown theme, cozy interior photos, Instagram brooklyncoffee, contact form"
-
-
-
----4. **Run the development server**- "Yoga studio, green theme, meditation photos, Instagram zenandyoga, booking form with name phone date"
-
-
-
-## 🔒 Security Features   ```bash- "Pet grooming service, blue theme, cute dog pictures, Instagram pamperedpaws, contact form"
-
-
-
-- ✅ **Encrypted passwords** using bcrypt (10 rounds)   npm run dev- "Wedding photographer, rose theme, beautiful wedding photos, Instagram loveandlens, inquiry form"
-
-- ✅ **JWT token authentication** with secure cookies
-
-- ✅ **Environment variable protection** (.env.local gitignored)   ```
-
-- ✅ **MongoDB injection prevention**
-
-- ✅ **XSS protection** with React's built-in sanitization## 🔧 Technical Details
-
-- ✅ **Password strength validation**
-
-- ✅ **HTTPS/SSL** enforced in production5. **Open your browser**
-
-
-
----   - **Next.js 14** with App Router
-
-
-
-## 📝 API Documentation   Navigate to [http://localhost:3000](http://localhost:3000)- **TypeScript** for type safety
-
-
-
-### Authentication- **Edge Runtime** for all API routes
-
-```javascript
-
-POST /api/auth/register---- **MongoDB** with singleton connection pattern
-
-POST /api/auth/login
-
-POST /api/auth/google- **Tailwind CSS** for styling (via CDN in generated pages)
-
-```
-
-## 📦 Deployment- **No external storage** - everything in MongoDB
-
-### Website Generation
-
-```javascript- **Optimized for Vercel Hobby tier**
-
-POST /api/generate
-
-// Body: { description: "Your business description" }### Deploy to Vercel (Frontend)
-
-// Returns: { id, url, html, pageData }
-
-```## 📊 Performance
-
-
-
-### User Management1. **Push to GitHub**
-
-```javascript
-
-GET  /api/user/me   ```bash- Edge function execution: < 60 lines of code
-
-PUT  /api/user/update
-
-PUT  /api/user/change-password   git push origin main- Cold start optimization: MongoDB singleton pattern
-
-DELETE /api/user/delete
-
-```   ```- Lighthouse score: > 90 (lazy loaded images, minimal CSS)
-
-
-
-### Feed- Speech-to-Text: Free for 60 minutes/month
-
-```javascript
-
-GET /api/feed2. **Import to Vercel**- Gemini 1.5 Flash: Generous free tier
-
-// Returns: User's generated websites
-
-```   - Go to [vercel.com](https://vercel.com)- MongoDB Atlas: Free tier (512MB)
-
-
-
-### Public Access   - Import your repository
-
-```javascript
-
-GET /p/[id]   - Add environment variables## 🤝 Contributing
-
-// View generated website
-
-```   - Deploy!
-
-
-
----Feel free to fork and improve! This is an MVP designed to be simple and effective.
-
-
-
-## 🤝 Contributing3. **Add Environment Variables in Vercel Dashboard**
-
-
-
-We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.   - `MONGODB_URI`## 📝 License
-
-
-
-### Development Setup   - `JWT_SECRET`
-
-```bash
-
-# Fork the repository   - `GROQ_API_KEY`MIT
-
-# Clone your fork
-
-git clone https://github.com/YOUR_USERNAME/vaaniweb.git   - `NEXT_PUBLIC_ROOT_URL`
-
-
-
-# Create a branch## 🎯 Roadmap
-
-git checkout -b feature/amazing-feature
-
-### Database Setup (MongoDB Atlas)
-
-# Make changes and commit
-
-git commit -m 'Add amazing feature'- [ ] Custom domain support
-
-
-
-# Push and create PR1. Create a free cluster at [mongodb.com](https://www.mongodb.com/cloud/atlas)- [ ] More templates and themes
-
-git push origin feature/amazing-feature
-
-```2. Create a database user- [ ] Edit existing pages
-
-
-
----3. Whitelist IP addresses (or allow all: `0.0.0.0/0`)- [ ] Analytics dashboard
-
-
-
-## 📄 License4. Get your connection string- [ ] Share to social media
-
-
-
-This project is licensed under the MIT License - see the [LICENSE](./LICENSE) file for details.5. Add to `.env.local`- [ ] Export as static HTML
-
-
-
----
-
-
-
-## 👨‍💻 Team------
-
-
-
-**VaaniWeb Team**
-
-- 🌐 Website: [vaaniweb.com](https://vaaniweb.com)
-
-- 📧 Email: vaaniweb@gmail.com## 🎯 How It WorksBuilt with ❤️ using voice, AI, and the power of modern web tech.
-
-- 🐦 Twitter: [@vaaniweb](https://twitter.com/vaaniweb)
-
-- 💬 Discord: [Join our community](#)
-
-```
-
----┌─────────────┐
-
-│   User      │
-
-## ❓ FAQ│  speaks/    │
-
-│   types     │
-
-<details>└──────┬──────┘
-
-<summary><strong>Is VaaniWeb really free?</strong></summary>       │
-
-Yes! The free tier includes 5 website generations per month, which resets monthly. Perfect for trying out the platform.       ▼
-
-</details>┌─────────────────┐
-
-│  Voice-to-Text  │
-
-<details>│   Recognition   │
-
-<summary><strong>How accurate is the voice recognition?</strong></summary>└────────┬────────┘
-
-VaaniWeb uses the Web Speech API with 95%+ accuracy for clear speech. For best results, speak clearly in a quiet environment.         │
-
-</details>         ▼
-
-┌──────────────────┐
-
-<details>│   Groq AI        │
-
-<summary><strong>Can I edit the generated website?</strong></summary>│   Analyzes &     │
-
-Currently, websites are generated as static HTML. Export and custom editing features are coming in Q2 2025.│   Generates      │
-
-</details>│   Content        │
-
-└─────────┬────────┘
-
-<details>          │
-
-<summary><strong>What languages are supported?</strong></summary>          ▼
-
-Currently English is supported. Multi-language support is planned for Q3 2025.┌───────────────────┐
-
-</details>│  Template Engine  │
-
-│  Selects Best     │
-
-<details>│  Design           │
-
-<summary><strong>Can I use my own domain?</strong></summary>└──────────┬────────┘
-
-Custom domain support is available on Pro and Business plans (coming soon in v2.0).           │
-
-</details>           ▼
-
-┌────────────────────┐
-
-<details>│  HTML Generator    │
-
-<summary><strong>How long does generation take?</strong></summary>│  Creates Website   │
-
-Typically 5-10 seconds from voice input to live website. Powered by ultra-fast Groq AI.└─────────┬──────────┘
-
-</details>          │
-
-          ▼
-
-<details>┌───────────────────┐
-
-<summary><strong>Is my data secure?</strong></summary>│  MongoDB Storage  │
-
-Yes! We use industry-standard encryption (bcrypt for passwords, JWT for sessions). Your data is stored securely in MongoDB Atlas with encrypted connections.│  Saves & Serves   │
-
-</details>└───────────────────┘
-
-```
-
-<details>
-
-<summary><strong>Can I delete my websites?</strong></summary>---
-
-Yes, you can delete individual websites or your entire account from the dashboard at any time.
-
-</details>## 📋 API Endpoints
-
-
-
-<details>### Authentication
-
-<summary><strong>What makes VaaniWeb different from Wix/Squarespace?</strong></summary>- `POST /api/auth/register` - Create new account
-
-VaaniWeb is voice-first and AI-powered. Generate a complete website in 10 seconds vs hours on traditional builders. Perfect for quick prototyping and non-technical users.- `POST /api/auth/login` - User login
-
-</details>- `POST /api/auth/google` - Google OAuth login
-
-
-
-<details>### User Management
-
-<summary><strong>Do I need coding knowledge?</strong></summary>- `GET /api/user/me` - Get current user
-
-Absolutely not! VaaniWeb is designed for everyone. Just describe your business and let AI handle the rest.- `PUT /api/user/update` - Update user profile
-
-</details>- `POST /api/user/change-password` - Change password
-
-- `DELETE /api/user/delete` - Delete account
-
----
-
-### Website Generation
-
-## 🌟 Show Your Support- `POST /api/generate` - Generate website from description
-
-- `GET /api/feed` - Get user's generated websites
-
-Give a ⭐️ if this project helped you!
-
-### Public Access
-
-<div align="center">- `GET /p/[id]` - View generated website
-
-
-
-**Made with ❤️ by VaaniWeb Team**---
-
-
-
-[⬆ Back to Top](#-vaaniweb)## 🔒 Security Features
-
-
-
-</div>- ✅ **Encrypted passwords** using bcrypt
-
-- ✅ **JWT token authentication** with secure cookies
-- ✅ **Environment variable protection** (.env.local in .gitignore)
-- ✅ **MongoDB injection prevention**
-- ✅ **XSS protection** with React's built-in sanitization
-- ✅ **Password strength validation**
-- ✅ **Rate limiting ready** (can be added)
 
 ---
 
 ## 🎨 Template Categories
 
-| Category | Templates | Description |
-|----------|-----------|-------------|
-| **Cafes & Bakeries** | 5 | Warm, inviting designs with food imagery |
-| **Fitness & Wellness** | 4 | Energetic layouts for gyms, yoga studios, spas |
-| **Photography** | 3 | Portfolio-style with gallery focus |
-| **Business & Corporate** | 3 | Professional, clean designs |
-| **E-commerce** | 3 | Product-focused shop layouts |
-| **Services** | 2 | Law firms, consulting, professional services |
-| **Real Estate** | 1 | Property showcase with luxury feel |
-| **Tech & Startups** | 1 | Modern, innovative designs |
+| Category | Count | Use Cases |
+|----------|-------|-----------|
+| 🍰 Cafes & Bakeries | 5 | Coffee shops, bakeries, dessert parlors |
+| 💪 Fitness & Wellness | 4 | Gyms, yoga studios, spas, wellness centers |
+| 📸 Photography | 3 | Photographers, portfolios, studios |
+| 🏢 Business & Corporate | 3 | Consulting, professional services |
+| 🛍️ E-commerce | 3 | Online shops, boutiques, stores |
+| ⚖️ Professional Services | 2 | Law firms, consulting agencies |
+| 🏠 Real Estate | 1 | Property listings, luxury homes |
+| 💻 Tech & Startups | 1 | Tech companies, SaaS products |
+
+**All templates include:** Responsive design, SEO optimization, Contact forms, Social media integration
 
 ---
 
-## 🚀 Deployment
+## 🚀 Getting Started
 
-### Quick Deploy to Vercel (Recommended)
+### Prerequisites
+- Node.js 18+ and npm
+- MongoDB Atlas account (free tier)
+- Groq API Key (free at [console.groq.com](https://console.groq.com))
+
+### Installation
+
+1. **Clone the repository**
+   ```bash
+   git clone https://github.com/Saurabhji123/vaaniweb.git
+   cd vaaniweb
+   ```
+
+2. **Install dependencies**
+   ```bash
+   npm install
+   ```
+
+3. **Set up environment variables**
+   
+   Copy `.env.example` to `.env.local`:
+   ```bash
+   cp .env.example .env.local
+   ```
+   
+   Fill in your credentials:
+   ```env
+   MONGODB_URI=mongodb+srv://...
+   JWT_SECRET=your_secure_secret_key
+   GROQ_API_KEY=gsk_...
+   NEXT_PUBLIC_ROOT_URL=http://localhost:3000
+   RESEND_API_KEY=re_...
+   ```
+
+4. **Run the development server**
+   ```bash
+   npm run dev
+   ```
+
+5. **Open your browser**
+   
+   Navigate to [http://localhost:3000](http://localhost:3000)
+
+---
+
+## 🚢 Deployment
+
+### Deploy to Vercel (Recommended)
 
 1. **Push to GitHub**
    ```bash
-   git init
-   git add .
-   git commit -m "Initial commit"
    git push origin main
    ```
 
-2. **Deploy on Vercel**
+2. **Import to Vercel**
    - Go to [vercel.com](https://vercel.com)
-   - Import your GitHub repository
-   - Add environment variables
+   - Import your repository
+   - Add environment variables in Vercel dashboard
    - Deploy!
 
-3. **Add Environment Variables** in Vercel Dashboard:
-   - `GROQ_API_KEY`
+3. **Environment Variables to Add:**
    - `MONGODB_URI`
    - `JWT_SECRET`
+   - `GROQ_API_KEY`
    - `NEXT_PUBLIC_ROOT_URL`
-
-📚 **Detailed Guide**: See [DEPLOY_STEPS.md](./DEPLOY_STEPS.md) for complete instructions
-
-⚡ **Quick Start**: See [QUICKSTART.md](./QUICKSTART.md) for 5-minute setup
-
-✅ **Checklist**: Use [DEPLOY_CHECKLIST.md](./DEPLOY_CHECKLIST.md) to verify everything
+   - `RESEND_API_KEY`
 
 ---
 
-## 🤝 Contributing
+## 💡 Example Prompts
 
-We welcome contributions! Here's how:
+Try these voice commands:
 
-1. Fork the repository
-2. Create a feature branch (`git checkout -b feature/AmazingFeature`)
-3. Commit your changes (`git commit -m 'Add AmazingFeature'`)
-4. Push to the branch (`git push origin feature/AmazingFeature`)
-5. Open a Pull Request
+- "Coffee shop in Brooklyn, brown theme, cozy interior photos, Instagram brooklyncoffee"
+- "Yoga studio, green theme, meditation photos, booking form with name phone date"
+- "Pet grooming service, blue theme, cute dog pictures, contact form"
+- "Wedding photographer, rose theme, beautiful wedding photos, inquiry form"
 
 ---
 
-## 📝 Environment Variables Reference
+## 📋 API Endpoints
 
-| Variable | Description | Required | Example |
-|----------|-------------|----------|---------|
-| `MONGODB_URI` | MongoDB connection string | Yes | `mongodb+srv://...` |
-| `JWT_SECRET` | Secret for JWT tokens (min 32 chars) | Yes | `crypto.randomBytes(64)...` |
-| `GROQ_API_KEY` | Groq AI API key | Yes | `gsk_...` |
-| `NEXT_PUBLIC_ROOT_URL` | Application URL | Yes | `http://localhost:3000` |
-| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth Client ID | Optional | `...apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Optional | `GOCSPX-...` |
+### Authentication
+- `POST /api/auth/register` - Create new account
+- `POST /api/auth/login` - User login
+- `POST /api/auth/google` - Google OAuth login
+- `POST /api/auth/verify-email` - Verify email with OTP
+- `POST /api/auth/resend-otp` - Resend verification OTP
 
-**Note:** Generate JWT_SECRET using: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
+### User Management
+- `GET /api/user/me` - Get current user
+- `PUT /api/user/update` - Update profile
+- `PUT /api/user/change-password` - Change password
+- `DELETE /api/user/delete` - Delete account
+
+### Website Generation
+- `POST /api/generate` - Generate website from description
+- `GET /api/feed` - Get user's generated websites
+
+### Public Access
+- `GET /p/[id]` - View generated website
+
+---
+
+## 🔒 Security Features
+
+- ✅ **Encrypted passwords** using bcrypt (10 rounds)
+- ✅ **JWT token authentication** with secure cookies
+- ✅ **Email verification** with OTP (10-minute expiry)
+- ✅ **Environment variable protection** (.env.local in .gitignore)
+- ✅ **MongoDB injection prevention**
+- ✅ **XSS protection** with React's built-in sanitization
+- ✅ **Rate limiting** on OTP resend (60 seconds)
+
+---
+
+## 📊 Performance Metrics
+
+- ⚡ Edge function execution: <60 seconds max duration
+- 🔥 Cold start optimization: MongoDB singleton pattern
+- 🎯 Lighthouse score: >90 (optimized images, minimal CSS)
+- 💰 Free tier friendly: 100 emails/day with Resend
+- 🚀 Groq AI inference: <2 seconds response time
 
 ---
 
@@ -853,8 +930,34 @@ We welcome contributions! Here's how:
 
 ### Database connection issues?
 - Verify MongoDB URI format
-- Check IP whitelist in MongoDB Atlas
+- Check IP whitelist in MongoDB Atlas (allow 0.0.0.0/0)
 - Ensure network connectivity
+
+### Email not sending?
+- Verify RESEND_API_KEY is configured in Vercel
+- Check Vercel Function Logs for email errors
+- Resend free tier: 100 emails/day limit
+
+---
+
+## 🤝 Contributing
+
+We welcome contributions! See [CONTRIBUTING.md](./CONTRIBUTING.md) for guidelines.
+
+### Development Setup
+```bash
+# Fork the repository
+git clone https://github.com/YOUR_USERNAME/vaaniweb.git
+
+# Create a branch
+git checkout -b feature/amazing-feature
+
+# Make changes and commit
+git commit -m 'Add amazing feature'
+
+# Push and create PR
+git push origin feature/amazing-feature
+```
 
 ---
 
@@ -870,6 +973,75 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 - 🌐 Website: [vaaniweb.vercel.app](https://vaaniweb.vercel.app)
 - 📧 Email: vaaniweb@gmail.com
+- 🐦 Twitter: [@vaaniweb](https://twitter.com/vaaniweb)
+
+---
+
+## ❓ FAQ
+
+<details>
+<summary><strong>Is VaaniWeb really free?</strong></summary>
+Yes! The free tier includes 5 website generations per month, which resets monthly.
+</details>
+
+<details>
+<summary><strong>How accurate is the voice recognition?</strong></summary>
+VaaniWeb uses the Web Speech API with 95%+ accuracy for clear speech. Speak clearly in a quiet environment for best results.
+</details>
+
+<details>
+<summary><strong>Can I edit the generated website?</strong></summary>
+Currently, websites are generated as static HTML. Export and custom editing features are coming soon.
+</details>
+
+<details>
+<summary><strong>What languages are supported?</strong></summary>
+Currently English is supported. Multi-language support is planned for future releases.
+</details>
+
+<details>
+<summary><strong>Can I use my own domain?</strong></summary>
+Custom domain support is available on Pro and Business plans (coming soon).
+</details>
+
+<details>
+<summary><strong>How long does generation take?</strong></summary>
+Typically 5-10 seconds from voice input to live website, powered by ultra-fast Groq AI.
+</details>
+
+<details>
+<summary><strong>Is my data secure?</strong></summary>
+Yes! We use industry-standard encryption (bcrypt for passwords, JWT for sessions). Your data is stored securely in MongoDB Atlas with encrypted connections.
+</details>
+
+<details>
+<summary><strong>Can I delete my websites?</strong></summary>
+Yes, you can delete individual websites or your entire account from the dashboard at any time.
+</details>
+
+<details>
+<summary><strong>What makes VaaniWeb different from Wix/Squarespace?</strong></summary>
+VaaniWeb is voice-first and AI-powered. Generate a complete website in 10 seconds vs hours on traditional builders.
+</details>
+
+<details>
+<summary><strong>Do I need coding knowledge?</strong></summary>
+Absolutely not! VaaniWeb is designed for everyone. Just describe your business and let AI handle the rest.
+</details>
+
+---
+
+## 🔮 Roadmap
+
+- [x] Email verification with OTP
+- [x] Welcome emails for new users
+- [x] Google OAuth integration
+- [ ] Custom domain support
+- [ ] More templates (target: 50+)
+- [ ] Video tutorial integration
+- [ ] Export to HTML/CSS files
+- [ ] Analytics dashboard
+- [ ] Mobile app (React Native)
 
 ---
 
@@ -879,56 +1051,12 @@ Give a ⭐️ if this project helped you!
 
 ---
 
-## 🔮 Roadmap
-
-- [ ] Add more templates (target: 50+)
-- [ ] Video tutorial integration
-- [ ] Export to HTML/CSS files
-- [ ] Custom domain support
-- [ ] Analytics dashboard
-- [ ] A/B testing for templates
-- [ ] Mobile app (React Native)
-- [ ] WordPress plugin integration
-
----
-
-## 💰 For Investors
-
-**VaaniWeb** is revolutionizing website creation by eliminating technical barriers:
-
-### Market Opportunity
-- **$40B+ global website builder market**
-- **Millions of small businesses** need affordable web presence
-- **Voice-first approach** taps into growing audio tech trend
-
-### Competitive Advantages
-- ⚡ **Speed**: 5 seconds vs 5 hours
-- 💰 **Cost**: Free tier vs $200-500/month
-- 🎤 **Innovation**: Voice-powered generation (unique in market)
-- 🤖 **AI-First**: Groq's ultra-fast inference = superior UX
-
-### Growth Metrics
-- 22+ professionally designed templates
-- 100% generation success rate (AI + fallback)
-- Scalable serverless architecture
-- Ready for B2B partnerships
-
-### Revenue Model (Future)
-- Freemium: 5 sites free, unlimited at $9/month
-- White-label for agencies: $99/month
-- Enterprise custom templates: $499/month
-- API access for developers: Usage-based pricing
-
-**Contact**: vaaniweb@gmail.com
-
----
-
 <div align="center">
 
 **Built with ❤️ by VaaniWeb Team**
 
 Made in India 🇮🇳 | Powered by AI 🤖 | Voice-First Innovation 🎤
 
-[Website](https://vaaniweb.vercel.app) • [Support](mailto:vaaniweb@gmail.com)
+[⬆ Back to Top](#-vaaniweb)
 
 </div>
