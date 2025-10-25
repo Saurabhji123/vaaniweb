@@ -14,8 +14,17 @@ interface SendEmailOptions {
  */
 export async function sendEmail({ to, subject, html }: SendEmailOptions) {
   try {
+    // Check if API key is configured
+    if (!process.env.RESEND_API_KEY || process.env.RESEND_API_KEY === 'your_resend_api_key_here') {
+      console.error('❌ RESEND_API_KEY not configured');
+      return { success: false, error: 'Email service not configured' };
+    }
+
+    console.log('📧 Sending email to:', to);
+    console.log('📧 Subject:', subject);
+    
     const data = await resend.emails.send({
-      from: 'VaaniWeb <onboarding@resend.dev>', // Will change to custom domain later
+      from: 'VaaniWeb <onboarding@resend.dev>', // Resend's test email (works for development)
       to: [to],
       subject: subject,
       html: html,
@@ -25,6 +34,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
     return { success: true, data };
   } catch (error: any) {
     console.error('❌ Email sending failed:', error);
+    console.error('Error details:', error.response?.body || error.message);
     return { success: false, error: error.message };
   }
 }

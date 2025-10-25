@@ -70,15 +70,21 @@ export async function POST(request: NextRequest) {
       }
     );
 
+    console.log('🔢 New OTP generated for:', email);
+    console.log('📧 Attempting to send OTP email...');
+
     // Send OTP email
     const emailResult = await sendOTPEmail(email, otp, user.name);
 
     if (!emailResult.success) {
+      console.error('❌ Failed to send OTP email:', emailResult.error);
       return NextResponse.json({
         success: false,
         message: 'Failed to send OTP email. Please try again.'
       }, { status: 500 });
     }
+
+    console.log('✅ OTP email sent successfully');
 
     return NextResponse.json({
       success: true,

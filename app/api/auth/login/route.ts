@@ -50,8 +50,13 @@ export async function POST(request: NextRequest) {
       }, { status: 401 });
     }
 
+    console.log('🔐 User login attempt:', email);
+    console.log('👤 Auth Provider:', user.authProvider || 'email');
+    console.log('✅ Email Verified:', user.isEmailVerified || false);
+
     // Check email verification for email-based accounts
     if (user.authProvider === 'email' && !user.isEmailVerified) {
+      console.log('❌ Email not verified, blocking login');
       return NextResponse.json({
         success: false,
         message: 'Please verify your email before logging in. Check your inbox for the verification code.',
@@ -59,6 +64,8 @@ export async function POST(request: NextRequest) {
         email: user.email
       }, { status: 403 });
     }
+
+    console.log('✅ Login successful for:', email);
 
     // Generate token
     const token = generateToken(user._id.toString());

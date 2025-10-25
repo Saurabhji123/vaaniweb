@@ -70,12 +70,22 @@ export async function POST(req: NextRequest) {
 
     const result = await usersCollection.insertOne(newUser);
 
+    console.log('🔐 User registered:', email);
+    console.log('🔢 OTP generated:', otp);
+    console.log('⏰ OTP expiry:', otpExpiry);
+
     // Send OTP email (don't block registration if email fails)
     try {
-      await sendOTPEmail(email, otp, name);
-      console.log('✅ OTP email sent to:', email);
+      console.log('📧 Attempting to send OTP email...');
+      const emailResult = await sendOTPEmail(email, otp, name);
+      
+      if (emailResult.success) {
+        console.log('✅ OTP email sent successfully to:', email);
+      } else {
+        console.error('❌ Failed to send OTP email:', emailResult.error);
+      }
     } catch (emailError) {
-      console.error('❌ Failed to send OTP email:', emailError);
+      console.error('❌ Exception while sending OTP email:', emailError);
       // Continue with registration even if email fails
     }
 

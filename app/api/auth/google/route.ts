@@ -76,12 +76,20 @@ export async function POST(request: NextRequest) {
       const result = await usersCollection.insertOne(newUser);
       user = { ...newUser, _id: result.insertedId };
 
+      console.log('🎉 New Google user registered:', email);
+
       // Send welcome email for new Google users (don't block registration)
       try {
-        await sendGoogleWelcomeEmail(email, name || email.split('@')[0]);
-        console.log('✅ Welcome email sent to Google user:', email);
+        console.log('📧 Attempting to send Google welcome email...');
+        const emailResult = await sendGoogleWelcomeEmail(email, name || email.split('@')[0]);
+        
+        if (emailResult.success) {
+          console.log('✅ Welcome email sent to Google user:', email);
+        } else {
+          console.error('❌ Failed to send welcome email:', emailResult.error);
+        }
       } catch (emailError) {
-        console.error('❌ Failed to send welcome email:', emailError);
+        console.error('❌ Exception while sending welcome email:', emailError);
         // Continue even if email fails
       }
     }

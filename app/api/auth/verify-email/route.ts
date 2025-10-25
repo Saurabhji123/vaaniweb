@@ -91,10 +91,16 @@ export async function POST(request: NextRequest) {
 
     // Send welcome email
     try {
-      await sendWelcomeEmail(email, user.name);
-      console.log('✅ Welcome email sent to:', email);
+      console.log('📧 Attempting to send welcome email after verification...');
+      const emailResult = await sendWelcomeEmail(email, user.name);
+      
+      if (emailResult.success) {
+        console.log('✅ Welcome email sent to:', email);
+      } else {
+        console.error('❌ Failed to send welcome email:', emailResult.error);
+      }
     } catch (emailError) {
-      console.error('❌ Failed to send welcome email:', emailError);
+      console.error('❌ Exception while sending welcome email:', emailError);
       // Don't fail the verification if email sending fails
     }
 
