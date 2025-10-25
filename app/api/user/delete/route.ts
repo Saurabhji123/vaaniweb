@@ -3,6 +3,9 @@ import { connectDB } from '@/app/lib/mongodb';
 import { verifyToken } from '@/app/lib/auth';
 import { ObjectId } from 'mongodb';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 export async function DELETE(request: NextRequest) {
   try {
     // Get token from Authorization header

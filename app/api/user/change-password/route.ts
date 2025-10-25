@@ -3,6 +3,9 @@ import { connectDB } from '@/app/lib/mongodb';
 import { verifyToken, comparePassword, hashPassword } from '@/app/lib/auth';
 import { ObjectId } from 'mongodb';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
+
 export async function PUT(request: NextRequest) {
   try {
     // Get token from Authorization header

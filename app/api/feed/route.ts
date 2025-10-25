@@ -3,6 +3,8 @@ import clientPromise from '@/app/lib/mongodb';
 import { FeedItem } from '@/app/types';
 import { verifyToken } from '@/app/lib/auth';
 
+// Force dynamic rendering for this route
+export const dynamic = 'force-dynamic';
 export const runtime = 'nodejs';
 
 export async function GET(req: NextRequest) {

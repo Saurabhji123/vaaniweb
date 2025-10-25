@@ -450,11 +450,13 @@ We welcome contributions! Here's how:
 | Variable | Description | Required | Example |
 |----------|-------------|----------|---------|
 | `MONGODB_URI` | MongoDB connection string | Yes | `mongodb+srv://...` |
-| `JWT_SECRET` | Secret for JWT tokens | Yes | `your_secret_key` |
+| `JWT_SECRET` | Secret for JWT tokens (min 32 chars) | Yes | `crypto.randomBytes(64)...` |
 | `GROQ_API_KEY` | Groq AI API key | Yes | `gsk_...` |
 | `NEXT_PUBLIC_ROOT_URL` | Application URL | Yes | `http://localhost:3000` |
-| `GOOGLE_CLIENT_ID` | Google OAuth ID | Optional | `...apps.googleusercontent.com` |
-| `GOOGLE_CLIENT_SECRET` | Google OAuth secret | Optional | `GOCSPX-...` |
+| `NEXT_PUBLIC_GOOGLE_CLIENT_ID` | Google OAuth Client ID | Optional | `...apps.googleusercontent.com` |
+| `GOOGLE_CLIENT_SECRET` | Google OAuth Client Secret | Optional | `GOCSPX-...` |
+
+**Note:** Generate JWT_SECRET using: `node -e "console.log(require('crypto').randomBytes(64).toString('hex'))"`
 
 ---
 
@@ -487,9 +489,8 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 **VaaniWeb Team**
 
-- 🌐 Website: [vaaniweb.com](https://vaaniweb.com)
+- 🌐 Website: [vaaniweb.vercel.app](https://vaaniweb.vercel.app)
 - 📧 Email: vaaniweb@gmail.com
-- 🐦 Twitter: [@vaaniweb](https://twitter.com/vaaniweb)
 
 ---
 
@@ -534,12 +535,12 @@ Give a ⭐️ if this project helped you!
 - Ready for B2B partnerships
 
 ### Revenue Model (Future)
-- Freemium: 3 sites free, unlimited at $9/month
+- Freemium: 5 sites free, unlimited at $9/month
 - White-label for agencies: $99/month
 - Enterprise custom templates: $499/month
 - API access for developers: Usage-based pricing
 
-**Contact**: invest@vaaniweb.com
+**Contact**: vaaniweb@gmail.com
 
 ---
 
@@ -549,6 +550,6 @@ Give a ⭐️ if this project helped you!
 
 Made in India 🇮🇳 | Powered by AI 🤖 | Voice-First Innovation 🎤
 
-[Website](https://vaaniweb.com) • [Documentation](https://docs.vaaniweb.com) • [Support](mailto:support@vaaniweb.com)
+[Website](https://vaaniweb.vercel.app) • [Support](mailto:vaaniweb@gmail.com)
 
 </div>
