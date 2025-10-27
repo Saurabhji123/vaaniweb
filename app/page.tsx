@@ -17,7 +17,7 @@ import {
 } from './components/Icons';
 
 export default function Home() {
-  const { user, token } = useAuth();
+  const { user, token, refreshUser } = useAuth();
   const [isRecording, setIsRecording] = useState(false);
   const [status, setStatus] = useState('');
   const [transcript, setTranscript] = useState('');
@@ -178,18 +178,17 @@ export default function Home() {
       if (generatedId) {
         setStatus('✅ Success! Redirecting to your website...');
         
-        // Immediate redirect - no delay
+        // Refresh user data from database to get updated count
+        await refreshUser();
+        
+        // Open in new tab after a short delay
         setTimeout(() => {
-          // Open in new tab
           window.open(`/p/${generatedId}`, '_blank');
           
           // Reset form
           setTranscript('');
-          setStatus('');
-          
-          // Refresh to update sites count
-          window.location.reload();
-        }, 1000); // Reduced to 1 second so user sees success message
+          setStatus('Website opened! Create another one?');
+        }, 1000);
       } else {
         console.error('❌ No ID in response:', data);
         setStatus('Error: Website generated but ID missing');

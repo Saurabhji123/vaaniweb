@@ -121,7 +121,7 @@ export async function POST(req: NextRequest) {
       tagline: aiContent.tagline,
       description: aiContent.description,
       theme_color: aiContent.themeColor,
-      pics: aiContent.imageKeywords,
+      pics: aiContent.realImages || aiContent.imageKeywords, // Use real Unsplash URLs
       instagram: aiContent.instagram,
       contact_fields: aiContent.contactFields,
       businessType: aiContent.businessType,

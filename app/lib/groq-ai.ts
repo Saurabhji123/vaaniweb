@@ -1,5 +1,5 @@
-// Groq AI Service - Intelligent Website Generation
-// Uses Groq's fast LLM inference for dynamic content creation
+// Groq AI Service - Intelligent Website Generation with Real Images
+// Uses Groq's fast LLM inference + Unsplash API for real photos
 
 interface AIGeneratedContent {
   businessName: string;
@@ -8,6 +8,7 @@ interface AIGeneratedContent {
   themeColor: string;
   businessType: string;
   imageKeywords: string[];
+  realImages: string[]; // Array of real image URLs from Unsplash
   sections: {
     about: string;
     features: string[];
@@ -21,6 +22,43 @@ interface AIGeneratedContent {
 const GROQ_API_KEY = process.env.GROQ_API_KEY || 'gsk_DUMMY_KEY_REPLACE_WITH_REAL_ONE';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
+// Unsplash API for real images (public, no API key needed for basic usage)
+const UNSPLASH_API_URL = 'https://source.unsplash.com';
+
+/**
+ * Fetch real images from Unsplash based on keywords
+ */
+async function fetchRealImages(keywords: string[], count: number = 4): Promise<string[]> {
+  console.log(`📸 Fetching ${count} real images for keywords:`, keywords);
+  
+  const images: string[] = [];
+  
+  try {
+    // For each keyword, get a unique image
+    for (let i = 0; i < Math.min(count, keywords.length); i++) {
+      const keyword = keywords[i].replace(/\s+/g, ',');
+      // Using Unsplash Source API (random image by query)
+      // Format: https://source.unsplash.com/800x600/?keyword
+      const imageUrl = `${UNSPLASH_API_URL}/800x600/?${keyword}`;
+      images.push(imageUrl);
+    }
+    
+    // If we need more images, duplicate with different keywords
+    while (images.length < count && keywords.length > 0) {
+      const keyword = keywords[images.length % keywords.length].replace(/\s+/g, ',');
+      const imageUrl = `${UNSPLASH_API_URL}/800x600/?${keyword},professional`;
+      images.push(imageUrl);
+    }
+    
+    console.log('✅ Fetched real images:', images);
+    return images;
+  } catch (error) {
+    console.error('❌ Failed to fetch images from Unsplash:', error);
+    // Return placeholder images as fallback
+    return Array(count).fill(`${UNSPLASH_API_URL}/800x600/?business,professional`);
+  }
+}
+
 export async function analyzeTranscriptWithAI(transcript: string): Promise<AIGeneratedContent> {
   try {
     console.log('🤖 Analyzing transcript with Groq AI:', transcript);
@@ -31,28 +69,33 @@ User's Description: "${transcript}"
 
 Generate a JSON response with the following structure:
 {
-  "businessName": "Professional business name (2-4 words)",
+  "businessName": "Professional business name (2-4 words max)",
   "tagline": "Catchy, compelling tagline (10-15 words)",
-  "description": "Engaging 2-3 sentence description",
+  "description": "Engaging 2-3 sentence description highlighting unique value",
   "themeColor": "One of: pink, blue, purple, green, red, orange, yellow, gray, indigo, teal",
-  "businessType": "One of: cafe, bakery, gym, photography, restaurant, shop, salon, hotel, tech, consulting, general",
-  "imageKeywords": ["keyword1", "keyword2", "keyword3"] (3 relevant image search keywords),
+  "businessType": "One of: cafe, bakery, gym, photography, restaurant, shop, salon, hotel, tech, consulting, yoga, spa, pet, education, medical, legal, automotive, real-estate, travel, general",
+  "imageKeywords": ["keyword1", "keyword2", "keyword3", "keyword4"] (4 SPECIFIC image search terms for Unsplash),
   "sections": {
-    "about": "Compelling about section (50-80 words)",
-    "features": ["feature1", "feature2", "feature3", "feature4"] (4 unique features),
+    "about": "Compelling about section (60-100 words, tell the story)",
+    "features": ["feature1", "feature2", "feature3", "feature4", "feature5"] (5 unique value propositions),
     "callToAction": "Motivating CTA text (10-15 words)"
   },
-  "contactFields": ["Name", "Email", "Phone", "Message"] (add custom fields if needed),
+  "contactFields": ["Name", "Email", "Phone", "Message"] (add custom fields like "Appointment Date" if relevant),
   "instagram": "handle if mentioned, else null",
-  "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5"] (5 SEO keywords)
+  "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6"] (6 SEO keywords)
 }
 
-Important: 
-- Make content professional and appealing to investors
-- Tagline should be unique and memorable
-- Image keywords should be specific to the business
-- Features should highlight unique value propositions
-- Return ONLY valid JSON, no markdown or extra text`;
+Critical Instructions:
+- businessName: Extract from transcript, make it catchy and memorable
+- tagline: MUST be unique, emotional, and action-oriented (not generic)
+- description: Focus on what makes THIS business special
+- imageKeywords: Be VERY SPECIFIC (e.g., "yoga sunset meditation" not just "yoga")
+- about: Tell a story that connects emotionally, mention years/experience if applicable
+- features: Each feature should be a unique selling point (USP), not generic statements
+- callToAction: Should create urgency and excitement
+- Think like a marketing expert writing for a premium brand
+
+Return ONLY valid JSON, no markdown or extra text.`;
 
     const response = await fetch(GROQ_API_URL, {
       method: 'POST',
@@ -83,7 +126,9 @@ Important:
       console.error('❌ Groq API Error:', response.status, errorText);
       
       // Fallback to enhanced static analysis if API fails
-      return fallbackAnalysis(transcript);
+      const fallbackKeywords = extractBusinessKeywords(transcript);
+      const fallbackImages = await fetchRealImages(fallbackKeywords, 4);
+      return fallbackAnalysis(transcript, fallbackImages);
     }
 
     const data = await response.json();
@@ -105,27 +150,43 @@ Important:
       // Validate required fields
       if (!aiContent.businessName || !aiContent.tagline) {
         console.error('❌ AI response missing required fields');
-        return fallbackAnalysis(transcript);
+        const fallbackKeywords = extractBusinessKeywords(transcript);
+        const fallbackImages = await fetchRealImages(fallbackKeywords, 4);
+        return fallbackAnalysis(transcript, fallbackImages);
       }
       
-      console.log('✅ AI Generated Content:', aiContent);
-      return aiContent;
+      // Fetch real images based on AI-generated keywords
+      const realImages = await fetchRealImages(
+        aiContent.imageKeywords || ['business', 'professional'],
+        4 // Get 4 high-quality images
+      );
+
+      console.log('✅ AI Generated Content with real images:', aiContent);
+      
+      return {
+        ...aiContent,
+        realImages // Add real Unsplash image URLs
+      };
     } catch (parseError: any) {
       console.error('❌ Failed to parse AI JSON:', parseError.message);
       console.error('Raw content:', jsonContent);
-      return fallbackAnalysis(transcript);
+      const fallbackKeywords = extractBusinessKeywords(transcript);
+      const fallbackImages = await fetchRealImages(fallbackKeywords, 4);
+      return fallbackAnalysis(transcript, fallbackImages);
     }
 
   } catch (error: any) {
     console.error('❌ AI Analysis Error:', error.message);
-    // Fallback to enhanced analysis
-    return fallbackAnalysis(transcript);
+    // Fallback to enhanced analysis with real images
+    const fallbackKeywords = extractBusinessKeywords(transcript);
+    const fallbackImages = await fetchRealImages(fallbackKeywords, 4);
+    return fallbackAnalysis(transcript, fallbackImages);
   }
 }
 
 // Enhanced fallback analysis (better than current static logic)
-function fallbackAnalysis(transcript: string): AIGeneratedContent {
-  console.log('⚠️ Using enhanced fallback analysis');
+function fallbackAnalysis(transcript: string, realImages: string[]): AIGeneratedContent {
+  console.log('⚠️ Using enhanced fallback analysis with real images');
   
   const words = transcript.toLowerCase().split(' ');
   
@@ -157,6 +218,7 @@ function fallbackAnalysis(transcript: string): AIGeneratedContent {
     themeColor,
     businessType,
     imageKeywords,
+    realImages, // Include real Unsplash images
     sections: {
       about: `At ${businessName}, we combine passion with expertise to deliver outstanding results. Our team is dedicated to exceeding your expectations and building lasting relationships with every client we serve.`,
       features,
@@ -325,4 +387,35 @@ function extractInstagram(words: string[]): string | null {
     return words[instagramIndex + 1].replace(/[^a-z0-9_]/g, '');
   }
   return null;
+}
+
+// Extract relevant keywords from business description for image search
+function extractBusinessKeywords(transcript: string): string[] {
+  const words = transcript.toLowerCase().split(' ');
+  const businessType = detectBusinessType(words);
+  
+  // Base keywords from business type
+  const baseKeywords: Record<string, string[]> = {
+    bakery: ['bakery', 'pastries', 'bread', 'cafe'],
+    cafe: ['cafe', 'coffee', 'interior', 'cozy'],
+    gym: ['fitness', 'gym', 'workout', 'training'],
+    photography: ['photography', 'camera', 'professional', 'studio'],
+    restaurant: ['restaurant', 'food', 'dining', 'culinary'],
+    salon: ['salon', 'beauty', 'spa', 'wellness'],
+    hotel: ['hotel', 'hospitality', 'luxury', 'accommodation'],
+    tech: ['technology', 'innovation', 'digital', 'modern'],
+    consulting: ['business', 'professional', 'consulting', 'corporate'],
+    yoga: ['yoga', 'meditation', 'wellness', 'mindfulness'],
+    spa: ['spa', 'relaxation', 'massage', 'wellness'],
+    pet: ['pet', 'animals', 'care', 'veterinary'],
+    education: ['education', 'learning', 'school', 'students'],
+    medical: ['medical', 'health', 'clinic', 'healthcare'],
+    legal: ['legal', 'law', 'office', 'professional'],
+    automotive: ['automotive', 'cars', 'mechanic', 'service'],
+    'real-estate': ['real estate', 'property', 'homes', 'architecture'],
+    travel: ['travel', 'tourism', 'adventure', 'destinations'],
+    general: ['business', 'professional', 'service', 'quality']
+  };
+  
+  return baseKeywords[businessType] || baseKeywords.general;
 }
