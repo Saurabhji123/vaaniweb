@@ -2,10 +2,11 @@
 import { getCurrentYear, getPexelsImage } from '../utils';
 
 export function generatePremiumBusinessLayout(data: any): string {
-  const { title, tagline, description, theme_color, sections, pics } = data;
+  const { title, tagline, description, theme_color, sections, pics, picDescriptions } = data;
   const businessName = title;
   const themeColor = theme_color || 'blue';
   const imageKeywords = pics || ['business', 'professional', 'office'];
+  const descriptions = picDescriptions || imageKeywords.map((_: any, i: number) => `Image ${i + 1}`);
   const about = sections?.about || description || `${businessName} provides exceptional services with dedication and expertise.`;
   const features = sections?.features || ['Quality Service', 'Expert Team', 'Customer Focus', 'Innovation', 'Reliability', 'Excellence'];
   
@@ -610,7 +611,7 @@ export function generatePremiumBusinessLayout(data: any): string {
                     <a href="#contact" class="btn btn-secondary">Learn More</a>
                 </div>
             </div>
-            <img src="${getPexelsImage(imageKeywords[0] || 'business', 1200, 800)}" alt="${businessName}" class="hero-image">
+            <img src="${imageKeywords[0] || 'https://picsum.photos/1200/800?random=0'}" alt="${descriptions[0]}" class="hero-image" onerror="this.src='https://picsum.photos/1200/800?random=0'">
         </div>
     </section>
 
