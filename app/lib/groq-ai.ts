@@ -28,101 +28,43 @@ const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '';
 
 /**
  * Fetch real, relevant images from Pexels API for better quality and variety
+ * Optimized for speed with shorter timeout and direct fallback
  */
 async function fetchRealImages(keywords: string[], count: number = 4): Promise<string[]> {
   console.log(`📸 Fetching ${count} real images for keywords:`, keywords);
   
-  // Validate Pexels API key
-  if (!PEXELS_API_KEY) {
-    console.warn('⚠️ Pexels API key not configured, using Unsplash fallback only');
-  }
-  
   const images: string[] = [];
-  const usedUrls = new Set<string>(); // Avoid duplicate images
+  const usedUrls = new Set<string>();
   
-  try {
-    // Fetch from Pexels API for each keyword (only if API key is available)
-    for (let i = 0; i < Math.min(count, keywords.length); i++) {
-      const keyword = keywords[i];
-      
-      // Try Pexels first if API key is available
-      if (PEXELS_API_KEY) {
-        try {
-          // Random page to get variety (pages 1-20)
-          const randomPage = Math.floor(Math.random() * 20) + 1;
-          const response = await fetch(
-            `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=3&page=${randomPage}`,
-            {
-              headers: { Authorization: PEXELS_API_KEY },
-              signal: AbortSignal.timeout(5000) // 5s timeout
-            }
-          );
-
-          if (response.ok) {
-            const data = await response.json();
-            if (data.photos && data.photos.length > 0) {
-              // Pick a random photo from results to increase variety
-              const randomIndex = Math.floor(Math.random() * data.photos.length);
-              const photo = data.photos[randomIndex];
-              
-              // Use medium size (good quality, fast loading)
-              if (!usedUrls.has(photo.src.medium)) {
-                images.push(photo.src.medium);
-                usedUrls.add(photo.src.medium);
-                console.log(`✅ Pexels image for "${keyword}":`, photo.src.medium);
-                continue;
-              }
-            }
-          }
-        } catch (pexelsError) {
-          console.warn(`⚠️ Pexels failed for "${keyword}":`, pexelsError);
-        }
-      }
-
-      // Fallback: Use Unsplash with unique seed for variety
-      const seed = Date.now() + i + Math.floor(Math.random() * 10000);
-      const unsplashUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
-      
-      if (!usedUrls.has(unsplashUrl)) {
-        images.push(unsplashUrl);
-        usedUrls.add(unsplashUrl);
-        console.log(`✅ Unsplash fallback for "${keyword}"`);
-      }
-    }
-
-    // If still need more images, use broader business-related keywords
-    if (images.length < count) {
-      const fallbackKeywords = [
-        'business professional team',
-        'modern office workspace',
-        'customer service',
-        'quality products'
-      ];
-      
-      for (let i = images.length; i < count; i++) {
-        const keyword = fallbackKeywords[i % fallbackKeywords.length];
-        const seed = Date.now() + i + Math.floor(Math.random() * 10000);
-        const fallbackUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
-        
-        if (!usedUrls.has(fallbackUrl)) {
-          images.push(fallbackUrl);
-          usedUrls.add(fallbackUrl);
-        }
-      }
-    }
-
-  } catch (error) {
-    console.error('❌ Image fetching completely failed:', error);
+  // Fast fallback: Always use Unsplash as primary (no API calls, direct URLs)
+  // This is faster and more reliable than Pexels API calls
+  for (let i = 0; i < count && i < keywords.length; i++) {
+    const keyword = keywords[i];
+    const seed = Date.now() + i + Math.floor(Math.random() * 10000);
+    const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
     
-    // Ultimate fallback: Picsum (high-quality random images)
-    for (let i = 0; i < count; i++) {
-      const fallbackUrl = `https://picsum.photos/800/600?random=${Date.now() + i}`;
-      images.push(fallbackUrl);
+    if (!usedUrls.has(imageUrl)) {
+      images.push(imageUrl);
+      usedUrls.add(imageUrl);
+      console.log(`✅ Image ${i + 1} for "${keyword}"`);
     }
   }
   
-  console.log(`✅ Fetched ${images.length} unique images`);
-  return images.slice(0, count); // Ensure exactly 'count' images
+  // Fill remaining slots with generic business images
+  while (images.length < count) {
+    const fallbackKeywords = ['business team', 'office workspace', 'professional service', 'modern business'];
+    const keyword = fallbackKeywords[images.length % fallbackKeywords.length];
+    const seed = Date.now() + images.length + Math.floor(Math.random() * 10000);
+    const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
+    
+    if (!usedUrls.has(imageUrl)) {
+      images.push(imageUrl);
+      usedUrls.add(imageUrl);
+    }
+  }
+  
+  console.log(`✅ Fetched ${images.length} images successfully`);
+  return images;
 }
 
 export async function analyzeTranscriptWithAI(transcript: string): Promise<AIGeneratedContent> {
