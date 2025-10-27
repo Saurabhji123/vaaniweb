@@ -4,6 +4,7 @@ export interface GeneratedPageData {
   description?: string;
   theme_color: string;
   pics: string[];
+  picDescriptions?: string[]; // Alt text for images
   instagram?: string;
   contact_fields: string[];
   businessType?: string;

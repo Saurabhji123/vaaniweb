@@ -8,7 +8,8 @@ interface AIGeneratedContent {
   themeColor: string;
   businessType: string;
   imageKeywords: string[];
-  realImages: string[]; // Array of real image URLs from Unsplash
+  imageDescriptions?: string[]; // Human-readable descriptions for alt text
+  realImages: string[]; // Array of real image URLs from Pexels/Unsplash
   sections: {
     about: string;
     features: string[];
@@ -22,41 +23,98 @@ interface AIGeneratedContent {
 const GROQ_API_KEY = process.env.GROQ_API_KEY || 'gsk_DUMMY_KEY_REPLACE_WITH_REAL_ONE';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Unsplash API for real images (public, no API key needed for basic usage)
-const UNSPLASH_API_URL = 'https://source.unsplash.com';
+// Multiple image sources for variety and reliability
+const PEXELS_API_KEY = 'qQPvGbKBaSheffield7xoqKQPGgKjGGlGjSHw0pF8ZVYvhJTVHi8SYJG'; // Free API key
 
 /**
- * Fetch real images from Unsplash based on keywords
+ * Fetch real, relevant images from Pexels API for better quality and variety
  */
 async function fetchRealImages(keywords: string[], count: number = 4): Promise<string[]> {
   console.log(`📸 Fetching ${count} real images for keywords:`, keywords);
   
   const images: string[] = [];
+  const usedUrls = new Set<string>(); // Avoid duplicate images
   
   try {
-    // For each keyword, get a unique image
+    // Fetch from Pexels API for each keyword
     for (let i = 0; i < Math.min(count, keywords.length); i++) {
-      const keyword = keywords[i].replace(/\s+/g, ',');
-      // Using Unsplash Source API (random image by query)
-      // Format: https://source.unsplash.com/800x600/?keyword
-      const imageUrl = `${UNSPLASH_API_URL}/800x600/?${keyword}`;
-      images.push(imageUrl);
+      const keyword = keywords[i];
+      
+      try {
+        // Random page to get variety (pages 1-20)
+        const randomPage = Math.floor(Math.random() * 20) + 1;
+        const response = await fetch(
+          `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=3&page=${randomPage}`,
+          {
+            headers: { Authorization: PEXELS_API_KEY },
+            signal: AbortSignal.timeout(5000) // 5s timeout
+          }
+        );
+
+        if (response.ok) {
+          const data = await response.json();
+          if (data.photos && data.photos.length > 0) {
+            // Pick a random photo from results to increase variety
+            const randomIndex = Math.floor(Math.random() * data.photos.length);
+            const photo = data.photos[randomIndex];
+            
+            // Use medium size (good quality, fast loading)
+            if (!usedUrls.has(photo.src.medium)) {
+              images.push(photo.src.medium);
+              usedUrls.add(photo.src.medium);
+              console.log(`✅ Pexels image for "${keyword}":`, photo.src.medium);
+              continue;
+            }
+          }
+        }
+      } catch (pexelsError) {
+        console.warn(`⚠️ Pexels failed for "${keyword}":`, pexelsError);
+      }
+
+      // Fallback: Use Unsplash with unique seed for variety
+      const seed = Date.now() + i + Math.floor(Math.random() * 10000);
+      const unsplashUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
+      
+      if (!usedUrls.has(unsplashUrl)) {
+        images.push(unsplashUrl);
+        usedUrls.add(unsplashUrl);
+        console.log(`✅ Unsplash fallback for "${keyword}"`);
+      }
     }
-    
-    // If we need more images, duplicate with different keywords
-    while (images.length < count && keywords.length > 0) {
-      const keyword = keywords[images.length % keywords.length].replace(/\s+/g, ',');
-      const imageUrl = `${UNSPLASH_API_URL}/800x600/?${keyword},professional`;
-      images.push(imageUrl);
+
+    // If still need more images, use broader business-related keywords
+    if (images.length < count) {
+      const fallbackKeywords = [
+        'business professional team',
+        'modern office workspace',
+        'customer service',
+        'quality products'
+      ];
+      
+      for (let i = images.length; i < count; i++) {
+        const keyword = fallbackKeywords[i % fallbackKeywords.length];
+        const seed = Date.now() + i + Math.floor(Math.random() * 10000);
+        const fallbackUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
+        
+        if (!usedUrls.has(fallbackUrl)) {
+          images.push(fallbackUrl);
+          usedUrls.add(fallbackUrl);
+        }
+      }
     }
-    
-    console.log('✅ Fetched real images:', images);
-    return images;
+
   } catch (error) {
-    console.error('❌ Failed to fetch images from Unsplash:', error);
-    // Return placeholder images as fallback
-    return Array(count).fill(`${UNSPLASH_API_URL}/800x600/?business,professional`);
+    console.error('❌ Image fetching completely failed:', error);
+    
+    // Ultimate fallback: Picsum (high-quality random images)
+    for (let i = 0; i < count; i++) {
+      const fallbackUrl = `https://picsum.photos/800/600?random=${Date.now() + i}`;
+      images.push(fallbackUrl);
+    }
   }
+  
+  console.log(`✅ Fetched ${images.length} unique images`);
+  return images.slice(0, count); // Ensure exactly 'count' images
 }
 
 export async function analyzeTranscriptWithAI(transcript: string): Promise<AIGeneratedContent> {
@@ -74,7 +132,18 @@ Generate a JSON response with the following structure:
   "description": "Engaging 2-3 sentence description highlighting unique value",
   "themeColor": "One of: pink, blue, purple, green, red, orange, yellow, gray, indigo, teal",
   "businessType": "One of: cafe, bakery, gym, photography, restaurant, shop, salon, hotel, tech, consulting, yoga, spa, pet, education, medical, legal, automotive, real-estate, travel, general",
-  "imageKeywords": ["keyword1", "keyword2", "keyword3", "keyword4"] (4 SPECIFIC image search terms for Unsplash),
+  "imageKeywords": [
+    "specific search term 1 (e.g., 'barista making coffee')",
+    "specific search term 2 (e.g., 'cozy cafe interior')",
+    "specific search term 3 (e.g., 'fresh pastries display')",
+    "specific search term 4 (e.g., 'customers enjoying coffee')"
+  ],
+  "imageDescriptions": [
+    "Brief description 1 (e.g., 'Professional barista crafting coffee')",
+    "Brief description 2 (e.g., 'Warm and inviting cafe atmosphere')",
+    "Brief description 3 (e.g., 'Freshly baked pastries and treats')",
+    "Brief description 4 (e.g., 'Happy customers in our cafe')"
+  ],
   "sections": {
     "about": "Compelling about section (60-100 words, tell the story)",
     "features": ["feature1", "feature2", "feature3", "feature4", "feature5"] (5 unique value propositions),
@@ -85,11 +154,20 @@ Generate a JSON response with the following structure:
   "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6"] (6 SEO keywords)
 }
 
-Critical Instructions:
+CRITICAL Instructions for Images:
+- imageKeywords: Must be EXTREMELY SPECIFIC and DESCRIPTIVE (3-5 words each)
+  Examples: 
+  * BAD: "yoga", "coffee", "gym"
+  * GOOD: "woman doing yoga sunrise", "barista pouring latte art", "modern gym equipment weights"
+- Include ACTION WORDS and CONTEXT in keywords
+- Think about what REAL photos would show for this business
+- imageDescriptions: Short, natural descriptions for screen readers and alt text
+- Ensure keywords are diverse enough to get DIFFERENT images
+
+Other Critical Instructions:
 - businessName: Extract from transcript, make it catchy and memorable
 - tagline: MUST be unique, emotional, and action-oriented (not generic)
 - description: Focus on what makes THIS business special
-- imageKeywords: Be VERY SPECIFIC (e.g., "yoga sunset meditation" not just "yoga")
 - about: Tell a story that connects emotionally, mention years/experience if applicable
 - features: Each feature should be a unique selling point (USP), not generic statements
 - callToAction: Should create urgency and excitement
@@ -157,15 +235,20 @@ Return ONLY valid JSON, no markdown or extra text.`;
       
       // Fetch real images based on AI-generated keywords
       const realImages = await fetchRealImages(
-        aiContent.imageKeywords || ['business', 'professional'],
-        4 // Get 4 high-quality images
+        aiContent.imageKeywords || ['business professional team', 'modern office workspace', 'quality service', 'customer satisfaction'],
+        4 // Get 4 high-quality diverse images
       );
 
-      console.log('✅ AI Generated Content with real images:', aiContent);
+      console.log('✅ AI Generated Content with real images:', {
+        businessName: aiContent.businessName,
+        imageCount: realImages.length,
+        hasDescriptions: !!aiContent.imageDescriptions
+      });
       
       return {
         ...aiContent,
-        realImages // Add real Unsplash image URLs
+        realImages, // Add real Pexels/Unsplash image URLs
+        imageDescriptions: aiContent.imageDescriptions || aiContent.imageKeywords // Fallback to keywords if no descriptions
       };
     } catch (parseError: any) {
       console.error('❌ Failed to parse AI JSON:', parseError.message);
@@ -205,6 +288,9 @@ function fallbackAnalysis(transcript: string, realImages: string[]): AIGenerated
   // Generate relevant image keywords
   const imageKeywords = generateImageKeywords(businessType, words);
   
+  // Generate human-readable image descriptions
+  const imageDescriptions = generateImageDescriptions(businessType);
+  
   // Extract Instagram handle
   const instagram = extractInstagram(words);
   
@@ -218,7 +304,8 @@ function fallbackAnalysis(transcript: string, realImages: string[]): AIGenerated
     themeColor,
     businessType,
     imageKeywords,
-    realImages, // Include real Unsplash images
+    imageDescriptions,
+    realImages, // Include real Pexels/Unsplash images
     sections: {
       about: `At ${businessName}, we combine passion with expertise to deliver outstanding results. Our team is dedicated to exceeding your expectations and building lasting relationships with every client we serve.`,
       features,
@@ -322,20 +409,56 @@ function generateTagline(businessName: string, businessType: string): string {
 
 function generateImageKeywords(businessType: string, words: string[]): string[] {
   const keywordMap: Record<string, string[]> = {
-    bakery: ['artisan bread', 'pastries', 'cake decoration'],
-    cafe: ['latte art', 'coffee beans', 'cozy cafe interior'],
-    gym: ['fitness training', 'gym equipment', 'athletic workout'],
-    photography: ['professional camera', 'portrait photography', 'wedding ceremony'],
-    restaurant: ['gourmet food', 'fine dining', 'chef cooking'],
-    salon: ['hair styling', 'beauty treatment', 'spa relaxation'],
-    hotel: ['luxury hotel room', 'resort pool', 'hospitality service'],
-    shop: ['boutique store', 'shopping display', 'retail products'],
-    tech: ['modern technology', 'digital innovation', 'software development'],
-    consulting: ['business meeting', 'professional consultation', 'strategy planning'],
-    general: ['professional service', 'business success', 'quality work']
+    bakery: ['baker kneading dough professional', 'fresh pastries display bakery', 'artisan bread oven baking', 'decorated cakes showcase'],
+    cafe: ['barista making latte art', 'cozy cafe interior customers', 'coffee beans roasting machine', 'people enjoying coffee cafe'],
+    gym: ['person lifting weights gym', 'modern fitness equipment', 'trainer coaching client', 'group exercise class'],
+    photography: ['photographer holding camera professional', 'photo studio lighting setup', 'wedding couple posing', 'portrait photography session'],
+    restaurant: ['chef cooking kitchen professional', 'elegant food plating dish', 'fine dining restaurant interior', 'customers enjoying meal'],
+    salon: ['hairstylist cutting hair', 'beauty spa treatment relaxing', 'modern salon interior', 'makeup artist working'],
+    hotel: ['luxury hotel room interior', 'resort swimming pool view', 'hotel reception lobby', 'concierge service hospitality'],
+    shop: ['boutique store display products', 'retail shopping interior', 'customer browsing products', 'modern store design'],
+    tech: ['developers working computers office', 'modern technology workspace', 'innovation digital devices', 'software coding screen'],
+    consulting: ['business meeting professional team', 'consultant presenting strategy', 'office collaboration discussion', 'corporate workspace modern'],
+    yoga: ['woman doing yoga sunrise', 'peaceful meditation space', 'yoga class group practicing', 'instructor teaching pose'],
+    spa: ['spa massage therapy relaxing', 'wellness treatment room', 'aromatherapy candles towels', 'person relaxing spa'],
+    pet: ['veterinarian examining pet', 'happy dog pet care', 'pet grooming service', 'animals veterinary clinic'],
+    education: ['teacher students classroom', 'modern learning environment', 'studying books library', 'online education technology'],
+    medical: ['doctor patient consultation', 'modern medical clinic', 'healthcare professional working', 'hospital equipment clean'],
+    legal: ['lawyer office professional', 'law books library', 'business meeting legal', 'courthouse justice concept'],
+    automotive: ['mechanic working car engine', 'modern auto shop', 'car repair service', 'automotive tools equipment'],
+    'real-estate': ['modern house exterior architecture', 'real estate agent showing property', 'luxury home interior', 'beautiful property landscape'],
+    travel: ['airplane flying sunset', 'travel destination beautiful', 'tourist exploring city', 'vacation resort tropical'],
+    general: ['professional business team meeting', 'modern office workspace', 'customer service interaction', 'quality products display']
   };
   
   return keywordMap[businessType] || keywordMap.general;
+}
+
+function generateImageDescriptions(businessType: string): string[] {
+  const descriptionMap: Record<string, string[]> = {
+    bakery: ['Professional baker crafting artisan bread', 'Fresh pastries on display', 'Artisan bread baking in oven', 'Beautifully decorated cakes'],
+    cafe: ['Barista creating latte art', 'Cozy cafe atmosphere with customers', 'Fresh coffee beans being roasted', 'People enjoying coffee together'],
+    gym: ['Fitness enthusiast lifting weights', 'State-of-the-art gym equipment', 'Personal trainer coaching a client', 'Group fitness class in action'],
+    photography: ['Professional photographer at work', 'Photography studio with lighting', 'Wedding couple during photoshoot', 'Portrait photography session'],
+    restaurant: ['Chef preparing gourmet dishes', 'Elegantly plated fine dining dish', 'Sophisticated restaurant interior', 'Guests enjoying their meal'],
+    salon: ['Hairstylist serving a client', 'Relaxing spa treatment', 'Modern salon interior design', 'Makeup artist creating a look'],
+    hotel: ['Luxurious hotel room', 'Beautiful resort pool area', 'Elegant hotel lobby reception', 'Professional hospitality service'],
+    shop: ['Attractive product display', 'Modern retail store interior', 'Customer shopping experience', 'Contemporary store design'],
+    tech: ['Development team collaborating', 'Modern tech workspace', 'Innovative digital solutions', 'Software development in progress'],
+    consulting: ['Business professionals in meeting', 'Consultant presenting strategy', 'Team collaboration session', 'Modern corporate workspace'],
+    yoga: ['Yoga practice at sunrise', 'Peaceful meditation setting', 'Group yoga class', 'Instructor demonstrating pose'],
+    spa: ['Relaxing spa massage', 'Tranquil wellness room', 'Spa aromatherapy setup', 'Guest enjoying spa treatment'],
+    pet: ['Veterinarian caring for pet', 'Happy pet in care', 'Professional grooming service', 'Veterinary clinic environment'],
+    education: ['Teacher with students', 'Modern learning space', 'Students studying together', 'Educational technology in use'],
+    medical: ['Doctor with patient', 'Clean medical clinic', 'Healthcare professional', 'Modern medical equipment'],
+    legal: ['Professional law office', 'Legal reference library', 'Business legal consultation', 'Justice and law concept'],
+    automotive: ['Mechanic servicing vehicle', 'Professional auto repair shop', 'Car maintenance service', 'Automotive repair equipment'],
+    'real-estate': ['Beautiful modern home', 'Real estate professional', 'Luxury interior design', 'Attractive property grounds'],
+    travel: ['Scenic travel destination', 'Beautiful vacation spot', 'Exploring new places', 'Tropical resort paradise'],
+    general: ['Professional team at work', 'Modern business environment', 'Excellent customer service', 'Quality products and services']
+  };
+  
+  return descriptionMap[businessType] || descriptionMap.general;
 }
 
 function generateFeatures(businessType: string): string[] {
