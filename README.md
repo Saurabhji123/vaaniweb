@@ -11,7 +11,7 @@
 [![Groq AI](https://img.shields.io/badge/Groq-AI-orange?style=for-the-badge&logo=ai&logoColor=white)](https://groq.com/)
 [![Vercel](https://img.shields.io/badge/Vercel-Deployed-000000?style=for-the-badge&logo=vercel&logoColor=white)](https://vercel.com/)
 
-[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge)](https://vaaniweb.vercel.app)
+[![Live Demo](https://img.shields.io/badge/Live-Demo-success?style=for-the-badge)](https://vaaniweb.com)
 [![MIT License](https://img.shields.io/badge/License-MIT-yellow?style=for-the-badge)](LICENSE)
 
 </div>
@@ -284,7 +284,7 @@ Violations will result in:
 ## 📧 Contact
 
 - **Email**: vaaniweb@gmail.com
-- **Live Demo**: [vaaniweb.vercel.app](https://vaaniweb.vercel.app)
+- **Live Demo**: [vaaniweb.com](https://vaaniweb.com)
 
 ---
 

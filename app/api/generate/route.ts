@@ -121,8 +121,8 @@ export async function POST(req: NextRequest) {
       tagline: aiContent.tagline,
       description: aiContent.description,
       theme_color: aiContent.themeColor,
-      pics: aiContent.realImages || aiContent.imageKeywords, // Use real Pexels/Unsplash URLs
-      picDescriptions: aiContent.imageDescriptions || aiContent.imageKeywords, // Alt text for accessibility
+      pics: aiContent.realImages || [], // Use real Pexels/Unsplash URLs
+      picDescriptions: aiContent.imageDescriptions || [], // Alt text for accessibility
       instagram: aiContent.instagram,
       contact_fields: aiContent.contactFields,
       businessType: aiContent.businessType,

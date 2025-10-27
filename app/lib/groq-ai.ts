@@ -189,16 +189,21 @@ Return ONLY valid JSON, no markdown or extra text.`;
         4 // Get 4 high-quality diverse images
       );
 
+      // Generate proper descriptions if not provided by AI
+      const properDescriptions = aiContent.imageDescriptions && aiContent.imageDescriptions.length > 0
+        ? aiContent.imageDescriptions
+        : generateImageDescriptions(aiContent.businessType || 'general');
+
       console.log('✅ AI Generated Content with real images:', {
         businessName: aiContent.businessName,
         imageCount: realImages.length,
-        hasDescriptions: !!aiContent.imageDescriptions
+        hasDescriptions: !!properDescriptions
       });
       
       return {
         ...aiContent,
         realImages, // Add real Pexels/Unsplash image URLs
-        imageDescriptions: aiContent.imageDescriptions || aiContent.imageKeywords // Fallback to keywords if no descriptions
+        imageDescriptions: properDescriptions // Proper alt text descriptions, never URLs
       };
     } catch (parseError: any) {
       console.error('❌ Failed to parse AI JSON:', parseError.message);
