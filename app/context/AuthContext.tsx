@@ -12,6 +12,10 @@ interface User {
   profilePicture?: string | null;
   authProvider?: 'email' | 'google';
   hasPassword?: boolean;
+  isEmailVerified?: boolean;
+  emailVerificationOTP?: string;
+  otpExpiry?: Date;
+  verifiedAt?: Date;
 }
 
 interface AuthContextType {

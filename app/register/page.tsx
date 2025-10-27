@@ -104,11 +104,15 @@ export default function RegisterPage() {
         return;
       }
 
-      // Store in auth context
-      login(data.token, data.user);
-
-      // Redirect to home or dashboard
-      router.push('/');
+      // Check if email verification is required
+      if (data.requiresVerification) {
+        // Redirect to verification page
+        router.push(`/verify-email?email=${encodeURIComponent(formData.email)}`);
+      } else {
+        // Store in auth context and redirect to home
+        login(data.token, data.user);
+        router.push('/');
+      }
     } catch (err) {
       setError('Network error. Please try again.');
       setLoading(false);

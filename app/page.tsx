@@ -133,7 +133,13 @@ export default function Home() {
     }
 
     if (!user || !token) {
-      setStatus('Please login to create websites.');
+      setStatus('❌ Please login or register to create websites. Click "Login" in the navigation menu.');
+      return;
+    }
+    
+    // Check if email is verified (for email-based accounts)
+    if (user.authProvider === 'email' && user.isEmailVerified === false) {
+      setStatus('❌ Please verify your email first. Check your inbox for the verification code.');
       return;
     }
 

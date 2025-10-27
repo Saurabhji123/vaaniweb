@@ -24,7 +24,7 @@ export async function sendEmail({ to, subject, html }: SendEmailOptions) {
     console.log('📧 Subject:', subject);
     
     const data = await resend.emails.send({
-      from: 'VaaniWeb <onboarding@resend.dev>', // Resend's test email (works for development)
+      from: 'VaaniWeb <onboarding@resend.dev>',
       to: [to],
       subject: subject,
       html: html,

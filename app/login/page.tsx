@@ -1,13 +1,14 @@
 'use client';
 
-import { useState } from 'react';
-import { useRouter } from 'next/navigation';
+import { useState, useEffect } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
 
 export default function LoginPage() {
   const router = useRouter();
+  const searchParams = useSearchParams();
   const { login } = useAuth();
   const [formData, setFormData] = useState({
     email: '',
@@ -15,6 +16,14 @@ export default function LoginPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [successMessage, setSuccessMessage] = useState('');
+
+  useEffect(() => {
+    // Check if coming from verification
+    if (searchParams.get('verified') === 'true') {
+      setSuccessMessage('✅ Email verified successfully! You can now login.');
+    }
+  }, [searchParams]);
 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     if (!credentialResponse.credential) {
@@ -132,6 +141,12 @@ export default function LoginPage() {
           <p className="text-gray-600 text-center mb-8">
             Login to continue creating amazing websites!
           </p>
+
+          {successMessage && (
+            <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
+              {successMessage}
+            </div>
+          )}
 
           {error && (
             <div className="bg-red-50 border border-red-200 text-red-600 px-4 py-3 rounded-lg mb-6">

@@ -48,9 +48,9 @@ export interface User {
   monthlyLimit: number;
   profilePicture?: string | null;
   authProvider?: 'email' | 'google';
-  hasPassword?: boolean; // Flag to check if user has set a password
-  isEmailVerified?: boolean; // Email verification status
-  emailVerificationOTP?: string; // OTP for email verification
-  otpExpiry?: Date; // OTP expiration time
-  verifiedAt?: Date; // When email was verified
+  hasPassword?: boolean;
+  isEmailVerified?: boolean;
+  emailVerificationOTP?: string;
+  otpExpiry?: Date;
+  verifiedAt?: Date;
 }
