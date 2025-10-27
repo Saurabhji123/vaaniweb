@@ -23,8 +23,8 @@ interface AIGeneratedContent {
 const GROQ_API_KEY = process.env.GROQ_API_KEY || 'gsk_DUMMY_KEY_REPLACE_WITH_REAL_ONE';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Multiple image sources for variety and reliability
-const PEXELS_API_KEY = 'qQPvGbKBaSheffield7xoqKQPGgKjGGlGjSHw0pF8ZVYvhJTVHi8SYJG'; // Free API key
+// Pexels API for high-quality business images
+const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '';
 
 /**
  * Fetch real, relevant images from Pexels API for better quality and variety
@@ -32,43 +32,51 @@ const PEXELS_API_KEY = 'qQPvGbKBaSheffield7xoqKQPGgKjGGlGjSHw0pF8ZVYvhJTVHi8SYJG
 async function fetchRealImages(keywords: string[], count: number = 4): Promise<string[]> {
   console.log(`📸 Fetching ${count} real images for keywords:`, keywords);
   
+  // Validate Pexels API key
+  if (!PEXELS_API_KEY) {
+    console.warn('⚠️ Pexels API key not configured, using Unsplash fallback only');
+  }
+  
   const images: string[] = [];
   const usedUrls = new Set<string>(); // Avoid duplicate images
   
   try {
-    // Fetch from Pexels API for each keyword
+    // Fetch from Pexels API for each keyword (only if API key is available)
     for (let i = 0; i < Math.min(count, keywords.length); i++) {
       const keyword = keywords[i];
       
-      try {
-        // Random page to get variety (pages 1-20)
-        const randomPage = Math.floor(Math.random() * 20) + 1;
-        const response = await fetch(
-          `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=3&page=${randomPage}`,
-          {
-            headers: { Authorization: PEXELS_API_KEY },
-            signal: AbortSignal.timeout(5000) // 5s timeout
-          }
-        );
+      // Try Pexels first if API key is available
+      if (PEXELS_API_KEY) {
+        try {
+          // Random page to get variety (pages 1-20)
+          const randomPage = Math.floor(Math.random() * 20) + 1;
+          const response = await fetch(
+            `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=3&page=${randomPage}`,
+            {
+              headers: { Authorization: PEXELS_API_KEY },
+              signal: AbortSignal.timeout(5000) // 5s timeout
+            }
+          );
 
-        if (response.ok) {
-          const data = await response.json();
-          if (data.photos && data.photos.length > 0) {
-            // Pick a random photo from results to increase variety
-            const randomIndex = Math.floor(Math.random() * data.photos.length);
-            const photo = data.photos[randomIndex];
-            
-            // Use medium size (good quality, fast loading)
-            if (!usedUrls.has(photo.src.medium)) {
-              images.push(photo.src.medium);
-              usedUrls.add(photo.src.medium);
-              console.log(`✅ Pexels image for "${keyword}":`, photo.src.medium);
-              continue;
+          if (response.ok) {
+            const data = await response.json();
+            if (data.photos && data.photos.length > 0) {
+              // Pick a random photo from results to increase variety
+              const randomIndex = Math.floor(Math.random() * data.photos.length);
+              const photo = data.photos[randomIndex];
+              
+              // Use medium size (good quality, fast loading)
+              if (!usedUrls.has(photo.src.medium)) {
+                images.push(photo.src.medium);
+                usedUrls.add(photo.src.medium);
+                console.log(`✅ Pexels image for "${keyword}":`, photo.src.medium);
+                continue;
+              }
             }
           }
+        } catch (pexelsError) {
+          console.warn(`⚠️ Pexels failed for "${keyword}":`, pexelsError);
         }
-      } catch (pexelsError) {
-        console.warn(`⚠️ Pexels failed for "${keyword}":`, pexelsError);
       }
 
       // Fallback: Use Unsplash with unique seed for variety
