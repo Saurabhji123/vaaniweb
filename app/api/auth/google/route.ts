@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from 'next/server';
 import jwt from 'jsonwebtoken';
 import { connectDB } from '@/app/lib/mongodb';
-import { sendGoogleWelcomeEmail } from '@/app/lib/email';
+import { sendWelcomeEmail } from '@/app/lib/email';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
@@ -80,8 +80,8 @@ export async function POST(request: NextRequest) {
 
       // Send welcome email for new Google users (don't block registration)
       try {
-        console.log('📧 Attempting to send Google welcome email...');
-        const emailResult = await sendGoogleWelcomeEmail(email, name || email.split('@')[0]);
+        console.log('📧 Attempting to send welcome email...');
+        const emailResult = await sendWelcomeEmail(email, name || email.split('@')[0]);
         
         if (emailResult.success) {
           console.log('✅ Welcome email sent to Google user:', email);

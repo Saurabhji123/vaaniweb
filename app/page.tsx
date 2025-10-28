@@ -2,6 +2,7 @@
 
 import { useState, useRef, useEffect } from 'react';
 import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import Navigation from './components/Navigation';
 import { useAuth } from './context/AuthContext';
 import { 
@@ -18,6 +19,7 @@ import {
 
 export default function Home() {
   const { user, token, refreshUser } = useAuth();
+  const router = useRouter();
   const [isRecording, setIsRecording] = useState(false);
   const [status, setStatus] = useState('');
   const [transcript, setTranscript] = useState('');
@@ -176,19 +178,30 @@ export default function Home() {
       const generatedId = data.id;
 
       if (generatedId) {
-        setStatus('✅ Success! Redirecting to your website...');
+        setStatus('✅ Success! Opening your website...');
         
         // Refresh user data from database to get updated count
         await refreshUser();
         
-        // Open in new tab after a short delay
-        setTimeout(() => {
-          window.open(`/p/${generatedId}`, '_blank');
-          
-          // Reset form
-          setTranscript('');
-          setStatus('Website opened! Create another one?');
-        }, 1000);
+        // Reset form immediately
+        setTranscript('');
+        
+        // Open in new tab - use window.open for better reliability
+        const newWindow = window.open(`/p/${generatedId}`, '_blank');
+        
+        if (newWindow) {
+          // Successfully opened in new tab
+          setTimeout(() => {
+            setStatus('✅ Website created! Create another one?');
+          }, 1000);
+        } else {
+          // Popup blocked - fallback to same tab navigation
+          console.log('⚠️ Popup blocked, redirecting in same tab...');
+          setStatus('✅ Redirecting to your website...');
+          setTimeout(() => {
+            router.push(`/p/${generatedId}`);
+          }, 500);
+        }
       } else {
         console.error('❌ No ID in response:', data);
         setStatus('Error: Website generated but ID missing');
