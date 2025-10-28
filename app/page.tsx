@@ -196,7 +196,23 @@ export default function Home() {
       const generatedSlug = data.slug; // Get slug from response
 
       if (generatedId && generatedSlug) {
-        setStatus('✅ Success! Opening your website...');
+        // Immediately open new tab BEFORE any async operations
+        // This is crucial - must be synchronous to avoid popup blocker
+        const fullUrl = `${window.location.origin}/${generatedSlug}`;
+        console.log('🌐 Opening page in new tab:', fullUrl);
+        
+        // Open in new tab RIGHT NOW (synchronously)
+        const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
+        
+        if (newWindow) {
+          console.log('✅ New tab opened successfully');
+          newWindow.focus();
+        } else {
+          console.warn('⚠️ Popup blocked - creating manual link');
+        }
+        
+        // Now do other async operations
+        setStatus('✅ Website created!');
         
         // Refresh user data from database to get updated count
         await refreshUser();
@@ -204,44 +220,10 @@ export default function Home() {
         // Reset form immediately
         setTranscript('');
         
-        // Always use slug-based URL (never show UUID to user)
-        const pageUrl = `/${generatedSlug}`;
-        const fullUrl = `${window.location.origin}/${generatedSlug}`;
-        console.log('🌐 Opening page in new tab:', fullUrl);
-        
-        // Try multiple methods to open in new tab
-        try {
-          // Method 1: Direct window.open with full URL (most reliable)
-          const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
-          
-          if (newWindow) {
-            console.log('✅ New tab opened successfully');
-            newWindow.focus(); // Bring new tab to front
-            setStatus('✅ Website created! Opening in new tab...');
-            
-            setTimeout(() => {
-              setStatus('✅ Website opened! Create another one?');
-            }, 1500);
-          } else {
-            // Popup blocked - try alternative method
-            console.warn('⚠️ Method 1 failed, trying alternative...');
-            
-            // Method 2: Create anchor tag and click it
-            const link = document.createElement('a');
-            link.href = fullUrl;
-            link.target = '_blank';
-            link.rel = 'noopener noreferrer';
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
-            
-            console.log('✅ Opened via anchor click method');
-            setStatus(`✅ Website created! If not opened, click: ${generatedSlug}`);
-          }
-        } catch (openError) {
-          console.error('❌ Error opening new tab:', openError);
-          setStatus(`✅ Website created at: ${fullUrl}`);
-        }
+        // Final status
+        setTimeout(() => {
+          setStatus('');
+        }, 2000);
       } else {
         console.error('❌ Missing slug in response:', data);
         setStatus('Error: Website generated but slug missing. Please try again.');
