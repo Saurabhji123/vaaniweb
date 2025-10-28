@@ -78,6 +78,23 @@ export default function Home() {
     }
   }, []);
 
+  // Handle remix parameter from URL
+  useEffect(() => {
+    if (typeof window !== 'undefined') {
+      const urlParams = new URLSearchParams(window.location.search);
+      const remixPrompt = urlParams.get('remix');
+      
+      if (remixPrompt) {
+        // Set the pre-filled prompt
+        setTranscript(remixPrompt);
+        setStatus('🎨 Remix mode! Edit the prompt below or click "Generate Website" to create a variation.');
+        
+        // Clean URL (remove remix parameter)
+        window.history.replaceState({}, '', '/');
+      }
+    }
+  }, []);
+
   const handleMicToggle = async () => {
     try {
       if (!recognitionRef.current) {

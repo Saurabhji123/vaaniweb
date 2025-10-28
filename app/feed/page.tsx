@@ -60,8 +60,15 @@ export default function FeedPage() {
   }, [token, authLoading]);
 
   const handleRemix = (item: FeedItem) => {
-    const prompt = `${item.json.title} ${item.json.tagline} ${item.json.theme_color} theme ${item.json.pics.join(' ')} instagram ${item.json.instagram} contact form`;
-    alert(`Remix this page by saying:\n\n"${prompt}"`);
+    // Create a better formatted prompt from the existing page data
+    const keywords = item.json.pics?.filter(p => p.trim()).join(', ') || 'professional, modern';
+    const themeColor = item.json.theme_color || 'teal';
+    const instagram = item.json.instagram ? `instagram @${item.json.instagram}` : '';
+    
+    const prompt = `Create a ${themeColor} themed website for ${item.json.title}. ${item.json.tagline}. Use keywords: ${keywords}. ${instagram}. Add contact form.`;
+    
+    // Redirect to homepage with pre-filled prompt in URL
+    window.location.href = `/?remix=${encodeURIComponent(prompt)}`;
   };
 
   if (loading) {
@@ -176,10 +183,21 @@ export default function FeedPage() {
                     </a>
                     <button
                       onClick={() => handleRemix(item)}
-                      className="flex-1 bg-gray-200 text-gray-800 py-3 px-4 rounded-xl hover:bg-gray-300 transition text-sm font-bold flex items-center justify-center gap-2"
+                      className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 text-white py-3 px-4 rounded-xl hover:from-teal-600 hover:to-emerald-600 transition text-sm font-bold shadow-lg flex items-center justify-center gap-2 group relative"
+                      title="Create a variation of this page with AI"
                     >
                       <RefreshIcon size={18} />
                       <span>Remix</span>
+                      
+                      {/* Tooltip */}
+                      <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block">
+                        <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl">
+                          Create a new version with AI ✨
+                          <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
+                            <div className="border-4 border-transparent border-t-gray-900"></div>
+                          </div>
+                        </div>
+                      </div>
                     </button>
                   </div>
                 </div>

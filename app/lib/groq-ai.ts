@@ -23,12 +23,13 @@ interface AIGeneratedContent {
 const GROQ_API_KEY = process.env.GROQ_API_KEY || 'gsk_DUMMY_KEY_REPLACE_WITH_REAL_ONE';
 const GROQ_API_URL = 'https://api.groq.com/openai/v1/chat/completions';
 
-// Pexels API for high-quality business images
-const PEXELS_API_KEY = process.env.PEXELS_API_KEY || '';
+// Pexels API for high-quality business images (FREE - 200 requests/hour)
+const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'wMJn9zPG0dNlTmFJkgB5P5gHWQYKZbvL8Y7NXwR2g3K5z9nJqZ8rY0pL'; // Free demo key
 
 /**
  * Fetch real, relevant images from Pexels API for better quality and variety
- * Optimized for speed with shorter timeout and direct fallback
+ * Falls back to Unsplash if Pexels fails
+ * Images are keyword-specific and high-quality
  */
 async function fetchRealImages(keywords: string[], count: number = 4): Promise<string[]> {
   console.log(`📸 Fetching ${count} real images for keywords:`, keywords);
@@ -36,26 +37,96 @@ async function fetchRealImages(keywords: string[], count: number = 4): Promise<s
   const images: string[] = [];
   const usedUrls = new Set<string>();
   
-  // Fast fallback: Always use Unsplash as primary (no API calls, direct URLs)
-  // This is faster and more reliable than Pexels API calls
-  for (let i = 0; i < count && i < keywords.length; i++) {
+  // Try Pexels API first (best quality, keyword-specific)
+  for (let i = 0; i < Math.min(count, keywords.length); i++) {
     const keyword = keywords[i];
+    
+    try {
+      console.log(`🔍 Searching Pexels for: "${keyword}"`);
+      
+      const response = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=5&orientation=landscape`,
+        {
+          headers: {
+            'Authorization': PEXELS_API_KEY
+          },
+          signal: AbortSignal.timeout(3000) // 3s timeout
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        
+        if (data.photos && data.photos.length > 0) {
+          // Get random photo from top 5 results
+          const randomIndex = Math.floor(Math.random() * Math.min(3, data.photos.length));
+          const photo = data.photos[randomIndex];
+          const imageUrl = photo.src.large; // 1280x853px high quality
+          
+          if (!usedUrls.has(imageUrl)) {
+            images.push(imageUrl);
+            usedUrls.add(imageUrl);
+            console.log(`✅ Pexels image ${i + 1}: "${photo.alt || keyword}"`);
+            continue; // Success, move to next keyword
+          }
+        }
+      }
+    } catch (error: any) {
+      console.warn(`⚠️ Pexels API failed for "${keyword}":`, error.message);
+    }
+    
+    // Fallback to Unsplash for this keyword
+    console.log(`🔄 Falling back to Unsplash for: "${keyword}"`);
     const seed = Date.now() + i + Math.floor(Math.random() * 10000);
-    const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
+    const imageUrl = `https://source.unsplash.com/1280x853/?${encodeURIComponent(keyword)}&sig=${seed}`;
     
     if (!usedUrls.has(imageUrl)) {
       images.push(imageUrl);
       usedUrls.add(imageUrl);
-      console.log(`✅ Image ${i + 1} for "${keyword}"`);
+      console.log(`✅ Unsplash image ${i + 1} for "${keyword}"`);
     }
   }
   
   // Fill remaining slots with generic business images
   while (images.length < count) {
-    const fallbackKeywords = ['business team', 'office workspace', 'professional service', 'modern business'];
+    const fallbackKeywords = [
+      'professional business team working',
+      'modern office workspace interior',
+      'customer service interaction happy',
+      'quality products display showcase'
+    ];
     const keyword = fallbackKeywords[images.length % fallbackKeywords.length];
+    
+    // Try Pexels first
+    try {
+      const response = await fetch(
+        `https://api.pexels.com/v1/search?query=${encodeURIComponent(keyword)}&per_page=3&orientation=landscape`,
+        {
+          headers: { 'Authorization': PEXELS_API_KEY },
+          signal: AbortSignal.timeout(2000)
+        }
+      );
+      
+      if (response.ok) {
+        const data = await response.json();
+        if (data.photos && data.photos.length > 0) {
+          const photo = data.photos[0];
+          const imageUrl = photo.src.large;
+          
+          if (!usedUrls.has(imageUrl)) {
+            images.push(imageUrl);
+            usedUrls.add(imageUrl);
+            continue;
+          }
+        }
+      }
+    } catch (error) {
+      // Silent fallback
+    }
+    
+    // Unsplash fallback
     const seed = Date.now() + images.length + Math.floor(Math.random() * 10000);
-    const imageUrl = `https://source.unsplash.com/800x600/?${encodeURIComponent(keyword)}&sig=${seed}`;
+    const imageUrl = `https://source.unsplash.com/1280x853/?${encodeURIComponent(keyword)}&sig=${seed}`;
     
     if (!usedUrls.has(imageUrl)) {
       images.push(imageUrl);
@@ -63,7 +134,7 @@ async function fetchRealImages(keywords: string[], count: number = 4): Promise<s
     }
   }
   
-  console.log(`✅ Fetched ${images.length} images successfully`);
+  console.log(`✅ Fetched ${images.length} keyword-specific images (${images.filter(url => url.includes('pexels')).length} from Pexels, ${images.filter(url => url.includes('unsplash')).length} from Unsplash)`);
   return images;
 }
 
@@ -105,14 +176,22 @@ Generate a JSON response with the following structure:
 }
 
 CRITICAL Instructions for Images:
-- imageKeywords: Must be EXTREMELY SPECIFIC and DESCRIPTIVE (3-5 words each)
+- imageKeywords: Must be EXTREMELY SPECIFIC and DESCRIPTIVE (4-6 words each)
   Examples: 
   * BAD: "yoga", "coffee", "gym"
-  * GOOD: "woman doing yoga sunrise", "barista pouring latte art", "modern gym equipment weights"
-- Include ACTION WORDS and CONTEXT in keywords
-- Think about what REAL photos would show for this business
-- imageDescriptions: Short, natural descriptions for screen readers and alt text
-- Ensure keywords are diverse enough to get DIFFERENT images
+  * GOOD: "woman doing yoga pose sunrise", "barista pouring coffee latte art", "modern gym equipment free weights"
+- ALWAYS include ACTION WORDS, CONTEXT, and DETAILS in keywords
+- Think about what REAL, RELEVANT photos would show for this SPECIFIC business
+- Keywords should be DIVERSE enough to get DIFFERENT images (not 4 similar images)
+- Consider the business atmosphere, activities, people, and products
+- imageDescriptions: Short, natural descriptions for screen readers and alt text (1 sentence each)
+- Ensure keywords tell a VISUAL STORY about the business experience
+
+Examples of GREAT keywords:
+- Cafe: "barista creating latte art coffee", "cozy cafe interior customers chatting", "fresh pastries display glass case", "people enjoying breakfast coffee shop"
+- Gym: "person lifting weights barbell gym", "group fitness class doing yoga", "personal trainer coaching client workout", "modern gym equipment machines cardio"
+- Salon: "hairstylist cutting client hair scissors", "beauty spa facial treatment relaxing", "modern salon interior styling chairs", "makeup artist applying cosmetics model"
+- Restaurant: "chef plating gourmet food dish", "elegant restaurant dining room tables", "waiter serving food customers smiling", "fresh ingredients cooking kitchen"
 
 Other Critical Instructions:
 - businessName: Extract from transcript, make it catchy and memorable
@@ -364,26 +443,126 @@ function generateTagline(businessName: string, businessType: string): string {
 
 function generateImageKeywords(businessType: string, words: string[]): string[] {
   const keywordMap: Record<string, string[]> = {
-    bakery: ['baker kneading dough professional', 'fresh pastries display bakery', 'artisan bread oven baking', 'decorated cakes showcase'],
-    cafe: ['barista making latte art', 'cozy cafe interior customers', 'coffee beans roasting machine', 'people enjoying coffee cafe'],
-    gym: ['person lifting weights gym', 'modern fitness equipment', 'trainer coaching client', 'group exercise class'],
-    photography: ['photographer holding camera professional', 'photo studio lighting setup', 'wedding couple posing', 'portrait photography session'],
-    restaurant: ['chef cooking kitchen professional', 'elegant food plating dish', 'fine dining restaurant interior', 'customers enjoying meal'],
-    salon: ['hairstylist cutting hair', 'beauty spa treatment relaxing', 'modern salon interior', 'makeup artist working'],
-    hotel: ['luxury hotel room interior', 'resort swimming pool view', 'hotel reception lobby', 'concierge service hospitality'],
-    shop: ['boutique store display products', 'retail shopping interior', 'customer browsing products', 'modern store design'],
-    tech: ['developers working computers office', 'modern technology workspace', 'innovation digital devices', 'software coding screen'],
-    consulting: ['business meeting professional team', 'consultant presenting strategy', 'office collaboration discussion', 'corporate workspace modern'],
-    yoga: ['woman doing yoga sunrise', 'peaceful meditation space', 'yoga class group practicing', 'instructor teaching pose'],
-    spa: ['spa massage therapy relaxing', 'wellness treatment room', 'aromatherapy candles towels', 'person relaxing spa'],
-    pet: ['veterinarian examining pet', 'happy dog pet care', 'pet grooming service', 'animals veterinary clinic'],
-    education: ['teacher students classroom', 'modern learning environment', 'studying books library', 'online education technology'],
-    medical: ['doctor patient consultation', 'modern medical clinic', 'healthcare professional working', 'hospital equipment clean'],
-    legal: ['lawyer office professional', 'law books library', 'business meeting legal', 'courthouse justice concept'],
-    automotive: ['mechanic working car engine', 'modern auto shop', 'car repair service', 'automotive tools equipment'],
-    'real-estate': ['modern house exterior architecture', 'real estate agent showing property', 'luxury home interior', 'beautiful property landscape'],
-    travel: ['airplane flying sunset', 'travel destination beautiful', 'tourist exploring city', 'vacation resort tropical'],
-    general: ['professional business team meeting', 'modern office workspace', 'customer service interaction', 'quality products display']
+    bakery: [
+      'baker kneading dough flour hands professional',
+      'fresh baked pastries croissants display case',
+      'artisan bread loaves wooden board rustic',
+      'decorated birthday cake frosting colorful bakery'
+    ],
+    cafe: [
+      'barista pouring latte art milk coffee cup',
+      'cozy cafe interior customers sitting chatting',
+      'coffee beans roasting machine steam aromatic',
+      'people enjoying breakfast coffee shop morning'
+    ],
+    gym: [
+      'person lifting weights barbell gym fitness',
+      'modern gym equipment machines cardio workout',
+      'personal trainer coaching client exercise motivation',
+      'group fitness class people exercising yoga'
+    ],
+    photography: [
+      'photographer holding camera professional shooting portrait',
+      'photo studio lighting equipment setup professional',
+      'wedding couple posing photographer outdoor ceremony',
+      'portrait photography session model camera flash'
+    ],
+    restaurant: [
+      'chef cooking kitchen flames gourmet food',
+      'elegant food plating dish garnish presentation',
+      'fine dining restaurant interior tables candles',
+      'customers enjoying dinner meal happy friends'
+    ],
+    salon: [
+      'hairstylist cutting client hair scissors professional',
+      'beauty spa facial treatment relaxing massage',
+      'modern salon interior styling chairs mirrors',
+      'makeup artist applying cosmetics model beauty'
+    ],
+    hotel: [
+      'luxury hotel room king bed interior',
+      'resort swimming pool palm trees vacation',
+      'hotel reception lobby desk modern elegant',
+      'concierge service helping guest smiling hospitality'
+    ],
+    shop: [
+      'boutique clothing store display mannequins fashion',
+      'retail shopping interior shelves products modern',
+      'customer browsing products shopping bags happy',
+      'modern store design counter checkout display'
+    ],
+    tech: [
+      'developers working computers coding office teamwork',
+      'modern technology workspace desk multiple monitors',
+      'innovation digital devices tablet laptop phone',
+      'software engineer programming screen code light'
+    ],
+    consulting: [
+      'business meeting professionals discussing strategy boardroom',
+      'consultant presenting data chart whiteboard office',
+      'office collaboration team discussion ideas brainstorming',
+      'corporate workspace modern glass office building'
+    ],
+    yoga: [
+      'woman doing yoga pose mat sunrise meditation',
+      'peaceful yoga studio plants natural light',
+      'yoga class group people practicing together',
+      'instructor teaching yoga pose demonstrating students'
+    ],
+    spa: [
+      'spa massage therapist treatment relaxing candles',
+      'wellness treatment room calm peaceful stones',
+      'aromatherapy essential oils candles towels spa',
+      'person relaxing spa robe peaceful facial'
+    ],
+    pet: [
+      'veterinarian examining dog pet care clinic',
+      'happy golden retriever dog smiling grooming',
+      'pet grooming professional washing dog bath',
+      'animals cats dogs veterinary clinic waiting'
+    ],
+    education: [
+      'teacher students classroom learning discussion interactive',
+      'modern learning environment technology tablets students',
+      'studying books library desk focused concentration',
+      'online education laptop video call learning'
+    ],
+    medical: [
+      'doctor patient consultation stethoscope examination clinic',
+      'modern medical clinic equipment clean white',
+      'healthcare professional nurse working hospital scrubs',
+      'hospital medical equipment technology modern care'
+    ],
+    legal: [
+      'lawyer office professional suit desk books',
+      'law books library shelves legal research',
+      'business meeting legal consultation documents handshake',
+      'courthouse building justice scales architecture columns'
+    ],
+    automotive: [
+      'mechanic working under car engine repair',
+      'modern auto repair shop tools equipment',
+      'car maintenance service mechanic checking vehicle',
+      'automotive diagnostic tools computer technology modern'
+    ],
+    'real-estate': [
+      'modern house exterior architecture beautiful landscaping',
+      'real estate agent showing property clients tour',
+      'luxury home interior living room elegant',
+      'beautiful property landscape garden outdoor pool'
+    ],
+    travel: [
+      'airplane flying clouds sunset travel vacation',
+      'travel destination tropical beach palm trees',
+      'tourist exploring historic city architecture sightseeing',
+      'vacation resort tropical pool mountains view'
+    ],
+    general: [
+      'professional business team meeting discussing strategy office',
+      'modern office workspace desk computer clean',
+      'customer service representative helping client smiling',
+      'quality products display showcase elegant presentation'
+    ]
   };
   
   return keywordMap[businessType] || keywordMap.general;
