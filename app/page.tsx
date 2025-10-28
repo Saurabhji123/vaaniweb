@@ -197,23 +197,13 @@ export default function Home() {
       const generatedSlug = data.slug;
 
       if (generatedSlug) {
-        // CRITICAL: Open new tab IMMEDIATELY (synchronously) - NO setTimeout!
+        // Open in NEW TAB - no same tab fallback
         const fullUrl = `${window.location.origin}/${generatedSlug}`;
-        console.log('🌐 Attempting to open URL:', fullUrl);
+        console.log('🌐 Opening URL in new tab:', fullUrl);
         
-        const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
+        window.open(fullUrl, '_blank', 'noopener,noreferrer');
         
-        if (!newWindow || newWindow.closed) {
-          console.error('❌ Popup blocked! Trying fallback...');
-          // Fallback: try to open again
-          window.location.href = fullUrl;
-          return; // Exit early since we're redirecting
-        } else {
-          console.log('✅ New tab opened successfully!');
-          newWindow.focus();
-        }
-        
-        // NOW do other operations
+        // Update status
         setStatus('✅ Website created!');
         
         // Refresh user data from database to get updated count
