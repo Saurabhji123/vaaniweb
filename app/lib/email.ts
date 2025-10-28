@@ -93,7 +93,7 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
       <div class="wrapper">
         <div class="container">
           <div class="header">
-            <h1 class="logo">∩┐╜ VaaniWeb</h1>
+            <h1 class="logo">VaaniWeb</h1>
             <p class="subtitle">AI-Powered Website Builder</p>
           </div>
           
@@ -108,15 +108,17 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
             </div>
             
             <div class="warning-box">
-              <p class="warning-text"><strong>ΓÜá∩╕Å Security Notice:</strong><br>Never share this code with anyone. VaaniWeb staff will never ask for your verification code.</p>
+              <p class="warning-text"><strong>Security Notice:</strong><br>Never share this code with anyone. VaaniWeb staff will never ask for your verification code.</p>
             </div>
             
             <p class="footer-text">If you didn't create a VaaniWeb account, you can safely ignore this email.</p>
+            
+            <p class="footer-text"><strong>Important:</strong> If you don't see this email in your inbox, please check your spam or junk folder.</p>
           </div>
           
           <div class="footer">
             <p class="footer-info">Need help? Contact us at<br><a href="mailto:support@vaaniweb.com" class="footer-link">support@vaaniweb.com</a></p>
-            <p class="footer-copyright">┬⌐ ${new Date().getFullYear()} VaaniWeb. All rights reserved.<br>Create stunning websites with AI in seconds.</p>
+            <p class="footer-copyright">&copy; ${new Date().getFullYear()} VaaniWeb. All rights reserved.<br>Create stunning websites with AI in seconds.</p>
           </div>
         </div>
       </div>
@@ -126,7 +128,7 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
 
   return sendEmail({
     to: email,
-    subject: '≡ƒöÉ Verify Your Email - VaaniWeb',
+    subject: 'Verify Your Email Address - VaaniWeb',
     html: html,
   });
 }
@@ -182,29 +184,29 @@ export async function sendWelcomeEmail(email: string, name: string = 'User') {
       <div class="wrapper">
         <div class="container">
           <div class="header">
-            <h1 class="logo">∩┐╜ Welcome to VaaniWeb!</h1>
+            <h1 class="logo">Welcome to VaaniWeb!</h1>
             <p class="subtitle">Your AI-powered website builder is ready!</p>
           </div>
           
           <div class="content">
-            <h2 class="title">Hi ${name}! ≡ƒæï</h2>
+            <h2 class="title">Hi ${name}!</h2>
             
             <p class="text">Congratulations! Your VaaniWeb account is now active. You're just moments away from creating stunning, professional websites using the power of AI.</p>
             
             <div class="features-section">
-              <h3 class="features-title">∩┐╜ What You Can Do:</h3>
-              <div class="feature-item">Γ£¿ <strong>Voice-to-Website:</strong> Describe your business, we build your site</div>
-              <div class="feature-item">≡ƒÄ¿ <strong>AI-Powered Design:</strong> Professional templates customized for you</div>
-              <div class="feature-item">≡ƒô▒ <strong>Mobile-Ready:</strong> Perfect on every device, every time</div>
-              <div class="feature-item">ΓÜí <strong>Instant Deploy:</strong> Your website live in seconds</div>
+              <h3 class="features-title">What You Can Do:</h3>
+              <div class="feature-item"><strong>Voice-to-Website:</strong> Describe your business, we build your site</div>
+              <div class="feature-item"><strong>AI-Powered Design:</strong> Professional templates customized for you</div>
+              <div class="feature-item"><strong>Mobile-Ready:</strong> Perfect on every device, every time</div>
+              <div class="feature-item"><strong>Instant Deploy:</strong> Your website live in seconds</div>
             </div>
             
             <center>
-              <a href="${process.env.NEXT_PUBLIC_ROOT_URL || 'https://vaaniweb.com'}" class="cta-button">Create Your First Website ΓåÆ</a>
+              <a href="${process.env.NEXT_PUBLIC_ROOT_URL || 'https://vaaniweb.com'}" class="cta-button">Create Your First Website</a>
             </center>
             
             <div class="tips-section">
-              <h3 class="tips-title">≡ƒÆí Quick Tips to Get Started:</h3>
+              <h3 class="tips-title">Quick Tips to Get Started:</h3>
               <ul class="tips-list">
                 <li>Speak clearly when describing your business for best results</li>
                 <li>Include key details: business type, services, contact info</li>
@@ -216,7 +218,7 @@ export async function sendWelcomeEmail(email: string, name: string = 'User') {
           
           <div class="footer">
             <p class="footer-info">Questions? We're here to help!<br><a href="mailto:support@vaaniweb.com" class="footer-link">support@vaaniweb.com</a></p>
-            <p class="footer-copyright">┬⌐ ${new Date().getFullYear()} VaaniWeb. All rights reserved.<br>Powered by AI ΓÇó Built with Γ¥ñ∩╕Å</p>
+            <p class="footer-copyright">&copy; ${new Date().getFullYear()} VaaniWeb. All rights reserved.<br>Powered by AI - Built with care</p>
           </div>
         </div>
       </div>
@@ -226,7 +228,7 @@ export async function sendWelcomeEmail(email: string, name: string = 'User') {
 
   return sendEmail({
     to: email,
-    subject: '≡ƒÄë Welcome to VaaniWeb - Let\'s Build Something Amazing!',
+    subject: 'Welcome to VaaniWeb - Let\'s Build Something Amazing!',
     html: html,
   });
 }
@@ -255,12 +257,12 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">≡ƒÄÖ∩╕Å VaaniWeb</div>
+          <div class="logo">VaaniWeb</div>
           <p style="color: #666; margin-top: 10px;">Voice-Powered Website Generator</p>
         </div>
         
         <div class="welcome-banner">
-          <h1 style="margin: 0; font-size: 36px;">≡ƒÄë Welcome!</h1>
+          <h1 style="margin: 0; font-size: 36px;">Welcome!</h1>
           <p style="margin: 10px 0; font-size: 18px;">You signed in with Google</p>
           <div class="google-badge">
             <svg style="width: 18px; height: 18px; vertical-align: middle; margin-right: 8px;" viewBox="0 0 48 48">
@@ -274,32 +276,32 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
         </div>
         
         <div class="content">
-          <h2 style="color: #333;">Hello ${name}! ≡ƒæï</h2>
+          <h2 style="color: #333;">Hello ${name}!</h2>
           <p>Thanks for choosing VaaniWeb! Your account is ready, and you can start creating amazing websites right away.</p>
           
-          <h3 style="color: #6366f1;">Γ£¿ What's Next:</h3>
+          <h3 style="color: #6366f1;">What's Next:</h3>
           
           <div class="feature-box">
-            <strong>≡ƒÄñ Create Your First Website</strong>
+            <strong>Create Your First Website</strong>
             <p style="margin: 5px 0 0 0; color: #666;">Click and speak about your business - we'll do the rest!</p>
           </div>
           
           <div class="feature-box">
-            <strong>≡ƒÄ¿ Explore 22+ Templates</strong>
+            <strong>Explore 22+ Templates</strong>
             <p style="margin: 5px 0 0 0; color: #666;">Professional designs for every business type.</p>
           </div>
           
           <div class="feature-box">
-            <strong>≡ƒôè Your Dashboard</strong>
+            <strong>Your Dashboard</strong>
             <p style="margin: 5px 0 0 0; color: #666;">Manage all your websites in one place.</p>
           </div>
           
           <div style="text-align: center;">
-            <a href="${process.env.NEXT_PUBLIC_ROOT_URL}" class="button">Start Creating ≡ƒÜÇ</a>
+            <a href="${process.env.NEXT_PUBLIC_ROOT_URL}" class="button">Start Creating</a>
           </div>
           
           <p style="margin-top: 30px; padding: 20px; background: #f0f9ff; border-radius: 8px; border-left: 4px solid #3b82f6;">
-            <strong>≡ƒÄü Free Tier Includes:</strong><br/>
+            <strong>Free Tier Includes:</strong><br/>
             5 website generations per month<br/>
             Access to all templates<br/>
             Unlimited website views
@@ -307,7 +309,7 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
         </div>
         
         <div class="footer">
-          <p>Made with Γ¥ñ∩╕Å by VaaniWeb Team</p>
+          <p>Made by VaaniWeb Team</p>
           <p>Questions? Email us at <a href="mailto:vaaniweb@gmail.com" style="color: #6366f1;">vaaniweb@gmail.com</a></p>
         </div>
       </div>
@@ -317,7 +319,7 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
 
   return sendEmail({
     to: email,
-    subject: '≡ƒÄë Welcome to VaaniWeb!',
+    subject: 'Welcome to VaaniWeb!',
     html: html,
   });
 }
