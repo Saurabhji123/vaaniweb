@@ -9,6 +9,48 @@ import { ObjectId } from 'mongodb';
 
 const JWT_SECRET = process.env.JWT_SECRET || 'your-secret-key';
 
+/**
+ * Generate URL-friendly slug from business name
+ * Example: "United University" -> "united-university"
+ */
+function generateSlug(businessName: string): string {
+  return businessName
+    .toLowerCase()
+    .trim()
+    .replace(/[^\w\s-]/g, '') // Remove special chars
+    .replace(/\s+/g, '-') // Spaces to hyphens
+    .replace(/-+/g, '-') // Multiple hyphens to single
+    .replace(/^-|-$/g, ''); // Remove leading/trailing hyphens
+}
+
+/**
+ * Generate unique slug by checking database and adding numbers if needed
+ * Example: "united-university" -> "united-university-2" if exists
+ */
+async function generateUniqueSlug(db: any, businessName: string): Promise<string> {
+  let slug = generateSlug(businessName);
+  const baseSlug = slug;
+  let counter = 1;
+  
+  // Check if slug already exists
+  while (true) {
+    const existing = await db.collection('pages').findOne({ slug });
+    if (!existing) {
+      return slug; // Unique slug found
+    }
+    
+    // Try with counter
+    counter++;
+    slug = `${baseSlug}-${counter}`;
+    
+    // Safety limit
+    if (counter > 100) {
+      // Fallback to UUID-based slug
+      return `${baseSlug}-${crypto.randomUUID().split('-')[0]}`;
+    }
+  }
+}
+
 export const runtime = 'nodejs';
 export const maxDuration = 60;
 
@@ -152,11 +194,18 @@ export async function POST(req: NextRequest) {
     console.log('Generated UUID:', uuid);
 
     // Try MongoDB insert (optional - will continue even if fails)
+    let slug = '';
     try {
       const client = await clientPromise;
       const db = client.db('vaaniweb');
+      
+      // Generate unique slug from business name
+      slug = await generateUniqueSlug(db, pageData.title);
+      console.log('✅ Generated unique slug:', slug);
+      
       await db.collection('pages').insertOne({
         _id: uuid as any,
+        slug, // Add slug field for custom URLs
         html,
         json: pageData,
         createdAt: new Date(),
@@ -176,16 +225,22 @@ export async function POST(req: NextRequest) {
       }
     } catch (dbError: any) {
       console.warn('⚠️ MongoDB save failed (continuing anyway):', dbError.message);
+      // Fallback slug if DB fails
+      slug = generateSlug(pageData.title);
     }
 
-    const url = `${process.env.NEXT_PUBLIC_ROOT_URL}/p/${uuid}`;
+    // Use slug-based URL instead of UUID
+    const url = slug 
+      ? `${process.env.NEXT_PUBLIC_ROOT_URL}/${slug}`
+      : `${process.env.NEXT_PUBLIC_ROOT_URL}/p/${uuid}`;
     console.log('✅ Generated URL:', url);
     
     return NextResponse.json({ 
       url, 
       html, 
       pageData,
-      id: uuid 
+      id: uuid,
+      slug // Return slug for reference
     });
   } catch (error: any) {
     console.error('❌ Generation error:', error);

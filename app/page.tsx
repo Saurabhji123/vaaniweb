@@ -193,6 +193,7 @@ export default function Home() {
       const data = await response.json();
       console.log('✅ Generation Success:', data);
       const generatedId = data.id;
+      const generatedSlug = data.slug; // Get slug from response
 
       if (generatedId) {
         setStatus('✅ Success! Opening your website...');
@@ -203,8 +204,12 @@ export default function Home() {
         // Reset form immediately
         setTranscript('');
         
+        // Use slug-based URL if available, otherwise fall back to UUID
+        const pageUrl = generatedSlug ? `/${generatedSlug}` : `/p/${generatedId}`;
+        console.log('🌐 Opening page at:', pageUrl);
+        
         // Open in new tab - use window.open for better reliability
-        const newWindow = window.open(`/p/${generatedId}`, '_blank');
+        const newWindow = window.open(pageUrl, '_blank');
         
         if (newWindow) {
           // Successfully opened in new tab

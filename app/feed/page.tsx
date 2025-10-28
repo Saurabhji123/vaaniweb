@@ -60,12 +60,14 @@ export default function FeedPage() {
   }, [token, authLoading]);
 
   const handleRemix = (item: FeedItem) => {
-    // Create a better formatted prompt from the existing page data
-    const keywords = item.json.pics?.filter(p => p.trim()).join(', ') || 'professional, modern';
+    // Create a clean, readable prompt from the existing page data
     const themeColor = item.json.theme_color || 'teal';
-    const instagram = item.json.instagram ? `instagram @${item.json.instagram}` : '';
+    const businessType = item.json.businessType || 'business';
+    const keywords = item.json.seoKeywords?.join(', ') || `${businessType}, professional, modern, quality`;
+    const instagram = item.json.instagram ? `Instagram: @${item.json.instagram}` : '';
     
-    const prompt = `Create a ${themeColor} themed website for ${item.json.title}. ${item.json.tagline}. Use keywords: ${keywords}. ${instagram}. Add contact form.`;
+    // Create natural language prompt
+    const prompt = `Create a ${themeColor} themed website for ${item.json.title}. ${item.json.tagline}. Keywords: ${keywords}. ${instagram}`.trim();
     
     // Redirect to homepage with pre-filled prompt in URL
     window.location.href = `/?remix=${encodeURIComponent(prompt)}`;
@@ -141,13 +143,22 @@ export default function FeedPage() {
                 className="bg-white rounded-2xl shadow-2xl overflow-hidden hover:scale-105 transition-transform duration-200"
               >
                 <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 relative">
-                  {item.json.pics && item.json.pics.length > 0 && (
+                  {item.json.pics && item.json.pics.length > 0 ? (
                     <img
-                      src={`https://source.unsplash.com/400x300/?${encodeURIComponent(item.json.pics[0])}`}
+                      src={item.json.pics[0]}
                       alt={item.json.title}
                       className="w-full h-full object-cover"
                       loading="lazy"
+                      onError={(e) => {
+                        // Fallback to keyword-based image if direct URL fails
+                        const fallbackKeyword = item.json.businessType || item.json.seoKeywords?.[0] || 'business professional';
+                        (e.target as HTMLImageElement).src = `https://source.unsplash.com/400x300/?${encodeURIComponent(fallbackKeyword)}`;
+                      }}
                     />
+                  ) : (
+                    <div className="w-full h-full flex items-center justify-center text-white text-2xl font-bold">
+                      {item.json.title.charAt(0)}
+                    </div>
                   )}
                   <div className="absolute top-4 right-4 bg-white/90 backdrop-blur-sm px-3 py-1 rounded-full text-sm font-bold text-purple-600">
                     {item.json.theme_color || 'colorful'}
@@ -162,6 +173,18 @@ export default function FeedPage() {
                     {item.json.tagline}
                   </p>
                   
+                  {/* Show custom URL slug */}
+                  {item.slug && (
+                    <div className="mb-3 flex items-center gap-2">
+                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                      </svg>
+                      <span className="text-sm text-gray-500 font-mono truncate">
+                        vaaniweb.com/{item.slug}
+                      </span>
+                    </div>
+                  )}
+                  
                   {item.json.instagram && (
                     <div className="mb-4 flex items-center gap-2">
                       <CameraIcon size={20} className="text-pink-500" />
@@ -173,7 +196,7 @@ export default function FeedPage() {
 
                   <div className="flex gap-2">
                     <a
-                      href={`/p/${item._id}`}
+                      href={item.slug ? `/${item.slug}` : `/p/${item._id}`}
                       target="_blank"
                       rel="noopener noreferrer"
                       className="flex-1 text-center bg-gradient-to-r from-purple-600 to-pink-600 text-white py-3 px-4 rounded-xl hover:from-purple-700 hover:to-pink-700 transition text-sm font-bold shadow-lg flex items-center justify-center gap-2"

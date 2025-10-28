@@ -40,7 +40,7 @@ export async function GET(req: NextRequest) {
       .find({ userId: decoded.userId })
       .sort({ createdAt: -1 })
       .limit(50)
-      .project({ _id: 1, json: 1, createdAt: 1 })
+      .project({ _id: 1, slug: 1, json: 1, createdAt: 1 }) // Include slug field
       .toArray();
 
     return NextResponse.json({ items: items as unknown as FeedItem[] });

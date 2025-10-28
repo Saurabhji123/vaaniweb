@@ -48,5 +48,18 @@ export default clientPromise;
 export async function connectDB() {
   const client = await clientPromise;
   const db = client.db('vaaniweb');
+  
+  // Ensure indexes exist for better performance
+  try {
+    // Index on slug for fast lookup
+    await db.collection('pages').createIndex({ slug: 1 }, { unique: true, sparse: true });
+    // Index on userId for feed queries
+    await db.collection('pages').createIndex({ userId: 1 });
+    console.log('✅ Database indexes ensured');
+  } catch (error) {
+    // Indexes might already exist, ignore error
+    console.log('ℹ️ Database indexes already exist');
+  }
+  
   return { client, db };
 }

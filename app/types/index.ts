@@ -18,9 +18,12 @@ export interface GeneratedPageData {
 
 export interface PageDocument {
   _id: string;
+  slug?: string; // Custom URL slug (e.g., "united-university")
   html: string;
   json: GeneratedPageData;
   createdAt: Date;
+  userId?: string | null;
+  userEmail?: string | null;
 }
 
 export interface GenerateRequest {
@@ -33,6 +36,7 @@ export interface GenerateResponse {
 
 export interface FeedItem {
   _id: string;
+  slug?: string; // Custom URL slug
   json: GeneratedPageData;
 }
 
