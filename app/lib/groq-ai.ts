@@ -176,22 +176,36 @@ Generate a JSON response with the following structure:
 }
 
 CRITICAL Instructions for Images:
-- imageKeywords: Must be EXTREMELY SPECIFIC and DESCRIPTIVE (4-6 words each)
+- imageKeywords: Must be EXTREMELY SPECIFIC and VISUAL (5-7 words each)
   Examples: 
-  * BAD: "yoga", "coffee", "gym"
-  * GOOD: "woman doing yoga pose sunrise", "barista pouring coffee latte art", "modern gym equipment free weights"
-- ALWAYS include ACTION WORDS, CONTEXT, and DETAILS in keywords
-- Think about what REAL, RELEVANT photos would show for this SPECIFIC business
-- Keywords should be DIVERSE enough to get DIFFERENT images (not 4 similar images)
-- Consider the business atmosphere, activities, people, and products
-- imageDescriptions: Short, natural descriptions for screen readers and alt text (1 sentence each)
-- Ensure keywords tell a VISUAL STORY about the business experience
+  * BAD: "yoga", "coffee", "gym", "food"
+  * GOOD: "yoga instructor teaching warrior pose class", "barista pouring cappuccino with latte art", "athlete lifting heavy dumbbells gym workout", "chef preparing gourmet seafood platter"
+- ALWAYS include: ACTION + SUBJECT + CONTEXT + LOCATION/ATMOSPHERE
+- Think cinematically: What would make an amazing photo for THIS EXACT business?
+- Keywords should capture DIFFERENT MOMENTS of the customer experience:
+  * Moment 1: The service/product in action (someone doing/using it)
+  * Moment 2: The environment/space (interior, atmosphere, setting)
+  * Moment 3: The result/benefit (happy customers, finished product)
+  * Moment 4: The expertise/process (professional at work, behind-the-scenes)
+- Be HYPER-SPECIFIC to the business type and niche
+- Include SENSORY details: "bright modern", "cozy warm", "professional clean", "energetic busy"
+- imageDescriptions: Natural, engaging alt text that describes the scene (10-15 words each)
 
-Examples of GREAT keywords:
-- Cafe: "barista creating latte art coffee", "cozy cafe interior customers chatting", "fresh pastries display glass case", "people enjoying breakfast coffee shop"
-- Gym: "person lifting weights barbell gym", "group fitness class doing yoga", "personal trainer coaching client workout", "modern gym equipment machines cardio"
-- Salon: "hairstylist cutting client hair scissors", "beauty spa facial treatment relaxing", "modern salon interior styling chairs", "makeup artist applying cosmetics model"
-- Restaurant: "chef plating gourmet food dish", "elegant restaurant dining room tables", "waiter serving food customers smiling", "fresh ingredients cooking kitchen"
+Examples of EXCELLENT keywords by business type:
+- Cafe: "professional barista steaming milk creating latte art", "cozy coffee shop interior customers enjoying breakfast", "artisan pastries croissants display bakery case", "friends laughing sharing coffee outdoor patio"
+- Gym: "muscular athlete performing deadlift heavy barbell", "group fitness class high intensity interval training", "personal trainer spotting client bench press", "modern gym interior with cardio equipment machines"
+- Photography Studio: "professional photographer adjusting studio lighting portrait", "behind scenes photoshoot model posing camera", "gallery wall displaying framed photography prints", "photographer holding professional DSLR camera lens"
+- Restaurant: "chef garnishing gourmet dish white plate elegantly", "elegant fine dining restaurant ambient candlelight atmosphere", "waiter serving wine happy couple anniversary dinner", "sizzling steak being grilled professional kitchen"
+- Salon: "hairstylist blow drying client hair round brush", "luxury spa treatment massage facial relaxation", "modern hair salon interior styling stations mirrors", "makeup artist applying foundation beauty client"
+- Yoga Studio: "yoga instructor demonstrating tree pose balance students", "sunrise meditation class peaceful studio atmosphere", "aerial yoga woman hanging silk hammock pose", "yoga mats rolled storage peaceful zen space"
+
+DYNAMIC CONTENT GENERATION:
+- Add UNIQUE elements that make each website feel custom-built, not template-based
+- Vary section content based on business type (don't use same structure for all)
+- Include specific numbers, achievements, or credentials when possible
+- Use industry-specific terminology and language
+- Reflect the business personality: formal/casual, luxury/affordable, traditional/modern
+- Make every website feel like it was hand-crafted for THAT specific business
 
 Other Critical Instructions:
 - businessName: Extract from transcript, make it catchy and memorable (avoid generic names)
