@@ -166,13 +166,13 @@ Generate a JSON response with the following structure:
     "Brief description 4 (e.g., 'Happy customers in our cafe')"
   ],
   "sections": {
-    "about": "Compelling about section (60-100 words, tell the story)",
-    "features": ["feature1", "feature2", "feature3", "feature4", "feature5"] (5 unique value propositions),
-    "callToAction": "Motivating CTA text (10-15 words)"
+    "about": "Compelling about section (80-120 words minimum, tell an engaging story with personality, passion, and authenticity. Include founding story, mission, unique approach, or what drives the business)",
+    "features": ["feature1", "feature2", "feature3", "feature4", "feature5", "feature6"] (6-8 specific, measurable value propositions with concrete benefits, not vague claims),
+    "callToAction": "Powerful, action-driven CTA with urgency (e.g., 'Start Your Transformation Today', 'Book Your Free Consultation Now', 'Join 500+ Happy Customers')"
   },
-  "contactFields": ["Name", "Email", "Phone", "Message"] (add custom fields like "Appointment Date" if relevant),
+  "contactFields": ["Name", "Email", "Phone", "Message"] (add business-specific fields like "Preferred Date", "Service Interest", "Budget Range" if relevant),
   "instagram": "handle if mentioned, else null",
-  "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6"] (6 SEO keywords)
+  "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7", "keyword8"] (8-10 targeted SEO keywords including location, service type, and industry terms)
 }
 
 CRITICAL Instructions for Images:
@@ -194,10 +194,16 @@ Examples of GREAT keywords:
 - Restaurant: "chef plating gourmet food dish", "elegant restaurant dining room tables", "waiter serving food customers smiling", "fresh ingredients cooking kitchen"
 
 Other Critical Instructions:
-- businessName: Extract from transcript, make it catchy and memorable
-- tagline: MUST be unique, emotional, and action-oriented (not generic)
-- description: Focus on what makes THIS business special
-- about: Tell a story that connects emotionally, mention years/experience if applicable
+- businessName: Extract from transcript, make it catchy and memorable (avoid generic names)
+- tagline: MUST be unique, emotional, action-oriented, and BENEFIT-focused (not just descriptive). Should answer "What do customers gain?" Examples: "Transform Your Body, Transform Your Life" (not "A Gym For Everyone")
+- description: Tell a compelling story in 3-4 sentences. Include: What you do differently, who you serve, and why customers choose you. Use power words and emotion.
+- about: Write 80-120 words minimum. Include: Founding story OR mission statement, years of experience (if mentioned), unique approach/philosophy, what drives your passion, and personal touch. Make it human and authentic, not corporate.
+- features: Provide 6-8 SPECIFIC features with concrete benefits. Use numbers when possible (e.g., "24/7 Access" not "Always Available", "500+ Happy Clients" not "Many Customers", "Certified Trainers with 10+ Years" not "Experienced Staff")
+- callToAction: Create URGENCY and DESIRE. Include action verb + benefit + optionally scarcity/social proof. Examples: "Join 500+ Members Today", "Book Your Free Trial - Limited Slots", "Start Your Journey Now - No Commitment"
+- Think like a professional copywriter writing for a premium, customer-focused brand
+- Use power words: Transform, Discover, Unlock, Master, Achieve, Experience, Premium, Exclusive, Guaranteed
+- Avoid generic phrases like "We offer", "We provide", "Quality service" - be specific and unique
+- Write in active voice, be concise but impactful
 - features: Each feature should be a unique selling point (USP), not generic statements
 - callToAction: Should create urgency and excitement
 - Think like a marketing expert writing for a premium brand

@@ -191,24 +191,36 @@ export default function Home() {
       }
 
       const data = await response.json();
-      console.log('✅ Generation Success:', data);
+      console.log('✅ Generation Success - Full Response:', JSON.stringify(data, null, 2));
       const generatedId = data.id;
       const generatedSlug = data.slug; // Get slug from response
 
-      if (generatedId && generatedSlug) {
+      console.log('🔍 Extracted ID:', generatedId);
+      console.log('🔍 Extracted Slug:', generatedSlug);
+
+      if (generatedSlug) {
         // Immediately open new tab BEFORE any async operations
         // This is crucial - must be synchronous to avoid popup blocker
         const fullUrl = `${window.location.origin}/${generatedSlug}`;
-        console.log('🌐 Opening page in new tab:', fullUrl);
+        console.log('🌐 Full URL to open:', fullUrl);
+        console.log('🌐 Window.location.origin:', window.location.origin);
         
-        // Open in new tab RIGHT NOW (synchronously)
-        const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
-        
-        if (newWindow) {
-          console.log('✅ New tab opened successfully');
-          newWindow.focus();
-        } else {
-          console.warn('⚠️ Popup blocked - creating manual link');
+        // Open in new tab RIGHT NOW (synchronously) - CRITICAL FOR POPUP BLOCKER
+        try {
+          const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
+          
+          if (newWindow) {
+            console.log('✅ New tab opened successfully!');
+            newWindow.focus();
+          } else {
+            console.error('❌ window.open returned null - popup blocked!');
+            alert(`Website created! Opening: ${fullUrl}\nIf blocked, please allow popups for this site.`);
+            // Fallback - try again
+            window.open(fullUrl, '_blank');
+          }
+        } catch (error) {
+          console.error('❌ Error opening window:', error);
+          alert(`Website created at: ${fullUrl}\nPlease allow popups and try again.`);
         }
         
         // Now do other async operations
@@ -225,8 +237,14 @@ export default function Home() {
           setStatus('');
         }, 2000);
       } else {
-        console.error('❌ Missing slug in response:', data);
-        setStatus('Error: Website generated but slug missing. Please try again.');
+        console.error('❌ Missing slug in response! Full data:', data);
+        setStatus('Error: Website generated but missing slug. Please check console.');
+        // Still try to open if we have ID as fallback
+        if (generatedId) {
+          const fallbackUrl = `${window.location.origin}/p/${generatedId}`;
+          console.log('🔄 Trying fallback URL with ID:', fallbackUrl);
+          window.open(fallbackUrl, '_blank', 'noopener,noreferrer');
+        }
       }
     } catch (error: any) {
       console.error('❌ Generation Exception:', error);
