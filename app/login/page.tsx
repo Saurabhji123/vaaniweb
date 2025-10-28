@@ -17,6 +17,7 @@ function LoginContent() {
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
   const [successMessage, setSuccessMessage] = useState('');
+  const [verificationWarning, setVerificationWarning] = useState(false);
 
   useEffect(() => {
     // Check if coming from verification
@@ -97,6 +98,11 @@ function LoginContent() {
         return;
       }
 
+      // Check if email verification required
+      if (data.requiresVerification) {
+        setVerificationWarning(true);
+      }
+
       // Store in auth context
       login(data.token, data.user);
 
@@ -145,6 +151,13 @@ function LoginContent() {
           {successMessage && (
             <div className="bg-green-50 border border-green-200 text-green-700 px-4 py-3 rounded-lg mb-6">
               {successMessage}
+            </div>
+          )}
+
+          {verificationWarning && (
+            <div className="bg-yellow-50 border border-yellow-300 text-yellow-800 px-4 py-3 rounded-lg mb-6">
+              <p className="font-semibold mb-1">⚠️ Email Verification Required</p>
+              <p className="text-sm">You can login, but verify your email to create websites. Check your inbox or profile.</p>
             </div>
           )}
 

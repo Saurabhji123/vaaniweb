@@ -54,15 +54,10 @@ export async function POST(request: NextRequest) {
     console.log('👤 Auth Provider:', user.authProvider || 'email');
     console.log('✅ Email Verified:', user.isEmailVerified || false);
 
-    // Check email verification for email-based accounts
+    // ALLOW LOGIN but pass verification status to frontend
+    // Frontend will show verification banner and block website generation
     if (user.authProvider === 'email' && !user.isEmailVerified) {
-      console.log('❌ Email not verified, blocking login');
-      return NextResponse.json({
-        success: false,
-        message: 'Please verify your email before logging in. Check your inbox for the verification code.',
-        requiresVerification: true,
-        email: user.email
-      }, { status: 403 });
+      console.log('⚠️ Email not verified, allowing login with limited access');
     }
 
     console.log('✅ Login successful for:', email);
@@ -81,6 +76,7 @@ export async function POST(request: NextRequest) {
       monthlyLimit: user.monthlyLimit,
       profilePicture: user.profilePicture || null,
       authProvider: user.authProvider || 'email',
+      isEmailVerified: user.isEmailVerified || false,
       createdAt: user.createdAt,
       lastReset: user.lastReset
     });
@@ -89,7 +85,8 @@ export async function POST(request: NextRequest) {
       success: true,
       message: 'Login successful',
       user: userResponse,
-      token
+      token,
+      requiresVerification: user.authProvider === 'email' && !user.isEmailVerified
     }, { status: 200 });
 
   } catch (error) {

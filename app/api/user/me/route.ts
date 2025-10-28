@@ -59,7 +59,8 @@ export async function GET(request: NextRequest) {
         monthlyLimit: user.monthlyLimit || 5,
         profilePicture: user.profilePicture || null,
         authProvider: user.authProvider || 'email',
-        hasPassword: !!user.password, // Boolean flag to check if password exists
+        hasPassword: !!user.password,
+        isEmailVerified: user.isEmailVerified || false,
         createdAt: user.createdAt
       }
     }, { status: 200 });

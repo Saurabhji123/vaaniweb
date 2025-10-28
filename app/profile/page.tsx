@@ -45,6 +45,11 @@ export default function ProfilePage() {
   const [passwordSuccess, setPasswordSuccess] = useState('');
   const [passwordLoading, setPasswordLoading] = useState(false);
 
+  // Email verification state
+  const [resendLoading, setResendLoading] = useState(false);
+  const [resendMessage, setResendMessage] = useState('');
+  const [resendError, setResendError] = useState('');
+
   // Delete account state
   const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
   const [deleteLoading, setDeleteLoading] = useState(false);
@@ -271,6 +276,39 @@ export default function ProfilePage() {
     }
   };
 
+  const handleResendOTP = async () => {
+    if (!user || user.authProvider !== 'email') return;
+    
+    setResendLoading(true);
+    setResendMessage('');
+    setResendError('');
+
+    try {
+      const response = await fetch('/api/auth/resend-otp', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'Authorization': `Bearer ${token}`
+        },
+        body: JSON.stringify({ email: user.email })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        setResendError(data.message || 'Failed to resend OTP');
+        setResendLoading(false);
+        return;
+      }
+
+      setResendMessage(data.message || 'OTP sent successfully! Check your email.');
+      setResendLoading(false);
+    } catch (error) {
+      setResendError('Network error. Please try again.');
+      setResendLoading(false);
+    }
+  };
+
   if (loading || !user) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-purple-600 to-pink-600 flex items-center justify-center">
@@ -367,6 +405,54 @@ export default function ProfilePage() {
             {/* Overview Tab */}
             {activeTab === 'overview' && (
               <div className="space-y-8">
+                {/* Email Verification Warning - Only for unverified email users */}
+                {user.authProvider === 'email' && user.isEmailVerified === false && (
+                  <div className="bg-yellow-50 border-2 border-yellow-400 rounded-xl p-6 shadow-lg">
+                    <div className="flex items-start gap-4">
+                      <div className="flex-shrink-0">
+                        <svg className="w-8 h-8 text-yellow-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
+                        </svg>
+                      </div>
+                      <div className="flex-1">
+                        <h3 className="text-xl font-bold text-yellow-900 mb-2">Email Verification Required</h3>
+                        <p className="text-yellow-800 mb-4">
+                          You need to verify your email address <strong>{user.email}</strong> before you can create websites. Check your inbox for the verification code.
+                        </p>
+                        
+                        {resendMessage && (
+                          <div className="bg-green-50 border border-green-300 text-green-700 px-4 py-2 rounded-lg mb-3">
+                            {resendMessage}
+                          </div>
+                        )}
+                        
+                        {resendError && (
+                          <div className="bg-red-50 border border-red-300 text-red-700 px-4 py-2 rounded-lg mb-3">
+                            {resendError}
+                          </div>
+                        )}
+                        
+                        <div className="flex flex-wrap gap-3">
+                          <Link 
+                            href={`/verify-email?email=${encodeURIComponent(user.email)}`}
+                            className="inline-flex items-center gap-2 px-6 py-2 bg-yellow-600 hover:bg-yellow-700 text-white font-semibold rounded-lg transition"
+                          >
+                            <EmailIcon size={20} />
+                            Verify Email Now
+                          </Link>
+                          <button
+                            onClick={handleResendOTP}
+                            disabled={resendLoading}
+                            className="inline-flex items-center gap-2 px-6 py-2 bg-white hover:bg-gray-50 text-yellow-800 font-semibold rounded-lg border-2 border-yellow-400 transition disabled:opacity-50"
+                          >
+                            {resendLoading ? 'Sending...' : 'Resend OTP'}
+                          </button>
+                        </div>
+                      </div>
+                    </div>
+                  </div>
+                )}
+
                 <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
                   <div className="bg-gradient-to-br from-purple-50 to-pink-50 rounded-xl p-6 border-2 border-purple-200">
                     <div className="flex items-center justify-between mb-2">
