@@ -192,13 +192,28 @@ export default function Home() {
 
       const data = await response.json();
       console.log('✅ Generation Success:', data);
+      console.log('🔍 Slug from response:', data.slug);
+      
       const generatedSlug = data.slug;
 
       if (generatedSlug) {
-        // Simple redirect - no complications
+        // CRITICAL: Open new tab IMMEDIATELY (synchronously) - NO setTimeout!
         const fullUrl = `${window.location.origin}/${generatedSlug}`;
-        window.open(fullUrl, '_blank', 'noopener,noreferrer');
+        console.log('🌐 Attempting to open URL:', fullUrl);
         
+        const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
+        
+        if (!newWindow || newWindow.closed) {
+          console.error('❌ Popup blocked! Trying fallback...');
+          // Fallback: try to open again
+          window.location.href = fullUrl;
+          return; // Exit early since we're redirecting
+        } else {
+          console.log('✅ New tab opened successfully!');
+          newWindow.focus();
+        }
+        
+        // NOW do other operations
         setStatus('✅ Website created!');
         
         // Refresh user data from database to get updated count
