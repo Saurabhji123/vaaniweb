@@ -54,6 +54,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
+  // Periodic check: Verify user still exists in database every 30 seconds
+  useEffect(() => {
+    if (!token) return;
+
+    // Initial check after login
+    refreshUser();
+
+    // Check every 30 seconds if user is still valid
+    const interval = setInterval(() => {
+      refreshUser();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [token]);
+
   const login = (newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
@@ -84,10 +99,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       });
 
       if (!response.ok) {
-        // Logout on 401 (unauthorized) OR 404 (user deleted from MongoDB)
+        // Auto-logout if user deleted (404) or unauthorized (401)
         if (response.status === 401 || response.status === 404) {
-          console.error(`User ${response.status === 404 ? 'deleted' : 'unauthorized'}, logging out`);
+          const errorData = await response.json();
+          console.error(`❌ ${errorData.message || 'User session invalid'} - Auto logout`);
           logout();
+          
+          // Show alert to user
+          if (response.status === 404) {
+            alert('Your account has been deleted. You have been logged out.');
+          } else {
+            alert('Your session has expired. Please login again.');
+          }
+          
+          // Redirect to login page
+          window.location.href = '/login';
         } else {
           console.error('Failed to refresh user data, status:', response.status);
         }
