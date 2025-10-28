@@ -223,6 +223,13 @@ function VerifyEmailContent() {
             {loading ? 'Verifying...' : 'Verify Email'}
           </button>
 
+          {/* Spam Folder Instruction */}
+          <div className="bg-yellow-50 border border-yellow-300 rounded-lg p-3 mb-4">
+            <p className="text-yellow-800 text-sm text-center">
+              <span className="font-semibold">Note:</span> If you don't see the email in your inbox, please check your <strong>spam or junk folder</strong>.
+            </p>
+          </div>
+
           <div className="text-center">
             <p className="text-gray-600 text-sm mb-2">
               Didn't receive the code?

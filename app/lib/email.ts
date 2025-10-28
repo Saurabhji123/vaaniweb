@@ -63,6 +63,8 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
         .wrapper { width: 100%; background-color: #f5f5f5; padding: 20px 0; }
         .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
         .header { padding: 40px 20px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
+        .logo-icon { width: 48px; height: 48px; }
         .logo { margin: 0; color: #ffffff; font-size: 28px; font-weight: 700; }
         .subtitle { margin: 10px 0 0; color: #e0e7ff; font-size: 14px; }
         .content { padding: 40px 20px; }
@@ -86,6 +88,7 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
           .text { font-size: 14px; }
           .otp-code { font-size: 28px; letter-spacing: 6px; }
           .logo { font-size: 24px; }
+          .logo-icon { width: 40px; height: 40px; }
         }
       </style>
     </head>
@@ -93,7 +96,14 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
       <div class="wrapper">
         <div class="container">
           <div class="header">
-            <h1 class="logo">VaaniWeb</h1>
+            <div class="logo-container">
+              <svg class="logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="white" fill-opacity="0.2"/>
+                <rect x="19" y="14" width="10" height="14" rx="5" fill="white"/>
+                <path d="M15 27C15 29.5 17 31.5 19.5 32V36M28.5 32C31 31.5 33 29.5 33 27M19.5 36H28.5M19.5 36V38H28.5V36" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h1 class="logo">VaaniWeb</h1>
+            </div>
             <p class="subtitle">AI-Powered Website Builder</p>
           </div>
           
@@ -112,8 +122,6 @@ export async function sendOTPEmail(email: string, otp: string, name: string = 'U
             </div>
             
             <p class="footer-text">If you didn't create a VaaniWeb account, you can safely ignore this email.</p>
-            
-            <p class="footer-text"><strong>Important:</strong> If you don't see this email in your inbox, please check your spam or junk folder.</p>
           </div>
           
           <div class="footer">
@@ -149,6 +157,8 @@ export async function sendWelcomeEmail(email: string, name: string = 'User') {
         .wrapper { width: 100%; background-color: #f5f5f5; padding: 20px 0; }
         .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); overflow: hidden; }
         .header { padding: 40px 20px 20px; text-align: center; background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); }
+        .logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
+        .logo-icon { width: 48px; height: 48px; }
         .logo { margin: 0; color: #ffffff; font-size: 32px; font-weight: 700; }
         .subtitle { margin: 10px 0 0; color: #e0e7ff; font-size: 16px; }
         .content { padding: 40px 20px; }
@@ -170,6 +180,7 @@ export async function sendWelcomeEmail(email: string, name: string = 'User') {
           .container { margin: 0 10px; }
           .content { padding: 30px 15px; }
           .logo { font-size: 28px; }
+          .logo-icon { width: 40px; height: 40px; }
           .subtitle { font-size: 14px; }
           .title { font-size: 20px; }
           .text { font-size: 14px; }
@@ -184,7 +195,14 @@ export async function sendWelcomeEmail(email: string, name: string = 'User') {
       <div class="wrapper">
         <div class="container">
           <div class="header">
-            <h1 class="logo">Welcome to VaaniWeb!</h1>
+            <div class="logo-container">
+              <svg class="logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+                <rect width="48" height="48" rx="12" fill="white" fill-opacity="0.2"/>
+                <rect x="19" y="14" width="10" height="14" rx="5" fill="white"/>
+                <path d="M15 27C15 29.5 17 31.5 19.5 32V36M28.5 32C31 31.5 33 29.5 33 27M19.5 36H28.5M19.5 36V38H28.5V36" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              <h1 class="logo">VaaniWeb</h1>
+            </div>
             <p class="subtitle">Your AI-powered website builder is ready!</p>
           </div>
           
@@ -245,7 +263,9 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
         body { font-family: Arial, sans-serif; background-color: #f4f4f4; margin: 0; padding: 0; }
         .container { max-width: 600px; margin: 50px auto; background: white; padding: 40px; border-radius: 10px; box-shadow: 0 2px 10px rgba(0,0,0,0.1); }
         .header { text-align: center; margin-bottom: 30px; }
-        .logo { font-size: 32px; font-weight: bold; color: #6366f1; }
+        .logo-container { display: flex; align-items: center; justify-content: center; gap: 12px; margin-bottom: 10px; }
+        .logo-icon { width: 48px; height: 48px; }
+        .logo { font-size: 32px; font-weight: bold; color: #6366f1; margin: 0; }
         .welcome-banner { background: linear-gradient(135deg, #667eea 0%, #764ba2 100%); color: white; padding: 30px; text-align: center; border-radius: 10px; margin: 30px 0; }
         .content { color: #333; line-height: 1.6; }
         .google-badge { display: inline-block; background: white; color: #333; padding: 10px 20px; border-radius: 5px; margin: 15px 0; font-weight: bold; }
@@ -257,7 +277,20 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
     <body>
       <div class="container">
         <div class="header">
-          <div class="logo">VaaniWeb</div>
+          <div class="logo-container">
+            <svg class="logo-icon" viewBox="0 0 48 48" fill="none" xmlns="http://www.w3.org/2000/svg">
+              <defs>
+                <linearGradient id="logoGradient" x1="0%" y1="0%" x2="100%" y2="100%">
+                  <stop offset="0%" style="stop-color:#9333ea;stop-opacity:1" />
+                  <stop offset="100%" style="stop-color:#ec4899;stop-opacity:1" />
+                </linearGradient>
+              </defs>
+              <rect width="48" height="48" rx="12" fill="url(#logoGradient)"/>
+              <rect x="19" y="14" width="10" height="14" rx="5" fill="white"/>
+              <path d="M15 27C15 29.5 17 31.5 19.5 32V36M28.5 32C31 31.5 33 29.5 33 27M19.5 36H28.5M19.5 36V38H28.5V36" stroke="white" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <div class="logo">VaaniWeb</div>
+          </div>
           <p style="color: #666; margin-top: 10px;">Voice-Powered Website Generator</p>
         </div>
         
