@@ -202,6 +202,13 @@ Other Critical Instructions:
 - callToAction: Should create urgency and excitement
 - Think like a marketing expert writing for a premium brand
 
+MANDATORY FOOTER BRANDING:
+- EVERY website MUST include "Made with ❤️ by VaaniWeb" in the footer
+- This should be prominently displayed at the bottom of every generated page
+- Include proper credit link to VaaniWeb in the footer section
+- This is NON-NEGOTIABLE and must appear on ALL generated websites
+- Example footer text: "© 2025 [Business Name]. All rights reserved. | Made with ❤️ by VaaniWeb"
+
 Return ONLY valid JSON, no markdown or extra text.`;
 
     const response = await fetch(GROQ_API_URL, {
