@@ -206,34 +206,41 @@ export default function Home() {
         
         // Always use slug-based URL (never show UUID to user)
         const pageUrl = `/${generatedSlug}`;
-        console.log('🌐 Opening page in new tab:', pageUrl);
+        const fullUrl = `${window.location.origin}/${generatedSlug}`;
+        console.log('🌐 Opening page in new tab:', fullUrl);
         
-        // Open in new tab - ALWAYS in new tab, never same tab
-        const newWindow = window.open(pageUrl, '_blank', 'noopener,noreferrer');
-        
-        if (newWindow) {
-          // Successfully opened in new tab
-          newWindow.focus(); // Bring new tab to front
-          setTimeout(() => {
-            setStatus('✅ Website created! Create another one?');
-          }, 1000);
-        } else {
-          // Popup blocked - show message to user instead of redirecting
-          console.warn('⚠️ Popup blocked by browser');
-          setStatus('⚠️ Popup blocked! Click here to open your website:');
+        // Try multiple methods to open in new tab
+        try {
+          // Method 1: Direct window.open with full URL (most reliable)
+          const newWindow = window.open(fullUrl, '_blank', 'noopener,noreferrer');
           
-          // Create a clickable link for user to manually open
-          const linkElement = document.createElement('a');
-          linkElement.href = pageUrl;
-          linkElement.target = '_blank';
-          linkElement.rel = 'noopener noreferrer';
-          linkElement.textContent = `Open ${generatedSlug}`;
-          linkElement.className = 'text-white underline font-bold ml-2';
-          
-          // Alternative: Show the URL in status for user to copy
-          setTimeout(() => {
-            setStatus(`✅ Website created! URL: ${window.location.origin}/${generatedSlug}`);
-          }, 500);
+          if (newWindow) {
+            console.log('✅ New tab opened successfully');
+            newWindow.focus(); // Bring new tab to front
+            setStatus('✅ Website created! Opening in new tab...');
+            
+            setTimeout(() => {
+              setStatus('✅ Website opened! Create another one?');
+            }, 1500);
+          } else {
+            // Popup blocked - try alternative method
+            console.warn('⚠️ Method 1 failed, trying alternative...');
+            
+            // Method 2: Create anchor tag and click it
+            const link = document.createElement('a');
+            link.href = fullUrl;
+            link.target = '_blank';
+            link.rel = 'noopener noreferrer';
+            document.body.appendChild(link);
+            link.click();
+            document.body.removeChild(link);
+            
+            console.log('✅ Opened via anchor click method');
+            setStatus(`✅ Website created! If not opened, click: ${generatedSlug}`);
+          }
+        } catch (openError) {
+          console.error('❌ Error opening new tab:', openError);
+          setStatus(`✅ Website created at: ${fullUrl}`);
         }
       } else {
         console.error('❌ Missing slug in response:', data);
