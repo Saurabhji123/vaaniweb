@@ -189,30 +189,33 @@ export async function POST(req: NextRequest) {
       }, { status: 500 });
     }
 
-    // Generate UUID
+    // Generate UUID for internal database ID
     const uuid = crypto.randomUUID();
     console.log('Generated UUID:', uuid);
+    
+    // Generate slug from business name (ALWAYS generate, never skip)
+    let slug = generateSlug(pageData.title);
+    console.log('✅ Generated base slug:', slug);
 
     // Try MongoDB insert (optional - will continue even if fails)
-    let slug = '';
     try {
       const client = await clientPromise;
       const db = client.db('vaaniweb');
       
-      // Generate unique slug from business name
+      // Generate UNIQUE slug with counter if needed
       slug = await generateUniqueSlug(db, pageData.title);
       console.log('✅ Generated unique slug:', slug);
       
       await db.collection('pages').insertOne({
-        _id: uuid as any,
-        slug, // Add slug field for custom URLs
+        _id: uuid as any, // UUID for database primary key (internal only)
+        slug, // Slug for public-facing URL
         html,
         json: pageData,
         createdAt: new Date(),
         userId: userId || null,
         userEmail: userEmail || null,
       });
-      console.log('✅ Page saved to MongoDB');
+      console.log('✅ Page saved to MongoDB with slug:', slug);
 
       // Increment sitesCreated for authenticated users
       if (userId) {
@@ -225,22 +228,20 @@ export async function POST(req: NextRequest) {
       }
     } catch (dbError: any) {
       console.warn('⚠️ MongoDB save failed (continuing anyway):', dbError.message);
-      // Fallback slug if DB fails
-      slug = generateSlug(pageData.title);
+      // Slug already generated above, so we can continue with it
+      console.log('Using slug:', slug);
     }
 
-    // Use slug-based URL instead of UUID
-    const url = slug 
-      ? `${process.env.NEXT_PUBLIC_ROOT_URL}/${slug}`
-      : `${process.env.NEXT_PUBLIC_ROOT_URL}/p/${uuid}`;
-    console.log('✅ Generated URL:', url);
+    // ALWAYS use slug-based URL (never expose UUID to users)
+    const url = `${process.env.NEXT_PUBLIC_ROOT_URL}/${slug}`;
+    console.log('✅ Public URL (slug-based only):', url);
     
     return NextResponse.json({ 
       url, 
       html, 
       pageData,
-      id: uuid,
-      slug // Return slug for reference
+      id: uuid, // Internal UUID (for database reference only, not shown to user)
+      slug // Public slug for clean URLs
     });
   } catch (error: any) {
     console.error('❌ Generation error:', error);

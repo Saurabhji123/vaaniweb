@@ -195,7 +195,7 @@ export default function Home() {
       const generatedId = data.id;
       const generatedSlug = data.slug; // Get slug from response
 
-      if (generatedId) {
+      if (generatedId && generatedSlug) {
         setStatus('✅ Success! Opening your website...');
         
         // Refresh user data from database to get updated count
@@ -204,29 +204,40 @@ export default function Home() {
         // Reset form immediately
         setTranscript('');
         
-        // Use slug-based URL if available, otherwise fall back to UUID
-        const pageUrl = generatedSlug ? `/${generatedSlug}` : `/p/${generatedId}`;
-        console.log('🌐 Opening page at:', pageUrl);
+        // Always use slug-based URL (never show UUID to user)
+        const pageUrl = `/${generatedSlug}`;
+        console.log('🌐 Opening page in new tab:', pageUrl);
         
-        // Open in new tab - use window.open for better reliability
-        const newWindow = window.open(pageUrl, '_blank');
+        // Open in new tab - ALWAYS in new tab, never same tab
+        const newWindow = window.open(pageUrl, '_blank', 'noopener,noreferrer');
         
         if (newWindow) {
           // Successfully opened in new tab
+          newWindow.focus(); // Bring new tab to front
           setTimeout(() => {
             setStatus('✅ Website created! Create another one?');
           }, 1000);
         } else {
-          // Popup blocked - fallback to same tab navigation
-          console.log('⚠️ Popup blocked, redirecting in same tab...');
-          setStatus('✅ Redirecting to your website...');
+          // Popup blocked - show message to user instead of redirecting
+          console.warn('⚠️ Popup blocked by browser');
+          setStatus('⚠️ Popup blocked! Click here to open your website:');
+          
+          // Create a clickable link for user to manually open
+          const linkElement = document.createElement('a');
+          linkElement.href = pageUrl;
+          linkElement.target = '_blank';
+          linkElement.rel = 'noopener noreferrer';
+          linkElement.textContent = `Open ${generatedSlug}`;
+          linkElement.className = 'text-white underline font-bold ml-2';
+          
+          // Alternative: Show the URL in status for user to copy
           setTimeout(() => {
-            router.push(`/p/${generatedId}`);
+            setStatus(`✅ Website created! URL: ${window.location.origin}/${generatedSlug}`);
           }, 500);
         }
       } else {
-        console.error('❌ No ID in response:', data);
-        setStatus('Error: Website generated but ID missing');
+        console.error('❌ Missing slug in response:', data);
+        setStatus('Error: Website generated but slug missing. Please try again.');
       }
     } catch (error: any) {
       console.error('❌ Generation Exception:', error);
