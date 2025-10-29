@@ -64,27 +64,75 @@ export async function GET(
     // CRITICAL FIX: Inject slug into HTML for form submissions
     let html = page.html || '';
     
-    // Check if slug is already embedded
+    // Inject centralized form script first (if not already present)
+    if (!html.includes('function submitContactForm')) {
+      console.log('⚠️ Old template detected, injecting new form script');
+      
+      const modernFormScript = `<script>
+async function submitContactForm(event) {
+  event.preventDefault();
+  const form = event.target;
+  const btn = form.querySelector('button[type="submit"]');
+  const btnText = btn.textContent;
+  
+  btn.disabled = true;
+  btn.textContent = '⏳ Sending...';
+  btn.classList.add('opacity-75');
+  
+  const formData = {};
+  const inputs = form.querySelectorAll('input:not([type="hidden"]), textarea, select');
+  inputs.forEach(input => {
+    const fieldName = input.labels && input.labels[0] ? input.labels[0].textContent : (input.name || input.id || 'Field');
+    formData[fieldName] = input.value;
+  });
+  
+  const slugInput = form.querySelector('input[name="websiteSlug"]');
+  const slug = slugInput ? slugInput.value : window.location.pathname.split('/').filter(Boolean).pop();
+  
+  console.log('🔍 Submitting:', { slug, formData });
+  
+  try {
+    const res = await fetch('/api/submit-form', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ websiteSlug: slug, formData })
+    });
+    
+    const data = await res.json();
+    console.log('📨 Response:', data);
+    
+    if (res.ok) {
+      form.reset();
+      alert('✅ Success! Your message has been sent!');
+    } else {
+      alert('❌ ' + (data.error || data.message || 'Failed to send'));
+    }
+  } catch (err) {
+    console.error('� Error:', err);
+    alert('❌ Network error. Please try again.');
+  } finally {
+    btn.disabled = false;
+    btn.textContent = btnText;
+    btn.classList.remove('opacity-75');
+  }
+}
+</script>`;
+      
+      // Inject before </head>
+      html = html.replace('</head>', modernFormScript + '</head>');
+    }
+    
+    // Inject hidden input with slug if not present
     if (!html.includes('name="websiteSlug"')) {
-      console.log('📝 Injecting slug into HTML form for:', slug);
+      console.log('📝 Injecting slug into HTML form:', page.slug || slug);
       
       // Find all forms with submitContactForm and inject hidden input
-      const formPattern = /<form([^>]*onsubmit="submitContactForm\(event\)"[^>]*)>/g;
-      const forms = html.match(formPattern);
+      const formPattern = /<form([^>]*onsubmit="submitContactForm\(event\)"[^>]*)>/gi;
+      html = html.replace(formPattern, (match: string) => {
+        return `${match}<input type="hidden" name="websiteSlug" value="${page.slug || slug}">`;
+      });
       
-      if (forms && forms.length > 0) {
-        console.log(`📋 Found ${forms.length} form(s) to inject slug`);
-        
-        // Inject slug right after form opening tag
-        html = html.replace(
-          formPattern,
-          `<form$1><input type="hidden" name="websiteSlug" value="${page.slug || slug}">`
-        );
-        
-        console.log('✅ Slug injected successfully');
-      } else {
-        console.log('⚠️ No forms found in HTML');
-      }
+      console.log('✅ Slug injected successfully');
     } else {
       console.log('✅ Slug already present in HTML');
     }
