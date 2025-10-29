@@ -23,6 +23,7 @@ export default function SubmissionsPage() {
   const [loading, setLoading] = useState(true);
   const [selectedWebsite, setSelectedWebsite] = useState<string>('all');
   const [currentPage, setCurrentPage] = useState(1);
+  const [websites, setWebsites] = useState<Array<{slug: string, title: string}>>([]);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -30,8 +31,25 @@ export default function SubmissionsPage() {
       router.push('/login');
     } else if (user) {
       fetchSubmissions();
+      fetchUserWebsites();
     }
   }, [user, authLoading, router]);
+
+  const fetchUserWebsites = async () => {
+    try {
+      const res = await fetch('/api/user/websites', {
+        headers: {
+          'Authorization': `Bearer ${localStorage.getItem('token')}`
+        }
+      });
+      if (res.ok) {
+        const data = await res.json();
+        setWebsites(data.websites || []);
+      }
+    } catch (error) {
+      console.error('Error fetching websites:', error);
+    }
+  };
 
   const fetchSubmissions = async () => {
     try {
@@ -140,8 +158,10 @@ export default function SubmissionsPage() {
                 className="px-4 py-2 border-2 border-purple-300 rounded-lg focus:outline-none focus:border-purple-600 transition"
               >
                 <option value="all">All Websites</option>
-                {uniqueWebsites.map(slug => (
-                  <option key={slug} value={slug}>{slug}</option>
+                {websites.map(site => (
+                  <option key={site.slug} value={site.slug}>
+                    {site.title || site.slug}
+                  </option>
                 ))}
               </select>
               
