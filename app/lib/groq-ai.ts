@@ -161,9 +161,27 @@ export async function analyzeTranscriptWithAI(transcript: string): Promise<AIGen
 
 User's Description: "${transcript}"
 
+CRITICAL: Extract or create a proper business name following these rules:
+1. If user mentions a business name explicitly (e.g., "Create a website for XYZ Company"), USE IT EXACTLY
+2. If no business name mentioned, CREATE ONE that is:
+   - Professional and memorable (2-4 words max)
+   - Relevant to the business type
+   - Uses title case (e.g., "Fresh Bakery", "Elite Fitness", "Gourmet Kitchen")
+   - Avoid generic names like "Business Website" or "My Company"
+   - Make it sound established and trustworthy
+
+Examples of GOOD business names by type:
+- Cafe: "Brew Haven Cafe", "The Daily Grind", "Aroma Corner"
+- Gym: "Iron Forge Fitness", "Core Strength Studio", "Power House Gym"
+- Restaurant: "Bella Vista", "The Spice Route", "Harvest Kitchen"
+- Salon: "Glamour Lounge", "Style Studio", "Radiance Spa"
+- Photography: "Lens & Light", "Captured Moments", "Pixel Perfect"
+- Bakery: "Sweet Sensations", "The Flour Mill", "Artisan Bakes"
+- Tech: "CodeCraft Solutions", "Digital Forge", "Tech Innovate"
+
 Generate a JSON response with the following structure:
 {
-  "businessName": "Professional business name (2-4 words max)",
+  "businessName": "Professional business name (2-4 words, NEVER 'Business Website' or generic)",
   "tagline": "Catchy, compelling tagline (10-15 words)",
   "description": "Engaging 2-3 sentence description highlighting unique value",
   "themeColor": "One of: pink, blue, purple, green, red, orange, yellow, gray, indigo, teal",
