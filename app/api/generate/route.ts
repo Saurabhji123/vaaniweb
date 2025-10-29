@@ -130,6 +130,10 @@ export async function POST(req: NextRequest) {
 
     const body = await req.json();
     const transcript = body.transcript || body.description; // Support both field names
+    const customImages = body.customImages || null; // Get custom images if provided
+    
+    console.log('📝 Transcript received:', transcript.substring(0, 100));
+    console.log('🖼️ Custom images provided:', customImages ? customImages.length : 0);
     
     if (!transcript || !transcript.trim()) {
       console.error('❌ No transcript provided');
@@ -163,7 +167,7 @@ export async function POST(req: NextRequest) {
       tagline: aiContent.tagline,
       description: aiContent.description,
       theme_color: aiContent.themeColor,
-      pics: aiContent.realImages || [], // Use real Pexels/Unsplash URLs
+      pics: customImages && customImages.length > 0 ? customImages : (aiContent.realImages || []), // Use custom images if provided, else AI-generated
       picDescriptions: aiContent.imageDescriptions || [], // Alt text for accessibility
       instagram: aiContent.instagram,
       contact_fields: aiContent.contactFields,
@@ -172,7 +176,10 @@ export async function POST(req: NextRequest) {
       seoKeywords: aiContent.seoKeywords
     };
     
-    console.log('✅ AI-Generated page data:', pageData);
+    console.log('✅ AI-Generated page data (with custom images if provided):', {
+      ...pageData,
+      pics: customImages ? 'Using custom uploaded images' : 'Using AI-generated images'
+    });
 
     // Generate HTML
     let html;

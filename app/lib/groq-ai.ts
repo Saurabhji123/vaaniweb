@@ -14,6 +14,21 @@ interface AIGeneratedContent {
     about: string;
     features: string[];
     callToAction: string;
+    testimonials?: Array<{
+      name: string;
+      role: string;
+      quote: string;
+      rating?: number;
+    }>;
+    services?: Array<{
+      title: string;
+      description: string;
+      icon?: string;
+    }>;
+    faq?: Array<{
+      question: string;
+      answer: string;
+    }>;
   };
   contactFields: string[];
   instagram?: string;
@@ -166,11 +181,35 @@ Generate a JSON response with the following structure:
     "Brief description 4 (e.g., 'Happy customers in our cafe')"
   ],
   "sections": {
-    "about": "Compelling about section (80-120 words minimum, tell an engaging story with personality, passion, and authenticity. Include founding story, mission, unique approach, or what drives the business)",
-    "features": ["feature1", "feature2", "feature3", "feature4", "feature5", "feature6"] (6-8 specific, measurable value propositions with concrete benefits, not vague claims),
-    "callToAction": "Powerful, action-driven CTA with urgency (e.g., 'Start Your Transformation Today', 'Book Your Free Consultation Now', 'Join 500+ Happy Customers')"
+    "about": "Compelling about section (150-200 words, tell a rich story with personality, history, mission, vision. Include: founding story, years of experience, team background, core values, what makes you unique, passion/drive, customer promise. Make it deeply authentic and human)",
+    "features": ["feature1", "feature2", "feature3", ... "feature10"] (10-12 SPECIFIC measurable value propositions with concrete benefits and numbers),
+    "callToAction": "Powerful, action-driven CTA with urgency (e.g., 'Start Your Transformation Today', 'Book Your Free Consultation Now', 'Join 500+ Happy Customers')",
+    "testimonials": [
+      {"name": "John Smith", "role": "Customer/Position", "quote": "Authentic, detailed testimonial quote (2-3 sentences about their experience, results, or satisfaction)", "rating": 5},
+      {"name": "Sarah Johnson", "role": "Client Type", "quote": "Another genuine testimonial with specific details", "rating": 5},
+      {"name": "Mike Davis", "role": "User Role", "quote": "Third testimonial highlighting different aspect", "rating": 5}
+    ] (3-4 realistic testimonials with names, roles, detailed quotes),
+    "services": [
+      {"title": "Service Name 1", "description": "Detailed description of this service, what's included, benefits (30-40 words)", "icon": "✨"},
+      {"title": "Service Name 2", "description": "Another service with rich details about features and value", "icon": "🎯"},
+      {"title": "Service Name 3", "description": "Third service with comprehensive information", "icon": "💎"}
+    ] (3-5 key services with descriptions and emoji icons),
+    "faq": [
+      {"question": "Common question customers ask?", "answer": "Detailed, helpful answer (2-3 sentences)"},
+      {"question": "Another frequent question?", "answer": "Clear, informative response"},
+      {"question": "Third important question?", "answer": "Thorough answer addressing concern"}
+    ] (5-6 relevant FAQ items based on business type)
   },
-  "contactFields": ["Name", "Email", "Phone", "Message"] (add business-specific fields like "Preferred Date", "Service Interest", "Budget Range" if relevant),
+  "contactFields": ["Name", "Email", "Phone", "Message"] (MUST customize based on business type with specific, relevant fields that capture customer needs. Examples by business:
+    - Gym/Fitness: ["Name", "Email", "Phone", "Fitness Goals", "Preferred Time Slot", "Experience Level"]
+    - Restaurant: ["Name", "Email", "Phone", "Preferred Date", "Party Size", "Special Requests"]
+    - Salon/Spa: ["Name", "Email", "Phone", "Service Interest", "Preferred Date", "Message"]
+    - Education: ["Name", "Email", "Phone", "Grade Level", "Subject Interest", "Message"]
+    - Photography: ["Name", "Email", "Phone", "Event Type", "Event Date", "Budget Range"]
+    - Real Estate: ["Name", "Email", "Phone", "Property Type", "Budget Range", "Preferred Location"]
+    - Legal/Consulting: ["Name", "Email", "Phone", "Service Needed", "Preferred Contact Time", "Brief Description"]
+    - Medical/Dental: ["Name", "Email", "Phone", "Reason for Visit", "Preferred Appointment Date", "Insurance Provider"]
+    Always include: Name, Email, Phone + 2-3 business-specific fields that help qualify leads),
   "instagram": "handle if mentioned, else null",
   "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7", "keyword8"] (8-10 targeted SEO keywords including location, service type, and industry terms)
 }
@@ -211,16 +250,43 @@ Other Critical Instructions:
 - businessName: Extract from transcript, make it catchy and memorable (avoid generic names)
 - tagline: MUST be unique, emotional, action-oriented, and BENEFIT-focused (not just descriptive). Should answer "What do customers gain?" Examples: "Transform Your Body, Transform Your Life" (not "A Gym For Everyone")
 - description: Tell a compelling story in 3-4 sentences. Include: What you do differently, who you serve, and why customers choose you. Use power words and emotion.
-- about: Write 80-120 words minimum. Include: Founding story OR mission statement, years of experience (if mentioned), unique approach/philosophy, what drives your passion, and personal touch. Make it human and authentic, not corporate.
-- features: Provide 6-8 SPECIFIC features with concrete benefits. Use numbers when possible (e.g., "24/7 Access" not "Always Available", "500+ Happy Clients" not "Many Customers", "Certified Trainers with 10+ Years" not "Experienced Staff")
+- about: Write 150-200 words. MUST include: 
+  * Opening hook (1-2 sentences about passion/mission)
+  * Founding story OR years of experience (when/how started)
+  * Unique approach/philosophy (what makes different)
+  * Team/expertise background
+  * Core values or customer promise
+  * Personal/human touch (not corporate jargon)
+  * Make it authentic, warm, and engaging
+- features: Provide 10-12 SPECIFIC features with CONCRETE BENEFITS. Use numbers, metrics, and specifics:
+  * "24/7 Access to Facilities" not "Always Available"
+  * "500+ 5-Star Reviews" not "Many Happy Customers"
+  * "Certified Trainers (10+ Years Experience)" not "Experienced Staff"
+  * "Free Parking for 100+ Cars" not "Parking Available"
+  * Include: quantifiable benefits, certifications, time/convenience factors, unique offerings
+- testimonials: Create 3-4 REALISTIC testimonials that:
+  * Use realistic full names (first + last)
+  * Include specific roles/professions
+  * Write 2-3 sentence detailed quotes (not generic praise)
+  * Mention specific results, experiences, or improvements
+  * Vary the focus (service quality, results, atmosphere, value)
+  * Make them sound genuine and conversational
+- services: Create 3-5 key service offerings with:
+  * Clear, benefit-focused titles
+  * 30-40 word descriptions explaining what's included
+  * Highlight value, outcomes, and unique aspects
+  * Use relevant emoji icons (✨🎯💎🌟🚀💪🎨🔥)
+- faq: Generate 5-6 common questions based on business type:
+  * Address pricing, timing, booking, what to expect, qualifications
+  * Provide detailed 2-3 sentence answers
+  * Be helpful, informative, and reassuring
+  * Anticipate real customer concerns
 - callToAction: Create URGENCY and DESIRE. Include action verb + benefit + optionally scarcity/social proof. Examples: "Join 500+ Members Today", "Book Your Free Trial - Limited Slots", "Start Your Journey Now - No Commitment"
 - Think like a professional copywriter writing for a premium, customer-focused brand
-- Use power words: Transform, Discover, Unlock, Master, Achieve, Experience, Premium, Exclusive, Guaranteed
+- Use power words: Transform, Discover, Unlock, Master, Achieve, Experience, Premium, Exclusive, Guaranteed, Certified, Award-Winning
 - Avoid generic phrases like "We offer", "We provide", "Quality service" - be specific and unique
-- Write in active voice, be concise but impactful
-- features: Each feature should be a unique selling point (USP), not generic statements
-- callToAction: Should create urgency and excitement
-- Think like a marketing expert writing for a premium brand
+- Write in active voice, be concise but impactful and rich in detail
+- Every section should feel custom-crafted for THIS specific business
 
 MANDATORY FOOTER BRANDING:
 - EVERY website MUST include "Made with ❤️ by VaaniWeb" in the footer
@@ -250,7 +316,7 @@ Return ONLY valid JSON, no markdown or extra text.`;
           }
         ],
         temperature: 0.7,
-        max_tokens: 2000,
+        max_tokens: 4000, // Increased for richer content (testimonials, services, FAQ)
         top_p: 0.9,
       }),
     });

@@ -23,8 +23,10 @@ export default function Home() {
   const [isRecording, setIsRecording] = useState(false);
   const [status, setStatus] = useState('');
   const [transcript, setTranscript] = useState('');
+  const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const recognitionRef = useRef<any>(null);
   const isInitializedRef = useRef(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (typeof window !== 'undefined' && !isInitializedRef.current) {
@@ -145,6 +147,36 @@ export default function Home() {
     }
   };
 
+  const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const files = e.target.files;
+    if (!files) return;
+
+    // Check max 4 images
+    if (uploadedImages.length + files.length > 4) {
+      setStatus('❌ Maximum 4 images allowed');
+      return;
+    }
+
+    // Convert to base64 and add to state
+    Array.from(files).forEach((file) => {
+      // Check file size (max 5MB per image)
+      if (file.size > 5 * 1024 * 1024) {
+        setStatus(`❌ ${file.name} is too large. Max 5MB per image.`);
+        return;
+      }
+
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setUploadedImages(prev => [...prev, reader.result as string]);
+      };
+      reader.readAsDataURL(file);
+    });
+  };
+
+  const removeImage = (index: number) => {
+    setUploadedImages(prev => prev.filter((_, i) => i !== index));
+  };
+
   const handleGenerateWebsite = async () => {
     if (!transcript.trim()) {
       setStatus('Please provide a description for your website.');
@@ -168,6 +200,7 @@ export default function Home() {
 
       console.log('🚀 Starting website generation...');
       console.log('📝 Transcript:', transcript);
+      console.log('🖼️ Uploaded Images:', uploadedImages.length);
       console.log('👤 User:', user?.email);
       console.log('🔑 Has Token:', !!token);
 
@@ -177,7 +210,10 @@ export default function Home() {
           'Content-Type': 'application/json',
           'Authorization': `Bearer ${token}`
         },
-        body: JSON.stringify({ description: transcript })
+        body: JSON.stringify({ 
+          description: transcript,
+          customImages: uploadedImages.length > 0 ? uploadedImages : null
+        })
       });
 
       console.log('📡 API Response Status:', response.status);
@@ -344,6 +380,74 @@ export default function Home() {
                 className="w-full p-5 sm:p-6 border-2 border-purple-200 rounded-2xl focus:border-purple-400 focus:ring-4 focus:ring-purple-200 transition-all duration-200 min-h-[150px] text-gray-700 text-base sm:text-lg"
                 placeholder="Example: Cake shop in Delhi specializing in custom cakes, pink theme, Instagram cakedelhi, contact form with name, email, phone"
               />
+              
+              {/* Image Upload Section */}
+              <div className="mt-6 border-2 border-dashed border-purple-300 rounded-2xl p-6 bg-purple-50/50">
+                <div className="flex items-center justify-between mb-4">
+                  <h3 className="text-lg font-bold text-gray-800 flex items-center gap-2">
+                    <svg className="w-6 h-6 text-purple-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                    </svg>
+                    Upload Custom Images (Optional)
+                  </h3>
+                  <span className="text-sm text-gray-600">Max 4 images, 5MB each</span>
+                </div>
+                
+                <p className="text-gray-600 text-sm mb-4">
+                  Upload your own images to use instead of AI-generated ones. Perfect for showcasing your actual products, team, or location!
+                </p>
+                
+                <input
+                  ref={fileInputRef}
+                  type="file"
+                  accept="image/*"
+                  multiple
+                  onChange={handleImageUpload}
+                  className="hidden"
+                />
+                
+                <button
+                  onClick={() => fileInputRef.current?.click()}
+                  disabled={uploadedImages.length >= 4}
+                  className={`w-full py-4 px-6 rounded-xl font-semibold text-base transition-all duration-200 flex items-center justify-center gap-3 ${
+                    uploadedImages.length >= 4
+                      ? 'bg-gray-300 text-gray-500 cursor-not-allowed'
+                      : 'bg-gradient-to-r from-purple-500 to-pink-500 hover:from-purple-600 hover:to-pink-600 text-white shadow-lg hover:shadow-xl transform hover:scale-105'
+                  }`}
+                >
+                  <svg className="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" />
+                  </svg>
+                  <span>{uploadedImages.length >= 4 ? 'Maximum 4 Images Reached' : `Choose Images (${uploadedImages.length}/4)`}</span>
+                </button>
+                
+                {/* Image Preview Grid */}
+                {uploadedImages.length > 0 && (
+                  <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
+                    {uploadedImages.map((img, index) => (
+                      <div key={index} className="relative group">
+                        <img 
+                          src={img} 
+                          alt={`Upload ${index + 1}`} 
+                          className="w-full h-32 object-cover rounded-lg shadow-md border-2 border-purple-200"
+                        />
+                        <button
+                          onClick={() => removeImage(index)}
+                          className="absolute -top-2 -right-2 bg-red-500 hover:bg-red-600 text-white rounded-full p-2 shadow-lg transform transition-all duration-200 hover:scale-110 opacity-0 group-hover:opacity-100"
+                        >
+                          <svg className="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                          </svg>
+                        </button>
+                        <div className="absolute bottom-2 left-2 bg-black/60 text-white text-xs px-2 py-1 rounded">
+                          Image {index + 1}
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+              
               <div className="flex items-start gap-2 text-gray-600 text-sm sm:text-base mt-4 mb-6">
                 <LightningIcon size={20} className="text-yellow-500 flex-shrink-0 mt-0.5" />
                 <p>Tip: Make any corrections or add more details before generating</p>

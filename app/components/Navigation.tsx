@@ -2,12 +2,43 @@
 
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 import { ProfileIcon } from './Icons';
 
 export default function Navigation() {
   const { user, logout, loading } = useAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [unreadCount, setUnreadCount] = useState(0);
+
+  // Fetch unread submissions count
+  useEffect(() => {
+    if (user) {
+      fetchUnreadCount();
+      // Poll every 30 seconds for updates
+      const interval = setInterval(fetchUnreadCount, 30000);
+      return () => clearInterval(interval);
+    }
+  }, [user]);
+
+  const fetchUnreadCount = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      const res = await fetch('/api/submissions/unread-count', {
+        headers: {
+          'Authorization': `Bearer ${token}`
+        }
+      });
+
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (error) {
+      console.error('Error fetching unread count:', error);
+    }
+  };
 
   return (
     <nav className="bg-white shadow-md sticky top-0 z-50">
@@ -44,10 +75,15 @@ export default function Navigation() {
             ) : user ? (
               <Link 
                 href="/profile" 
-                className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2"
+                className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2 relative"
               >
                 <ProfileIcon size={20} />
                 Profile
+                {unreadCount > 0 && (
+                  <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-md">
+                    {unreadCount > 99 ? '99+' : unreadCount}
+                  </span>
+                )}
               </Link>
             ) : (
               <>
@@ -104,10 +140,15 @@ export default function Navigation() {
               ) : user ? (
                 <Link 
                   href="/profile" 
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-center font-medium flex items-center justify-center gap-2"
+                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-center font-medium flex items-center justify-center gap-2 relative"
                 >
                   <ProfileIcon size={20} />
                   Profile
+                  {unreadCount > 0 && (
+                    <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-md">
+                      {unreadCount > 99 ? '99+' : unreadCount}
+                    </span>
+                  )}
                 </Link>
               ) : (
                 <>

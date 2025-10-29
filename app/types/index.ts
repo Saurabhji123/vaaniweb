@@ -12,6 +12,21 @@ export interface GeneratedPageData {
     about: string;
     features: string[];
     callToAction: string;
+    testimonials?: Array<{
+      name: string;
+      role: string;
+      quote: string;
+      rating?: number;
+    }>;
+    services?: Array<{
+      title: string;
+      description: string;
+      icon?: string;
+    }>;
+    faq?: Array<{
+      question: string;
+      answer: string;
+    }>;
   };
   seoKeywords?: string[];
 }
