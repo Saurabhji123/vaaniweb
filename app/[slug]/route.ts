@@ -61,7 +61,35 @@ export async function GET(
 
     console.log('✅ Page found, serving HTML');
     
-    return new NextResponse(page.html, {
+    // CRITICAL FIX: Inject slug into HTML for form submissions
+    let html = page.html || '';
+    
+    // Check if slug is already embedded
+    if (!html.includes('name="websiteSlug"')) {
+      console.log('📝 Injecting slug into HTML form for:', slug);
+      
+      // Find all forms with submitContactForm and inject hidden input
+      const formPattern = /<form([^>]*onsubmit="submitContactForm\(event\)"[^>]*)>/g;
+      const forms = html.match(formPattern);
+      
+      if (forms && forms.length > 0) {
+        console.log(`📋 Found ${forms.length} form(s) to inject slug`);
+        
+        // Inject slug right after form opening tag
+        html = html.replace(
+          formPattern,
+          `<form$1><input type="hidden" name="websiteSlug" value="${page.slug || slug}">`
+        );
+        
+        console.log('✅ Slug injected successfully');
+      } else {
+        console.log('⚠️ No forms found in HTML');
+      }
+    } else {
+      console.log('✅ Slug already present in HTML');
+    }
+    
+    return new NextResponse(html, {
       headers: {
         'Content-Type': 'text/html',
       },
