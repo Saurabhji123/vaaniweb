@@ -8,6 +8,7 @@ export interface GeneratedPageData {
   instagram?: string;
   contact_fields: string[];
   businessType?: string;
+  slug?: string; // Website slug for form submissions
   sections?: {
     about: string;
     features: string[];

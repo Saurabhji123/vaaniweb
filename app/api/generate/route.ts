@@ -181,7 +181,11 @@ export async function POST(req: NextRequest) {
       pics: customImages ? 'Using custom uploaded images' : 'Using AI-generated images'
     });
 
-    // Generate HTML
+    // Generate slug BEFORE HTML (will be added to pageData later)
+    const tempSlug = generateSlug(pageData.title);
+    console.log('✅ Generated temporary slug:', tempSlug);
+
+    // Generate HTML (without slug first)
     let html;
     try {
       html = generateHTML(pageData);
@@ -200,9 +204,9 @@ export async function POST(req: NextRequest) {
     const uuid = crypto.randomUUID();
     console.log('Generated UUID:', uuid);
     
-    // Generate slug from business name (ALWAYS generate, never skip)
-    let slug = generateSlug(pageData.title);
-    console.log('✅ Generated base slug:', slug);
+    // Generate FINAL slug (unique in database)
+    let slug = tempSlug;
+    console.log('✅ Using base slug:', slug);
 
     // Try MongoDB insert (optional - will continue even if fails)
     try {
@@ -213,11 +217,18 @@ export async function POST(req: NextRequest) {
       slug = await generateUniqueSlug(db, pageData.title);
       console.log('✅ Generated unique slug:', slug);
       
+      // Add slug to pageData NOW for HTML regeneration
+      pageData.slug = slug;
+      
+      // Regenerate HTML with slug embedded in data attribute
+      html = generateHTML(pageData);
+      
       await db.collection('pages').insertOne({
         _id: uuid as any, // UUID for database primary key (internal only)
         slug, // Slug for public-facing URL
-        html,
+        html, // HTML with embedded slug
         json: pageData,
+        title: pageData.title, // Add title for easier querying
         createdAt: new Date(),
         userId: userId || null,
         userEmail: userEmail || null,
@@ -236,16 +247,22 @@ export async function POST(req: NextRequest) {
     } catch (dbError: any) {
       console.warn('⚠️ MongoDB save failed (continuing anyway):', dbError.message);
       // Slug already generated above, so we can continue with it
+      pageData.slug = slug;
+      html = generateHTML(pageData);
       console.log('Using slug:', slug);
     }
+
+    // Regenerate HTML with slug embedded
+    const htmlWithSlug = generateHTML(pageData);
 
     // ALWAYS use slug-based URL (never expose UUID to users)
     const url = `${process.env.NEXT_PUBLIC_ROOT_URL}/${slug}`;
     console.log('✅ Public URL (slug-based only):', url);
+    console.log('✅ Slug embedded in HTML:', pageData.slug);
     
     return NextResponse.json({ 
       url, 
-      html, 
+      html, // HTML with embedded slug
       pageData,
       id: uuid, // Internal UUID (for database reference only, not shown to user)
       slug // Public slug for clean URLs
