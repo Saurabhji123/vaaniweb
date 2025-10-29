@@ -3,6 +3,9 @@ import { connectDB } from '@/app/lib/mongodb';
 import { verifyToken } from '@/app/lib/auth';
 import { ObjectId } from 'mongodb';
 
+export const dynamic = 'force-dynamic';
+export const runtime = 'nodejs';
+
 // GET - Fetch unread submissions count for the logged-in user
 export async function GET(req: NextRequest) {
   try {

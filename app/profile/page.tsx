@@ -532,6 +532,13 @@ export default function ProfilePage() {
                       <span>Create Website</span>
                     </Link>
                     <Link
+                      href="/profile/submissions"
+                      className="flex items-center justify-center gap-3 bg-gradient-to-r from-indigo-500 to-blue-600 text-white py-4 px-6 rounded-xl hover:from-indigo-600 hover:to-blue-700 transition font-semibold shadow-lg relative"
+                    >
+                      <EmailIcon size={24} />
+                      <span>View Submissions</span>
+                    </Link>
+                    <Link
                       href="/pricing"
                       className="flex items-center justify-center gap-3 bg-gradient-to-r from-blue-500 to-purple-600 text-white py-4 px-6 rounded-xl hover:from-blue-600 hover:to-purple-700 transition font-semibold shadow-lg"
                     >
