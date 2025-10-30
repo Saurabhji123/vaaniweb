@@ -64,9 +64,12 @@ export async function GET(
     // CRITICAL FIX: Inject slug into HTML for form submissions
     let html = page.html || '';
     
-    // Inject centralized form script first (if not already present)
-    if (!html.includes('function submitContactForm')) {
-      console.log('⚠️ Old template detected, injecting new form script');
+    // Inject modern form script if OLD version detected
+    // Check for modern markers: '⏳ Sending...' or classList.add
+    const hasModernScript = html.includes('⏳ Sending...') || html.includes('btn.classList.add');
+    
+    if (!hasModernScript) {
+      console.log('⚠️ Old/missing form script detected, injecting modern version');
       
       const modernFormScript = `<script>
 async function submitContactForm(event) {
