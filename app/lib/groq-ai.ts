@@ -46,6 +46,88 @@ const PEXELS_API_KEY = process.env.PEXELS_API_KEY || 'wMJn9zPG0dNlTmFJkgB5P5gHWQ
  * Falls back to Unsplash if Pexels fails
  * Images are keyword-specific and high-quality
  */
+// Helper function to extract business details from transcript
+function extractBusinessDetails(transcript: string): {
+  location?: string;
+  industry?: string;
+  services?: string[];
+  experience?: string;
+} {
+  const details: {
+    location?: string;
+    industry?: string;
+    services?: string[];
+    experience?: string;
+  } = {};
+
+  const lowerTranscript = transcript.toLowerCase();
+  
+  // Extract location
+  const locationPatterns = [
+    /in\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/g,
+    /at\s+([A-Z][a-z]+(?:\s+[A-Z][a-z]+)?)/g,
+    /([A-Z][a-z]+)\s+area/gi,
+    /([A-Z][a-z]+)\s+city/gi,
+  ];
+  for (const pattern of locationPatterns) {
+    const match = transcript.match(pattern);
+    if (match) {
+      details.location = match[0].replace(/^(in|at)\s+/i, '');
+      break;
+    }
+  }
+
+  // Extract industry/business type
+  const industryKeywords = [
+    'gym', 'fitness', 'studio', 'restaurant', 'cafe', 'coffee', 'salon', 'spa',
+    'shop', 'store', 'clinic', 'dental', 'medical', 'yoga', 'pilates', 'boutique',
+    'bakery', 'bar', 'hotel', 'resort', 'agency', 'consultancy', 'school', 'academy'
+  ];
+  for (const keyword of industryKeywords) {
+    if (lowerTranscript.includes(keyword)) {
+      details.industry = keyword.charAt(0).toUpperCase() + keyword.slice(1);
+      break;
+    }
+  }
+
+  // Extract mentioned services/features
+  const servicePatterns = [
+    /offers?\s+([^.!?]+)/gi,
+    /provides?\s+([^.!?]+)/gi,
+    /specializes?\s+in\s+([^.!?]+)/gi,
+    /services?\s+include[s]?\s+([^.!?]+)/gi,
+  ];
+  const services: string[] = [];
+  for (const pattern of servicePatterns) {
+    const matches = Array.from(transcript.matchAll(pattern));
+    for (const match of matches) {
+      if (match[1]) {
+        services.push(match[1].trim());
+      }
+    }
+  }
+  if (services.length > 0) {
+    details.services = services.slice(0, 3); // Max 3 services
+  }
+
+  // Extract experience mentions
+  const experiencePatterns = [
+    /(\d+)\s*\+?\s*years?/gi,
+    /since\s+(\d{4})/gi,
+    /established\s+in\s+(\d{4})/gi,
+  ];
+  for (const pattern of experiencePatterns) {
+    const match = transcript.match(pattern);
+    if (match) {
+      details.experience = match[0];
+      break;
+    }
+  }
+
+  return details;
+}
+
+// Helper function to fetch real images from Pexels
 async function fetchRealImages(keywords: string[], count: number = 4): Promise<string[]> {
   console.log(`📸 Fetching ${count} real images for keywords:`, keywords);
   
@@ -156,10 +238,31 @@ async function fetchRealImages(keywords: string[], count: number = 4): Promise<s
 export async function analyzeTranscriptWithAI(transcript: string): Promise<AIGeneratedContent> {
   try {
     console.log('🤖 Analyzing transcript with Groq AI:', transcript);
+    
+    // Extract key business details for better context
+    const businessDetails = extractBusinessDetails(transcript);
+    console.log('📊 Extracted business details:', businessDetails);
 
-    const prompt = `You are a professional website content creator. Analyze the following business description and generate comprehensive website content.
+    const prompt = `You are a professional website content creator with deep knowledge of various industries. Analyze the following business description and generate comprehensive, realistic website content.
 
 User's Description: "${transcript}"
+
+CONTEXT ENHANCEMENT:
+${businessDetails.location ? `- Location: ${businessDetails.location} (Include local references, landmarks, or area-specific details)` : ''}
+${businessDetails.industry ? `- Industry: ${businessDetails.industry} (Use industry-standard terminology and best practices)` : ''}
+${businessDetails.services ? `- Mentioned Services: ${businessDetails.services.join(', ')} (Elaborate with industry expertise)` : ''}
+${businessDetails.experience ? `- Experience: ${businessDetails.experience} (Emphasize credibility and proven track record)` : ''}
+
+RESEARCH-BACKED CONTENT GENERATION:
+- If specific business name, location, or brand is mentioned, incorporate realistic, localized details
+- Use industry-standard terminology, certifications, and best practices for the business type
+- Include realistic pricing ranges, service durations, and specifications typical for this industry
+- Add location-specific elements (if location mentioned): local landmarks, area demographics, regional preferences
+- Incorporate current industry trends and popular services (e.g., latest fitness trends, popular cuisine styles)
+- Use authentic testimonial scenarios based on common customer experiences in this industry
+- Include realistic operational details: hours, booking systems, payment methods, facilities
+- Reference genuine industry certifications, training programs, or quality standards
+- Add specific equipment, technology, or products commonly used in this field
 
 CRITICAL: Extract or create a proper business name following these rules:
 1. If user mentions a business name explicitly (e.g., "Create a website for XYZ Company"), USE IT EXACTLY
