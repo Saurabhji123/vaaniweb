@@ -75,10 +75,21 @@ export default function Navigation() {
             ) : user ? (
               <Link 
                 href="/profile" 
-                className="px-5 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg hover:from-purple-700 hover:to-pink-700 font-medium transition-all shadow-md hover:shadow-lg flex items-center gap-2 relative"
+                className="relative inline-flex items-center justify-center"
+                title="Profile"
               >
-                <ProfileIcon size={20} />
-                Profile
+                {user.profilePicture ? (
+                  <img
+                    src={user.profilePicture}
+                    alt={user.name || 'Profile'}
+                    className="h-10 w-10 rounded-full ring-2 ring-purple-200 object-cover hover:ring-purple-400 transition-shadow shadow-sm"
+                    referrerPolicy="no-referrer"
+                  />
+                ) : (
+                  <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold shadow-md">
+                    {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                  </div>
+                )}
                 {unreadCount > 0 && (
                   <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-md">
                     {unreadCount > 99 ? '99+' : unreadCount}
@@ -140,10 +151,21 @@ export default function Navigation() {
               ) : user ? (
                 <Link 
                   href="/profile" 
-                  className="px-4 py-2 bg-gradient-to-r from-purple-600 to-pink-600 text-white rounded-lg text-center font-medium flex items-center justify-center gap-2 relative"
+                  className="relative inline-flex items-center gap-3 py-2"
                 >
-                  <ProfileIcon size={20} />
-                  Profile
+                  {user.profilePicture ? (
+                    <img
+                      src={user.profilePicture}
+                      alt={user.name || 'Profile'}
+                      className="h-10 w-10 rounded-full ring-2 ring-purple-200 object-cover"
+                      referrerPolicy="no-referrer"
+                    />
+                  ) : (
+                    <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold shadow-md">
+                      {(user.name || user.email || 'U').charAt(0).toUpperCase()}
+                    </div>
+                  )}
+                  <span className="font-medium text-gray-800">Profile</span>
                   {unreadCount > 0 && (
                     <span className="absolute -top-1 -right-1 flex items-center justify-center min-w-[20px] h-5 px-1.5 bg-red-500 text-white text-xs font-bold rounded-full border-2 border-white shadow-md">
                       {unreadCount > 99 ? '99+' : unreadCount}

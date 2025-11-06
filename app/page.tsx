@@ -26,6 +26,7 @@ export default function Home() {
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const recognitionRef = useRef<any>(null);
   const isInitializedRef = useRef(false);
+  const isStartingRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -97,54 +98,50 @@ export default function Home() {
     }
   }, []);
 
-  const handleMicToggle = async () => {
+  const ensureMicPermission = async () => {
+    if (!navigator?.mediaDevices?.getUserMedia) return;
     try {
-      if (!recognitionRef.current) {
-        setStatus('Speech recognition not supported. Please use Chrome or Edge.');
-        return;
-      }
-      
-      // Toggle mic on/off
-      if (isRecording) {
-        // Turn OFF mic
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {
-          console.log('Already stopped');
-        }
-        setIsRecording(false);
-        setStatus('Recording stopped! You can edit the text below and click "Generate Website".');
-      } else {
-        // Turn ON mic
-        try {
-          recognitionRef.current.stop();
-        } catch (e) {
-          console.log('Clean stop');
-        }
-        await new Promise(resolve => setTimeout(resolve, 300));
-        
-        setStatus('Listening... Speak now!');
-        setIsRecording(true);
-        recognitionRef.current.start();
-      }
-    } catch (error: any) {
-      console.error('Mic toggle error:', error);
-      if (error.message && error.message.includes('already started')) {
-        try {
-          recognitionRef.current.stop();
-          await new Promise(resolve => setTimeout(resolve, 500));
-          setIsRecording(true);
-          recognitionRef.current.start();
-          setStatus('Listening... Speak now!');
-        } catch (retryError) {
-          setStatus('Error: Mic control issue. Please refresh the page.');
-          setIsRecording(false);
-        }
-      } else {
-        setStatus(`Error: ${error.message}`);
-        setIsRecording(false);
-      }
+      const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
+      // Immediately stop tracks; we only needed permission
+      stream.getTracks().forEach(t => t.stop());
+    } catch (err) {
+      throw new Error('Microphone access denied. Please allow microphone permissions.');
     }
+  };
+
+  const startRecording = async () => {
+    if (isStartingRef.current || isRecording) return;
+    if (!recognitionRef.current) {
+      setStatus('Speech recognition not supported. Please use Chrome or Edge.');
+      return;
+    }
+    try {
+      isStartingRef.current = true;
+      // Proactively ask for permission to reduce failures
+      await ensureMicPermission();
+      try { recognitionRef.current.abort?.(); } catch {}
+      try { recognitionRef.current.stop?.(); } catch {}
+      await new Promise(r => setTimeout(r, 200));
+
+      setStatus('Listening... Speak now!');
+      setIsRecording(true);
+      recognitionRef.current.start();
+    } catch (error: any) {
+      console.error('startRecording error:', error);
+      setIsRecording(false);
+      setStatus(error?.message || 'Failed to start microphone.');
+    } finally {
+      isStartingRef.current = false;
+    }
+  };
+
+  const stopRecording = async () => {
+    if (!recognitionRef.current) return;
+    try {
+      recognitionRef.current.stop();
+    } catch {}
+    setIsRecording(false);
+    setStatus('Recording stopped! You can edit the text below and click "Generate Website".');
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -271,7 +268,7 @@ export default function Home() {
       {/* Navigation Bar */}
       <Navigation />
 
-      <main className="min-h-screen bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
+  <main className="flex-1 bg-gradient-to-br from-purple-50 via-pink-50 to-blue-50 py-8 px-4 sm:px-6 lg:px-8">
         <div id="generate" className="max-w-5xl mx-auto">
           {/* Hero Title Section */}
           <div className="text-center mb-12">
@@ -338,7 +335,12 @@ export default function Home() {
             </ul>
             <div className="space-y-4">
               <button
-                onClick={handleMicToggle}
+                onMouseDown={startRecording}
+                onMouseUp={stopRecording}
+                onMouseLeave={stopRecording}
+                onTouchStart={startRecording}
+                onTouchEnd={stopRecording}
+                onTouchCancel={stopRecording}
                 className={`w-full py-5 sm:py-6 px-6 rounded-2xl font-bold text-lg sm:text-xl text-white transition-all duration-200 transform active:scale-95 flex items-center justify-center gap-3 ${
                   isRecording 
                     ? 'bg-gradient-to-r from-red-500 to-pink-500 shadow-lg shadow-red-500/50 animate-pulse' 
@@ -348,12 +350,12 @@ export default function Home() {
                 {isRecording ? (
                   <>
                     <RecordingIcon size={28} />
-                    <span>Recording... (Click to Stop)</span>
+                    <span>Recording... (Release to Stop)</span>
                   </>
                 ) : (
                   <>
                     <MicrophoneIcon size={28} />
-                    <span>Click to Record</span>
+                    <span>Hold to Record</span>
                   </>
                 )}
               </button>
