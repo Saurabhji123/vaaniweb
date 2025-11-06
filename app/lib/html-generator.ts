@@ -18,6 +18,16 @@ import {
   generateSpaWellnessLayout,
   generateTechStartupLayout
 } from './templates/unique-templates-part2';
+import {
+  generateEventNeonLayout,
+  generateEventElegantLayout,
+  generateEventCampusCarnivalLayout
+} from './templates/event-templates';
+import {
+  generatePortfolioShowcaseLayout,
+  generatePortfolioCaseStudyLayout,
+  generatePortfolioMinimalMasonryLayout
+} from './templates/portfolio-templates';
 
 export function generateHTML(data: GeneratedPageData): string {
   const { businessType = 'general', title = '' } = data;
@@ -40,7 +50,21 @@ export function generateHTML(data: GeneratedPageData): string {
     const templates = [generateGymLayout, generateGymBoldLayout, generateYogaZenLayout, generateSpaWellnessLayout];
     return templates[templateIndex % templates.length](data);
   } else if (businessType === 'photography' || businessType === 'portfolio') {
-    const templates = [generatePhotographyLayout, generatePortfolioGridLayout, generatePhotographyProLayout];
+    const templates = [
+      generatePhotographyLayout,
+      generatePortfolioGridLayout,
+      generatePhotographyProLayout,
+      generatePortfolioShowcaseLayout,
+      generatePortfolioCaseStudyLayout,
+      generatePortfolioMinimalMasonryLayout
+    ];
+    return templates[templateIndex % templates.length](data);
+  } else if (businessType === 'event' || businessType === 'festival' || businessType === 'college' || businessType === 'conference' || businessType === 'concert') {
+    const templates = [
+      generateEventNeonLayout,
+      generateEventElegantLayout,
+      generateEventCampusCarnivalLayout
+    ];
     return templates[templateIndex % templates.length](data);
   } else if (businessType === 'shop' || businessType === 'boutique' || businessType === 'store') {
     const templates = [

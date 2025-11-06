@@ -288,7 +288,7 @@ Generate a JSON response with the following structure:
   "tagline": "Catchy, compelling tagline (10-15 words)",
   "description": "Engaging 2-3 sentence description highlighting unique value",
   "themeColor": "One of: pink, blue, purple, green, red, orange, yellow, gray, indigo, teal",
-  "businessType": "One of: cafe, bakery, gym, photography, restaurant, shop, salon, hotel, tech, consulting, yoga, spa, pet, education, medical, legal, automotive, real-estate, travel, general",
+  "businessType": "One of: cafe, bakery, gym, photography, portfolio, restaurant, shop, salon, hotel, tech, consulting, yoga, spa, pet, education, medical, legal, automotive, real-estate, travel, event, general",
   "imageKeywords": [
     "specific search term 1 (e.g., 'barista making coffee')",
     "specific search term 2 (e.g., 'cozy cafe interior')",
@@ -331,6 +331,7 @@ Generate a JSON response with the following structure:
     - Legal/Consulting: ["Name", "Email", "Phone", "Service Needed", "Preferred Contact Time", "Brief Description"]
     - Medical/Dental: ["Name", "Email", "Phone", "Reason for Visit", "Preferred Appointment Date", "Insurance Provider"]
     Always include: Name, Email, Phone + 2-3 business-specific fields that help qualify leads),
+    - Events/Festivals/Conferences: ["Name", "Email", "Phone", "Department/College", "Pass Type", "Team Size"]
   "instagram": "handle if mentioned, else null",
   "seoKeywords": ["keyword1", "keyword2", "keyword3", "keyword4", "keyword5", "keyword6", "keyword7", "keyword8"] (8-10 targeted SEO keywords including location, service type, and industry terms)
 }
@@ -358,6 +359,7 @@ Examples of EXCELLENT keywords by business type:
 - Restaurant: "chef garnishing gourmet dish white plate elegantly", "elegant fine dining restaurant ambient candlelight atmosphere", "waiter serving wine happy couple anniversary dinner", "sizzling steak being grilled professional kitchen"
 - Salon: "hairstylist blow drying client hair round brush", "luxury spa treatment massage facial relaxation", "modern hair salon interior styling stations mirrors", "makeup artist applying foundation beauty client"
 - Yoga Studio: "yoga instructor demonstrating tree pose balance students", "sunrise meditation class peaceful studio atmosphere", "aerial yoga woman hanging silk hammock pose", "yoga mats rolled storage peaceful zen space"
+- Event/College Fest: "dj performing night stage neon lights crowd", "keynote speaker addressing audience auditorium lighting", "college fest outdoor stalls students enjoying day", "concert crowd cheering fireworks night sky"
 
 DYNAMIC CONTENT GENERATION:
 - Add UNIQUE elements that make each website feel custom-built, not template-based
@@ -608,7 +610,8 @@ function detectBusinessType(words: string[]): string {
     salon: 'salon', spa: 'salon', beauty: 'salon', parlour: 'salon', hair: 'salon',
     hotel: 'hotel', resort: 'hotel', lodge: 'hotel', accommodation: 'hotel',
     tech: 'tech', software: 'tech', app: 'tech', digital: 'tech',
-    consulting: 'consulting', consultant: 'consulting', advisory: 'consulting'
+    consulting: 'consulting', consultant: 'consulting', advisory: 'consulting',
+    event: 'event', fest: 'event', festival: 'event', college: 'event', conference: 'event', concert: 'event'
   };
   
   for (const word of words) {
@@ -680,6 +683,12 @@ function generateImageKeywords(businessType: string, words: string[]): string[] 
       'photo studio lighting equipment setup professional',
       'wedding couple posing photographer outdoor ceremony',
       'portrait photography session model camera flash'
+    ],
+    event: [
+      'dj performing stage neon lights crowd',
+      'keynote speaker auditorium audience spotlight',
+      'college festival outdoor stalls students day',
+      'concert night crowd cheering fireworks'
     ],
     restaurant: [
       'chef cooking kitchen flames gourmet food',
@@ -788,6 +797,7 @@ function generateImageDescriptions(businessType: string): string[] {
     cafe: ['Barista creating latte art', 'Cozy cafe atmosphere with customers', 'Fresh coffee beans being roasted', 'People enjoying coffee together'],
     gym: ['Fitness enthusiast lifting weights', 'State-of-the-art gym equipment', 'Personal trainer coaching a client', 'Group fitness class in action'],
     photography: ['Professional photographer at work', 'Photography studio with lighting', 'Wedding couple during photoshoot', 'Portrait photography session'],
+  event: ['DJ performing on neon-lit stage', 'Speaker addressing audience in auditorium', 'College fest with outdoor stalls', 'Night concert crowd and fireworks'],
     restaurant: ['Chef preparing gourmet dishes', 'Elegantly plated fine dining dish', 'Sophisticated restaurant interior', 'Guests enjoying their meal'],
     salon: ['Hairstylist serving a client', 'Relaxing spa treatment', 'Modern salon interior design', 'Makeup artist creating a look'],
     hotel: ['Luxurious hotel room', 'Beautiful resort pool area', 'Elegant hotel lobby reception', 'Professional hospitality service'],
@@ -835,6 +845,12 @@ function generateFeatures(businessType: string): string[] {
       'Fast turnaround on deliveries',
       'Custom packages available'
     ],
+    event: [
+      'Live music and performances',
+      'Multiple stages and zones',
+      'Student-friendly registration',
+      'Workshops and competitions'
+    ],
     restaurant: [
       'Chef-curated seasonal menu',
       'Fresh, locally sourced ingredients',
@@ -871,6 +887,7 @@ function extractBusinessKeywords(transcript: string): string[] {
     cafe: ['cafe', 'coffee', 'interior', 'cozy'],
     gym: ['fitness', 'gym', 'workout', 'training'],
     photography: ['photography', 'camera', 'professional', 'studio'],
+  event: ['event', 'stage', 'crowd', 'college'],
     restaurant: ['restaurant', 'food', 'dining', 'culinary'],
     salon: ['salon', 'beauty', 'spa', 'wellness'],
     hotel: ['hotel', 'hospitality', 'luxury', 'accommodation'],
