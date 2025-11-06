@@ -55,6 +55,25 @@ async function submitContactForm(event) {
     btn.classList.remove('opacity-75', 'cursor-not-allowed');
   }
 }
+</script><script>
+// Ensure every form using submitContactForm has a hidden websiteSlug input
+document.addEventListener('DOMContentLoaded', () => {
+  try {
+    const forms = document.querySelectorAll('form[onsubmit*="submitContactForm"]');
+    forms.forEach((form) => {
+      if (!form.querySelector('input[name="websiteSlug"]')) {
+        const slug = window.location.pathname.split('/').filter(Boolean).pop() || '';
+        const hidden = document.createElement('input');
+        hidden.type = 'hidden';
+        hidden.name = 'websiteSlug';
+        hidden.value = slug;
+        form.prepend(hidden);
+      }
+    });
+  } catch (e) {
+    console.warn('websiteSlug auto-insert failed:', e);
+  }
+});
 </script>`;
 }
 
