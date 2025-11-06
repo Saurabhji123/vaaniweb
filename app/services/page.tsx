@@ -173,27 +173,7 @@ export default function Services() {
         </div>
       </section>
 
-      {/* Footer */}
-      <footer className="bg-gray-900 text-white py-12">
-        <div className="max-w-6xl mx-auto px-6 text-center">
-          <div className="flex items-center justify-center gap-3 mb-6">
-            <span className="text-3xl">🎤</span>
-            <span className="text-2xl font-bold">VaaniWeb</span>
-          </div>
-          <p className="text-gray-400 mb-6">Voice-Powered Website Generator</p>
-          <div className="flex justify-center gap-8 mb-8">
-            <Link href="/" className="text-gray-400 hover:text-white transition">Home</Link>
-            <Link href="/about" className="text-gray-400 hover:text-white transition">About</Link>
-            <Link href="/services" className="text-gray-400 hover:text-white transition">Services</Link>
-            <Link href="/pricing" className="text-gray-400 hover:text-white transition">Pricing</Link>
-            <Link href="/feed" className="text-gray-400 hover:text-white transition">Showcase</Link>
-          </div>
-          <div className="border-t border-gray-800 pt-6">
-            <p className="text-gray-500">© {new Date().getFullYear()} VaaniWeb. All rights reserved.</p>
-            <p className="text-gray-600 mt-2">Created with ❤️ by VaaniWeb Team</p>
-          </div>
-        </div>
-      </footer>
+      {/* Footer removed: now rendered globally via RootLayout */}
     </div>
   );
 }

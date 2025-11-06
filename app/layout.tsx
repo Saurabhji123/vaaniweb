@@ -2,6 +2,7 @@ import type { Metadata } from 'next'
 import './globals.css'
 import { AuthProvider } from './context/AuthContext'
 import GoogleOAuthWrapper from '@/app/components/GoogleOAuthWrapper'
+import Footer from '@/app/components/Footer'
 
 export const metadata: Metadata = {
   title: 'VaaniWeb - Voice to Website',
@@ -25,7 +26,10 @@ export default function RootLayout({
       <body className="min-h-screen flex flex-col">
         <GoogleOAuthWrapper>
           <AuthProvider>
-            {children}
+            <div className="flex-1 flex flex-col">
+              {children}
+            </div>
+            <Footer />
           </AuthProvider>
         </GoogleOAuthWrapper>
       </body>
