@@ -96,6 +96,10 @@ npm run dev
 
 Open `http://localhost:3000` and start creating!
 
+### Environment Variables
+
+Copy `.env.example` to `.env.local` and update each value before running the app in production. The password-reset flow relies on `NEXT_PUBLIC_ROOT_URL` to build secure links that point back to your deployment (for example, `https://vaaniweb.com`). Without this value the reset emails will fall back to the generic domain.
+
 ## 🎯 How It Works
 
 <div align="center">

@@ -207,6 +207,11 @@ export function generatePortfolioShowcaseLayout(data: GeneratedPageData): string
   const location = safeText(isRecord(sections) ? (sections as Record<string, unknown>).location as string : '', 'Bengaluru, India');
   const emailFallback = safeText(data.instagram ? `${data.instagram}@example.com` : '', 'you@example.com');
   const skillBadges = skillGroups.flatMap(group => group.items);
+  const focusAreas = safeText(isRecord(sections) ? (sections as Record<string, unknown>).focus as string : '', 'Product engineering • UX systems • Data-informed storytelling');
+  const preferredRoles = safeText(isRecord(sections) ? (sections as Record<string, unknown>).roles as string : '', 'Product engineering intern • UX engineer • Technical PM');
+  const availability = safeText(isRecord(sections) ? (sections as Record<string, unknown>).availability as string : '', 'Available for internships from June 2025');
+  const academicHighlight = safeText(isRecord(sections) ? (sections as Record<string, unknown>).gpa as string : '', '');
+  const recruiterHighlights = achievements.slice(0, Math.min(achievements.length, 3));
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=5, user-scalable=yes"><title>${title}</title><script src="https://cdn.tailwindcss.com"></script>${formScript}<style>body{-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}.badge{box-shadow:0 8px 30px -12px rgba(67,56,202,0.45)}.timeline::before{content:'';position:absolute;inset:0 50%;width:2px;background:linear-gradient(to bottom,rgba(67,56,202,0.25),rgba(99,102,241,0.45));opacity:0.6}@media(max-width:768px){.timeline::before{left:12px}}</style></head><body class="bg-white text-gray-900">
 <header class="bg-gradient-to-br from-${theme_color}-600 via-${theme_color}-500 to-${theme_color}-700 text-white">
@@ -229,10 +234,37 @@ export function generatePortfolioShowcaseLayout(data: GeneratedPageData): string
         <h2 class="text-3xl font-semibold text-${theme_color}-900">About Me</h2>
         <p class="mt-4 text-gray-700 leading-relaxed">${about}</p>
       </div>
-      <aside class="lg:w-1/3 bg-white border border-gray-200 rounded-3xl p-8 shadow-xl">
-        <h3 class="text-2xl font-semibold text-gray-900">Skills Snapshot</h3>
-        <div class="mt-4 flex flex-wrap gap-2">
-          ${skillBadges.slice(0, 18).map(skill => `<span class="badge px-3 py-1.5 text-sm rounded-full bg-${theme_color}-100 text-${theme_color}-800 border border-${theme_color}-200">${skill}</span>`).join('')}
+      <aside class="lg:w-1/3 bg-white border border-gray-200 rounded-3xl p-8 shadow-xl space-y-6">
+        <div>
+          <h3 class="text-2xl font-semibold text-gray-900">Recruiter Snapshot</h3>
+          <div class="mt-4 space-y-4 text-sm text-gray-700">
+            <div>
+              <p class="uppercase text-xs tracking-[0.28em] text-${theme_color}-600">Focus areas</p>
+              <p class="mt-1 font-medium text-gray-900">${focusAreas}</p>
+            </div>
+            <div>
+              <p class="uppercase text-xs tracking-[0.28em] text-${theme_color}-600">Preferred roles</p>
+              <p class="mt-1 font-medium text-gray-900">${preferredRoles}</p>
+            </div>
+            <div class="grid grid-cols-1 gap-2 text-sm">
+              <p><span class="font-semibold text-gray-900">Availability:</span> ${availability}</p>
+              <p><span class="font-semibold text-gray-900">Location:</span> ${location}</p>
+              <p><span class="font-semibold text-gray-900">Contact:</span> ${emailFallback}</p>
+            </div>
+          </div>
+        </div>
+        ${recruiterHighlights.length ? `<div>
+          <p class="uppercase text-xs tracking-[0.28em] text-${theme_color}-600">Highlights</p>
+          <ul class="mt-3 space-y-2 text-sm text-gray-700">
+            ${recruiterHighlights.map(highlight => `<li class="flex items-start gap-2"><span class="mt-1 text-${theme_color}-500">•</span><span>${highlight}</span></li>`).join('')}
+          </ul>
+        </div>` : ''}
+        ${academicHighlight ? `<p class="text-sm text-gray-700"><span class="font-semibold text-gray-900">Academic:</span> ${academicHighlight}</p>` : ''}
+        <div class="pt-4 border-t border-gray-200">
+          <h4 class="text-sm font-semibold text-gray-900 uppercase tracking-[0.28em]">Skill stack</h4>
+          <div class="mt-3 flex flex-wrap gap-2">
+            ${skillBadges.slice(0, 18).map(skill => `<span class="badge px-3 py-1.5 text-sm rounded-full bg-${theme_color}-100 text-${theme_color}-800 border border-${theme_color}-200">${skill}</span>`).join('')}
+          </div>
         </div>
       </aside>
     </div>
@@ -250,6 +282,10 @@ export function generatePortfolioShowcaseLayout(data: GeneratedPageData): string
           </div>
           <div class="md:flex-1 text-gray-700 leading-relaxed">
             ${project.description}
+            ${project.role || project.team ? `<p class="mt-3 text-sm text-gray-600">${[project.role ? `Role: ${project.role}` : '', project.team ? `Team: ${project.team}` : ''].filter(Boolean).join(' • ')}</p>` : ''}
+            ${project.summary || project.outcome ? `<ul class="mt-3 space-y-2 text-sm text-gray-600 list-disc ml-5">
+              ${[project.summary, project.outcome].filter(Boolean).map(item => `<li>${item}</li>`).join('')}
+            </ul>` : ''}
           </div>
         </article>`).join('')}
       </div>

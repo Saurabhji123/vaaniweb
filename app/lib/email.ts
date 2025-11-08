@@ -391,3 +391,73 @@ export async function sendGoogleWelcomeEmail(email: string, name: string) {
     html: html,
   });
 }
+
+export async function sendPasswordResetEmail(email: string, name: string, resetLink: string, expiresAt: Date) {
+  const expiryString = expiresAt.toLocaleString('en-IN', {
+    timeZone: 'Asia/Kolkata',
+    hour12: true,
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit'
+  });
+
+  const html = `
+    <!DOCTYPE html>
+    <html>
+    <head>
+      <meta charset="utf-8">
+      <meta name="viewport" content="width=device-width, initial-scale=1.0">
+      <title>Reset your VaaniWeb password</title>
+      <style>
+        body { margin: 0; padding: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif; background-color: #f5f5f5; }
+        .wrapper { width: 100%; background-color: #f5f5f5; padding: 20px 0; }
+        .container { max-width: 600px; margin: 0 auto; background: white; border-radius: 12px; box-shadow: 0 12px 32px rgba(15, 23, 42, 0.12); overflow: hidden; }
+        .header { padding: 32px 24px 16px; text-align: center; background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); color: white; }
+        .header h1 { margin: 0; font-size: 26px; font-weight: 700; }
+        .content { padding: 32px 28px; color: #1f2937; }
+        .content h2 { margin-top: 0; font-size: 22px; }
+        .content p { line-height: 1.6; margin: 12px 0; font-size: 15px; }
+        .reset-button { display: inline-block; margin: 24px 0; padding: 14px 32px; background: linear-gradient(135deg, #4f46e5 0%, #9333ea 100%); color: #ffffff !important; text-decoration: none; border-radius: 8px; font-weight: 600; }
+        .code-box { margin: 24px 0; padding: 18px 20px; background: #f1f5f9; border-radius: 10px; font-family: 'Courier New', Consolas, monospace; color: #0f172a; font-size: 15px; }
+        .footer { padding: 24px 28px; background: #f9fafb; border-top: 1px solid #e5e7eb; color: #6b7280; font-size: 13px; line-height: 1.6; text-align: center; }
+        @media only screen and (max-width: 600px) {
+          .container { margin: 0 12px; border-radius: 10px; }
+          .content { padding: 28px 20px; }
+          .reset-button { width: 100%; text-align: center; }
+        }
+      </style>
+    </head>
+    <body>
+      <div class="wrapper">
+        <div class="container">
+          <div class="header">
+            <h1>Reset your password</h1>
+            <p style="margin: 8px 0 0; font-size: 15px; opacity: 0.85;">Secure your account in less than a minute</p>
+          </div>
+          <div class="content">
+            <h2>Hi ${name || 'there'},</h2>
+            <p>We received a request to reset the password for your VaaniWeb account. You can set a new password by clicking the button below. This link is valid until <strong>${expiryString}</strong>.</p>
+            <p style="text-align: center;">
+              <a href="${resetLink}" class="reset-button">Set a new password</a>
+            </p>
+            <p>If the button does not work, copy and paste this URL into your browser:</p>
+            <div class="code-box">${resetLink}</div>
+            <p><strong>Security tip:</strong> If you did not request this change, ignore this email. Your existing password will continue to work.</p>
+          </div>
+          <div class="footer">
+            <p>Questions? Write to <a href="mailto:support@vaaniweb.com" style="color: #4f46e5; text-decoration: none; font-weight: 600;">support@vaaniweb.com</a></p>
+            <p>© ${new Date().getFullYear()} VaaniWeb. Built for creators and teams.</p>
+          </div>
+        </div>
+      </div>
+    </body>
+    </html>
+  `;
+
+  return sendEmail({
+    to: email,
+    subject: 'Reset your VaaniWeb password',
+    html
+  });
+}

@@ -13,6 +13,10 @@ export interface GeneratedPageData {
     about: string;
     features: string[];
     callToAction: string;
+    skills?: Array<{
+      category?: string;
+      items?: string[];
+    }>;
     testimonials?: Array<{
       name: string;
       role: string;
@@ -23,11 +27,26 @@ export interface GeneratedPageData {
       title: string;
       description: string;
       icon?: string;
+      timeline?: string;
+      summary?: string;
+      role?: string;
+      team?: string;
+      outcome?: string;
+      image?: string;
     }>;
     faq?: Array<{
       question: string;
       answer: string;
     }>;
+    location?: string;
+    phone?: string;
+    date?: string;
+    deadline?: string;
+    cta?: string;
+    focus?: string;
+    roles?: string;
+    availability?: string;
+    gpa?: string;
   };
   seoKeywords?: string[];
 }

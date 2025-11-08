@@ -2,30 +2,30 @@ import { GeneratedPageData } from '../../types';
 import { generateContactFormScript } from '../form-generator';
 
 const DEFAULT_EVENT_FEATURES: string[] = [
-	'Glow-rave arena with UV visuals, live VJ sets, and surprise headline drops',
-	'24/7 creator lab for reels, podcasts, and lightning design sprints',
-	'Immersive XR playground powered by AR quests and VR motion rigs',
-	'Campus esports colosseum featuring Valorant, FC24, and retro arcade throwdowns',
-	'Street food rally with 30+ pop-ups curated by student entrepreneurs',
-	'Sustainability alley with upcycled merch and climate action workshops',
-	'Investor lounge for founders, mentors, and scouts to co-create deal flow',
-	'Late-night jam pit with indie bands, spoken word, and cypher circles',
-	'Sunrise wellness reset: rooftop yoga, breathwork, and slow coffee tastings'
+	'Flagship keynote theatre featuring product, design, and AI leaders sharing launch playbooks and growth case studies.',
+	'Hands-on labs covering journey mapping, product analytics, and rapid prototyping led by mentors from Fortune 500 teams.',
+	'Career studio with curated portfolio reviews, recruiter meetups, and offer negotiation clinics.',
+	'Immersive demo floor with student startups, research showcases, and partner innovation pods.',
+	'Leadership café hosting fireside conversations with founders, investors, and community builders.',
+	'Experience lounge for mindful breaks, mentoring circles, and facilitated networking sprints.',
+	'Content studio recording podcasts, press interviews, and live social coverage throughout the day.',
+	'Sustainability pavilion highlighting circular design, climate action, and campus impact initiatives.',
+	'Closing awards gala spotlighting top case studies, hackathon winners, and partner excellence stories.'
 ];
 
 const DEFAULT_EVENT_SCHEDULE: Array<{ title: string; description: string }> = [
-	{ title: 'Gate crash + check-in carnival', description: 'QR code check-in, swag pick-up, and live DJ welcome tunnel running till 10:00 AM.' },
-	{ title: 'Main stage kickoff & hype keynote', description: 'Festival directors unveil this year’s narrative, spotlight ambassadors, and drop the headliner names.' },
-	{ title: 'Creator lab sprints', description: 'Niche tracks on short-form storytelling, beat production, AI-assisted visuals, and personal brand playbooks.' },
-	{ title: 'Showcase battles & demo day', description: 'Startup pitches, dance offs, beatbox finals, fashion runway, and the student innovation leaderboard.' },
-	{ title: 'Golden hour collabs', description: 'Open-mic mashups, cross-club performances, live art walls, and meet-the-artist sessions.' },
-	{ title: 'Afterburn party & chill zone', description: 'Silent disco, neon bowling, midnight ramen pop-up, and acoustic wind-down till 2:00 AM.' }
+	{ title: 'Delegate arrival & accreditation', description: 'Smart check-in, curated welcome kits, networking breakfast, and guided campus preview.' },
+	{ title: 'Opening keynote & strategic outlook', description: 'Festival directors set the theme, followed by leadership insights on innovation, product, and talent.' },
+	{ title: 'Parallel masterclasses & labs', description: 'Breakout sessions on AI adoption, product discovery, design systems, and storytelling for stakeholders.' },
+	{ title: 'Showcase arena & venture studio', description: 'Startup pitches, research poster walk-throughs, partner demos, and talent spotlights.' },
+	{ title: 'Leadership dialogues & firesides', description: 'Intimate conversations with founders, CXOs, and investors on scaling careers and companies.' },
+	{ title: 'Evening celebration & awards', description: 'Recognition for standout teams, curated performances, and partner appreciation networking.' }
 ];
 
 const DEFAULT_EVENT_TESTIMONIALS: Array<{ name: string; role: string; quote: string; rating?: number }> = [
-	{ name: 'Ritika Sharma', role: 'Marketing Lead, Northwave Studios', quote: 'The sonic staging, volunteer coordination, and storytelling made our brand the talk of campus for weeks. We closed two partnerships on-site.', rating: 5 },
-	{ name: 'Aditya Rao', role: 'President, Aurora Cultural Collective', quote: 'Every zone pulsed with energy—from the jam pit to the VR lab. The production team turned raw ideas into pure festival magic.', rating: 5 },
-	{ name: 'Priya Menon', role: 'Head of Community, IndieJam', quote: 'Workshops, showcases, and networking lounges flowed seamlessly. Students left with mentors, collaborators, and new offers.', rating: 5 }
+	{ name: 'Ritika Sharma', role: 'Marketing Lead, Northwave Studios', quote: 'Exceptional production quality and audience curation. Our partnership lounge stayed packed, and we closed two new campus programs on-site.', rating: 5 },
+	{ name: 'Aditya Rao', role: 'President, Aurora Cultural Collective', quote: 'Flawless timelines, attentive volunteer teams, and world-class speaker management. Students left with mentors and tangible next steps.', rating: 5 },
+	{ name: 'Priya Menon', role: 'Head of Community, IndieJam', quote: 'Workshops transitioned into real deal flow. Sponsors, delegations, and student teams all rated the experience outstanding.', rating: 5 }
 ];
 
 const DEFAULT_EVENT_CONTACT_FIELDS: string[] = ['Full Name', 'Email', 'Phone', 'Organization / College', 'Pass Type', 'Team Size', 'Message'];

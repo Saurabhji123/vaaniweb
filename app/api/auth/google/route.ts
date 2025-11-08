@@ -113,7 +113,9 @@ export async function POST(request: NextRequest) {
       plan: user.plan,
       monthlyLimit: user.monthlyLimit,
       sitesCreated: user.sitesCreated,
-      authProvider: user.authProvider || 'google'
+      authProvider: user.authProvider || 'google',
+      hasPassword: !!user.password,
+      isEmailVerified: user.isEmailVerified !== false
     };
 
     return NextResponse.json({

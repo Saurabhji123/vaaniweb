@@ -10,6 +10,8 @@ export interface User {
   name: string;
   createdAt?: Date;
   lastReset?: Date;
+  resetPasswordToken?: string | null;
+  resetPasswordExpires?: Date | null;
   plan?: 'free' | 'starter' | 'pro' | 'ultra';
   sitesCreated?: number;
   monthlyLimit?: number;
@@ -30,6 +32,8 @@ export interface UserResponse {
   monthlyLimit: number;
   profilePicture?: string | null;
   authProvider?: 'email' | 'google';
+  hasPassword?: boolean;
+  isEmailVerified?: boolean;
 }
 
 export async function hashPassword(password: string): Promise<string> {
@@ -62,7 +66,9 @@ export function sanitizeUser(user: User): UserResponse {
     sitesCreated: user.sitesCreated || 0,
     monthlyLimit: user.monthlyLimit || 5,
     profilePicture: user.profilePicture || null,
-    authProvider: user.authProvider || 'email'
+    authProvider: user.authProvider || 'email',
+    hasPassword: !!user.password,
+    isEmailVerified: user.isEmailVerified || false
   };
 }
 
