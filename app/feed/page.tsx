@@ -132,7 +132,7 @@ export default function FeedPage() {
             {items.map((item) => (
               <div
                 key={item._id}
-                className="bg-white rounded-2xl shadow-2xl overflow-hidden hover:scale-105 transition-transform duration-200"
+                className="flex h-full flex-col bg-white rounded-2xl shadow-2xl overflow-hidden hover:scale-105 transition-transform duration-200"
               >
                 <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 relative">
                   {item.json.pics && item.json.pics.length > 0 ? (
@@ -161,36 +161,38 @@ export default function FeedPage() {
                   </div>
                 </div>
                 
-                <div className="p-6">
-                  <h3 className="text-2xl font-bold text-gray-900 mb-2">
-                    {item.json.title}
-                  </h3>
-                  <p className="text-gray-600 mb-4 line-clamp-2">
-                    {item.json.tagline}
-                  </p>
-                  
-                  {/* Show custom URL slug */}
-                  {item.slug && (
-                    <div className="mb-3 flex items-center gap-2">
-                      <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
-                      </svg>
-                      <span className="text-sm text-gray-500 font-mono truncate">
-                        vaaniweb.com/{item.slug}
-                      </span>
-                    </div>
-                  )}
-                  
-                  {item.json.instagram && (
-                    <div className="mb-4 flex items-center gap-2">
-                      <CameraIcon size={20} className="text-pink-500" />
-                      <span className="text-gray-700 font-medium">
-                        @{item.json.instagram}
-                      </span>
-                    </div>
-                  )}
+                <div className="flex flex-1 flex-col p-6">
+                  <div className="flex flex-col gap-3">
+                    <h3 className="text-2xl font-bold text-gray-900">
+                      {item.json.title}
+                    </h3>
+                    <p className="text-gray-600 line-clamp-2">
+                      {item.json.tagline}
+                    </p>
 
-                  <div className="flex gap-2">
+                    {/* Show custom URL slug */}
+                    {item.slug && (
+                      <div className="flex items-center gap-2 text-sm text-gray-500 font-mono overflow-hidden">
+                        <svg className="w-4 h-4 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13.828 10.172a4 4 0 00-5.656 0l-4 4a4 4 0 105.656 5.656l1.102-1.101m-.758-4.899a4 4 0 005.656 0l4-4a4 4 0 00-5.656-5.656l-1.1 1.1" />
+                        </svg>
+                        <span className="truncate">
+                          vaaniweb.com/{item.slug}
+                        </span>
+                      </div>
+                    )}
+
+                    {item.json.instagram && (
+                      <div className="flex items-center gap-2">
+                        <CameraIcon size={20} className="text-pink-500" />
+                        <span className="text-gray-700 font-medium">
+                          @{item.json.instagram}
+                        </span>
+                      </div>
+                    )}
+                  </div>
+
+                  <div className="mt-auto flex gap-2 pt-4">
                     <a
                       href={item.slug ? `/${item.slug}` : `/p/${item._id}`}
                       target="_blank"

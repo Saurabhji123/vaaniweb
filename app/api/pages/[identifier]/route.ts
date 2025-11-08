@@ -197,7 +197,7 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
     const contactFields = ensureContactFields(normalizeStringArray(updatedJson.contact_fields));
     const seoKeywords = normalizeStringArray(updatedJson.seoKeywords);
 
-  const existingSections = page.json?.sections;
+    const existingSections = page.json?.sections;
 
     const features = normalizeStringArray(updatedJson.sections?.features);
     const faqItems = updatedJson.sections?.faq?.map((item) => ({
@@ -233,6 +233,15 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
         : existingSections?.visibility?.faq ?? true,
     };
 
+    const sanitizedAbout = sanitizeText(
+      updatedJson.sections?.about,
+      sanitizeText(existingSections?.about)
+    );
+    const sanitizedCta = sanitizeText(
+      updatedJson.sections?.callToAction,
+      sanitizeText(existingSections?.callToAction)
+    );
+
     const sanitized: GeneratedPageData = {
       ...updatedJson,
       slug: page.slug || updatedJson.slug,
@@ -241,10 +250,10 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
       contact_fields: contactFields,
       seoKeywords,
       sections: {
-  ...(existingSections || {}),
+        ...(existingSections || {}),
         ...updatedJson.sections,
-  about: sanitizeText(updatedJson.sections?.about, sanitizeText(existingSections?.about)),
-  callToAction: sanitizeText(updatedJson.sections?.callToAction, sanitizeText(existingSections?.callToAction)),
+        about: sanitizedAbout,
+        callToAction: sanitizedCta,
         features,
         faq: faqItems,
         services: serviceItems,
