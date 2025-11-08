@@ -47,6 +47,12 @@ export interface GeneratedPageData {
     roles?: string;
     availability?: string;
     gpa?: string;
+    visibility?: {
+      features?: boolean;
+      services?: boolean;
+      testimonials?: boolean;
+      faq?: boolean;
+    };
   };
   seoKeywords?: string[];
 }

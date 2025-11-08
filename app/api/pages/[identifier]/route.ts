@@ -218,6 +218,21 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
       rating: typeof testimonial?.rating === 'number' ? testimonial.rating : 5,
     })).filter((testimonial) => testimonial.name.length > 0 && testimonial.quote.length > 0);
 
+    const visibility = {
+      features: typeof updatedJson.sections?.visibility?.features === 'boolean'
+        ? updatedJson.sections.visibility.features
+        : existingSections?.visibility?.features ?? true,
+      services: typeof updatedJson.sections?.visibility?.services === 'boolean'
+        ? updatedJson.sections.visibility.services
+        : existingSections?.visibility?.services ?? true,
+      testimonials: typeof updatedJson.sections?.visibility?.testimonials === 'boolean'
+        ? updatedJson.sections.visibility.testimonials
+        : existingSections?.visibility?.testimonials ?? true,
+      faq: typeof updatedJson.sections?.visibility?.faq === 'boolean'
+        ? updatedJson.sections.visibility.faq
+        : existingSections?.visibility?.faq ?? true,
+    };
+
     const sanitized: GeneratedPageData = {
       ...updatedJson,
       slug: page.slug || updatedJson.slug,
@@ -234,6 +249,7 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
         faq: faqItems,
         services: serviceItems,
         testimonials: testimonialItems,
+        visibility,
       },
     };
 

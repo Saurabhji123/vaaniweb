@@ -1,11 +1,20 @@
 'use client';
 
-import { FormEvent, useEffect, useMemo, useState } from 'react';
+import { ChangeEvent, FormEvent, useEffect, useMemo, useRef, useState } from 'react';
+import Image from 'next/image';
 import { useParams, useRouter } from 'next/navigation';
 import Navigation from '@/app/components/Navigation';
 import { useAuth } from '@/app/context/AuthContext';
 import { GeneratedPageData } from '@/app/types';
 import { EditIcon, EyeIcon, TrashIcon } from '@/app/components/Icons';
+
+interface EditableImage {
+  id: string;
+  url: string;
+  alt: string;
+  uploading?: boolean;
+  error?: string;
+}
 
 interface EditableService {
   title: string;
@@ -49,11 +58,21 @@ export default function EditGeneratedPage() {
 
   const [contactFieldsText, setContactFieldsText] = useState('');
   const [featuresText, setFeaturesText] = useState('');
-  const [imageUrlsText, setImageUrlsText] = useState('');
   const [seoKeywordsText, setSeoKeywordsText] = useState('');
   const [services, setServices] = useState<EditableService[]>([]);
   const [testimonials, setTestimonials] = useState<EditableTestimonial[]>([]);
   const [faqs, setFaqs] = useState<EditableFaq[]>([]);
+  const [images, setImages] = useState<EditableImage[]>([]);
+  const [newImageUrl, setNewImageUrl] = useState('');
+  const [newImageAlt, setNewImageAlt] = useState('');
+  const [sectionsEnabled, setSectionsEnabled] = useState({
+    features: true,
+    services: true,
+    testimonials: true,
+    faq: true,
+  });
+  const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const createImageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   const previewHref = useMemo(() => {
     if (pageSlug) {
@@ -70,6 +89,12 @@ export default function EditGeneratedPage() {
     about: sections?.about ?? '',
     callToAction: sections?.callToAction ?? '',
     features: sections?.features ?? [],
+    visibility: {
+      features: sections?.visibility?.features ?? true,
+      services: sections?.visibility?.services ?? true,
+      testimonials: sections?.visibility?.testimonials ?? true,
+      faq: sections?.visibility?.faq ?? true,
+    },
   });
 
   const updateSectionField = (field: SectionKey, value: any) => {
@@ -128,7 +153,6 @@ export default function EditGeneratedPage() {
         setPageSlug(payload?.page?.slug);
         setContactFieldsText((pageData.contact_fields || []).join('\n'));
         setFeaturesText((pageData.sections?.features || []).join('\n'));
-        setImageUrlsText((pageData.pics || []).join('\n'));
         setSeoKeywordsText((pageData.seoKeywords || []).join(', '));
         setServices((pageData.sections?.services || []).map((service) => ({
           title: service?.title || '',
@@ -145,6 +169,19 @@ export default function EditGeneratedPage() {
           question: item?.question || '',
           answer: item?.answer || '',
         })));
+        const initialImages: EditableImage[] = (pageData.pics || []).map((url, index) => ({
+          id: createImageId(),
+          url,
+          alt: pageData.picDescriptions?.[index] || '',
+        }));
+        setImages(initialImages);
+        const visibility = pageData.sections?.visibility;
+        setSectionsEnabled({
+          features: visibility?.features ?? (pageData.sections?.features?.length || 0) > 0,
+          services: visibility?.services ?? (pageData.sections?.services?.length || 0) > 0,
+          testimonials: visibility?.testimonials ?? (pageData.sections?.testimonials?.length || 0) > 0,
+          faq: visibility?.faq ?? (pageData.sections?.faq?.length || 0) > 0,
+        });
         setError('');
       })
       .catch((err: Error) => {
@@ -173,8 +210,26 @@ export default function EditGeneratedPage() {
 
     const contactList = listFromText(contactFieldsText, /\n+/);
     const featureList = listFromText(featuresText, /\n+/);
-    const imageList = listFromText(imageUrlsText, /\s*\n+/);
     const keywordList = listFromText(seoKeywordsText.replace(/\n/g, ','), /,/);
+
+    if (images.some((image) => image.uploading)) {
+      setSaving(false);
+      setStatusMessage({ type: 'error', message: 'Please wait for image uploads to finish before saving.' });
+      return;
+    }
+
+    const normalizedImages = images
+      .map((image) => ({
+        url: image.url.trim(),
+        alt: image.alt.trim(),
+      }))
+      .filter((image) => image.url.length > 0);
+
+    if (normalizedImages.length === 0) {
+      setSaving(false);
+      setStatusMessage({ type: 'error', message: 'Add at least one image before saving.' });
+      return;
+    }
 
     const serviceList = services
       .map((service) => ({
@@ -200,10 +255,18 @@ export default function EditGeneratedPage() {
       }))
       .filter((item) => item.question.length > 0 && item.answer.length > 0);
 
+    const visibilitySettings = {
+      features: sectionsEnabled.features,
+      services: sectionsEnabled.services,
+      testimonials: sectionsEnabled.testimonials,
+      faq: sectionsEnabled.faq,
+    };
+
     const payload: GeneratedPageData = {
       ...form,
       contact_fields: contactList,
-      pics: imageList,
+      pics: normalizedImages.map((image) => image.url),
+      picDescriptions: normalizedImages.map((image) => image.alt || form.title),
       seoKeywords: keywordList,
       sections: {
         ...ensureSectionShape(form.sections),
@@ -211,6 +274,7 @@ export default function EditGeneratedPage() {
         services: serviceList,
         testimonials: testimonialList,
         faq: faqList,
+        visibility: visibilitySettings,
       },
     };
 
@@ -232,11 +296,16 @@ export default function EditGeneratedPage() {
       setForm(payload);
       setContactFieldsText(contactList.join('\n'));
       setFeaturesText(featureList.join('\n'));
-      setImageUrlsText(imageList.join('\n'));
       setSeoKeywordsText(keywordList.join(', '));
       setServices(serviceList);
       setTestimonials(testimonialList);
       setFaqs(faqList);
+      setSectionsEnabled(visibilitySettings);
+      setImages(normalizedImages.map((image) => ({
+        id: createImageId(),
+        url: image.url,
+        alt: image.alt,
+      })));
       setStatusMessage({ type: 'success', message: 'Changes saved successfully. Preview refreshed!' });
     } catch (err: any) {
       console.error('Failed to save page', err);
@@ -274,6 +343,141 @@ export default function EditGeneratedPage() {
       next[index] = { ...next[index], [field]: value };
       return next;
     });
+  };
+
+  const handleImageAltChange = (index: number, value: string) => {
+    setImages((prev) => {
+      const next = [...prev];
+      if (!next[index]) {
+        return prev;
+      }
+      next[index] = { ...next[index], alt: value };
+      return next;
+    });
+  };
+
+  const handleRemoveImage = (index: number) => {
+    setImages((prev) => prev.filter((_, idx) => idx !== index));
+  };
+
+  const handleMoveImage = (index: number, direction: 'up' | 'down') => {
+    setImages((prev) => {
+      const next = [...prev];
+      const targetIndex = direction === 'up' ? index - 1 : index + 1;
+      if (targetIndex < 0 || targetIndex >= next.length) {
+        return prev;
+      }
+      [next[index], next[targetIndex]] = [next[targetIndex], next[index]];
+      return next;
+    });
+  };
+
+  const handleImageFileChange = (event: ChangeEvent<HTMLInputElement>) => {
+    const files = event.target.files;
+    void handleImageFiles(files);
+    event.target.value = '';
+  };
+
+  const triggerFilePicker = () => {
+    fileInputRef.current?.click();
+  };
+
+  const handleImageFiles = async (files: FileList | null) => {
+    if (!files || files.length === 0) {
+      return;
+    }
+
+    if (!token) {
+      setStatusMessage({ type: 'error', message: 'Please login again to upload images.' });
+      return;
+    }
+
+    const uploads = Array.from(files).map(async (file) => {
+      const tempId = createImageId();
+      const previewUrl = URL.createObjectURL(file);
+      const baseAlt = file.name.replace(/\.[^/.]+$/, '').replace(/[-_]+/g, ' ').trim();
+
+      setImages((prev) => [
+        ...prev,
+        {
+          id: tempId,
+          url: previewUrl,
+          alt: baseAlt,
+          uploading: true,
+        },
+      ]);
+
+      try {
+        const formData = new FormData();
+        formData.append('file', file);
+
+        const response = await fetch('/api/uploads', {
+          method: 'POST',
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          body: formData,
+        });
+
+        if (!response.ok) {
+          const info = await response.json().catch(() => ({}));
+          throw new Error(info?.message || 'Failed to upload image');
+        }
+
+        const result = await response.json();
+
+        setImages((prev) => prev.map((image) => (
+          image.id === tempId
+            ? {
+                ...image,
+                url: result.url,
+                uploading: false,
+                error: undefined,
+              }
+            : image
+        )));
+      } catch (uploadError: any) {
+        console.error('Image upload failed', uploadError);
+        setStatusMessage({
+          type: 'error',
+          message: uploadError.message || 'Image upload failed. Please try again.',
+        });
+        setImages((prev) => prev.filter((image) => image.id !== tempId));
+      } finally {
+        URL.revokeObjectURL(previewUrl);
+      }
+    });
+
+    await Promise.all(uploads);
+  };
+
+  const handleAddImageFromUrl = () => {
+    const trimmedUrl = newImageUrl.trim();
+    if (!trimmedUrl) {
+      setStatusMessage({ type: 'error', message: 'Please provide a valid image URL.' });
+      return;
+    }
+
+    try {
+      const urlObject = new URL(trimmedUrl);
+      if (!/^https?:/.test(urlObject.protocol)) {
+        throw new Error('Only http and https URLs are allowed.');
+      }
+    } catch (urlError: any) {
+      setStatusMessage({ type: 'error', message: urlError.message || 'Invalid image URL.' });
+      return;
+    }
+
+    setImages((prev) => ([
+      ...prev,
+      {
+        id: createImageId(),
+        url: trimmedUrl,
+        alt: newImageAlt.trim(),
+      },
+    ]));
+    setNewImageUrl('');
+    setNewImageAlt('');
   };
 
   if (loading || authLoading) {
@@ -375,8 +579,10 @@ export default function EditGeneratedPage() {
                     value={form.tagline}
                     onChange={(event) => setForm((prev) => (prev ? { ...prev, tagline: event.target.value } : prev))}
                     className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    maxLength={160}
                     required
                   />
+                  <span className="text-xs text-gray-400 text-right">{form.tagline?.length || 0}/160</span>
                 </label>
                 <label className="flex flex-col gap-2">
                   <span className="text-sm font-semibold text-gray-600">Theme Color</span>
@@ -443,32 +649,154 @@ export default function EditGeneratedPage() {
                   value={form.sections?.callToAction || ''}
                   onChange={(event) => updateSectionField('callToAction', event.target.value)}
                   className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                  maxLength={120}
                 />
+                <span className="text-xs text-gray-400 text-right">{form.sections?.callToAction?.length || 0}/120</span>
               </label>
 
-              <label className="flex flex-col gap-2">
+              <div className="flex items-center justify-between mb-2">
                 <span className="text-sm font-semibold text-gray-600">Key Features (one per line)</span>
-                <textarea
-                  value={featuresText}
-                  onChange={(event) => setFeaturesText(event.target.value)}
-                  className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[120px]"
-                  placeholder="24/7 Support\nCertified Trainers\nSame-day Delivery"
-                />
-              </label>
+                <label className="flex items-center gap-2 text-xs font-semibold text-purple-600">
+                  <input
+                    type="checkbox"
+                    checked={sectionsEnabled.features}
+                    onChange={(event) => setSectionsEnabled((prev) => ({ ...prev, features: event.target.checked }))}
+                    className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                  />
+                  <span>Visible on site</span>
+                </label>
+              </div>
+              <textarea
+                value={featuresText}
+                onChange={(event) => setFeaturesText(event.target.value)}
+                className={`rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[120px] ${!sectionsEnabled.features ? 'bg-gray-100 text-gray-400 focus:ring-0 focus:outline-none' : ''}`}
+                placeholder="24/7 Support\nCertified Trainers\nSame-day Delivery"
+                disabled={!sectionsEnabled.features}
+              />
+              {!sectionsEnabled.features && (
+                <p className="mt-2 text-xs text-gray-500">Section hidden. Re-enable to show features on the published page.</p>
+              )}
             </section>
 
             <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
-              <h2 className="text-2xl font-bold text-purple-700 mb-6">Media & SEO</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Hero & Gallery Image URLs (one per line)</span>
-                  <textarea
-                    value={imageUrlsText}
-                    onChange={(event) => setImageUrlsText(event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[160px]"
-                    placeholder="https://images.example.com/photo-1.jpg"
-                  />
-                </label>
+              <h2 className="text-2xl font-bold text-purple-700 mb-6">Visual Library & SEO</h2>
+              <div className="space-y-6">
+                <div>
+                  <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                    <div>
+                      <p className="text-sm font-semibold text-gray-600">Hero & Gallery Images</p>
+                      <p className="text-xs text-gray-500">Upload high-quality visuals or drop in hosted URLs. First image becomes the hero banner.</p>
+                    </div>
+                    <div className="flex gap-2">
+                      <button
+                        type="button"
+                        onClick={triggerFilePicker}
+                        className="px-4 py-2 text-sm font-semibold rounded-lg bg-purple-600 text-white shadow hover:bg-purple-700 transition"
+                      >
+                        Upload from device
+                      </button>
+                      <input
+                        ref={fileInputRef}
+                        type="file"
+                        accept="image/*"
+                        multiple
+                        onChange={handleImageFileChange}
+                        className="hidden"
+                      />
+                    </div>
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+                    {images.length === 0 && (
+                      <div className="border border-dashed border-purple-200 rounded-2xl p-6 text-center text-sm text-gray-500">
+                        No images yet. Upload a file or paste a public URL below.
+                      </div>
+                    )}
+                    {images.map((image, index) => (
+                      <div key={image.id} className="border border-gray-200 rounded-2xl p-4 space-y-3">
+                        <div className="relative h-40 w-full overflow-hidden rounded-xl bg-gray-100">
+                          <Image
+                            src={image.url}
+                            alt={image.alt || `Gallery image ${index + 1}`}
+                            fill
+                            className="object-cover"
+                            loading="lazy"
+                            sizes="160px"
+                            unoptimized
+                          />
+                          {image.uploading && (
+                            <div className="absolute inset-0 flex items-center justify-center bg-white/70 text-purple-600 text-sm font-semibold">
+                              Uploading...
+                            </div>
+                          )}
+                        </div>
+                        <label className="flex flex-col gap-1">
+                          <span className="text-xs font-semibold text-gray-500">Alt text / caption</span>
+                          <input
+                            type="text"
+                            value={image.alt}
+                            onChange={(event) => handleImageAltChange(index, event.target.value)}
+                            className="rounded-lg border border-gray-200 px-3 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            placeholder="Describe the scene for accessibility"
+                            disabled={image.uploading}
+                          />
+                        </label>
+                        <div className="flex items-center justify-between gap-2">
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleMoveImage(index, 'up')}
+                              className="px-3 py-1 text-xs font-semibold rounded-lg border border-gray-200 hover:border-purple-400 hover:text-purple-600 transition"
+                              disabled={index === 0}
+                            >
+                              ↑ Move up
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleMoveImage(index, 'down')}
+                              className="px-3 py-1 text-xs font-semibold rounded-lg border border-gray-200 hover:border-purple-400 hover:text-purple-600 transition"
+                              disabled={index === images.length - 1}
+                            >
+                              ↓ Move down
+                            </button>
+                          </div>
+                          <button
+                            type="button"
+                            onClick={() => handleRemoveImage(index)}
+                            className="px-3 py-1 text-xs font-semibold rounded-lg border border-red-200 text-red-500 hover:border-red-400 hover:text-red-600 transition"
+                          >
+                            Remove
+                          </button>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+
+                  <div className="mt-4 grid grid-cols-1 md:grid-cols-3 gap-3">
+                    <input
+                      type="url"
+                      value={newImageUrl}
+                      onChange={(event) => setNewImageUrl(event.target.value)}
+                      placeholder="https://public-host.com/your-image.jpg"
+                      className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <input
+                      type="text"
+                      value={newImageAlt}
+                      onChange={(event) => setNewImageAlt(event.target.value)}
+                      placeholder="Alt text (optional)"
+                      className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    />
+                    <button
+                      type="button"
+                      onClick={handleAddImageFromUrl}
+                      className="px-4 py-2 rounded-lg bg-gray-900 text-white text-sm font-semibold shadow hover:bg-black transition"
+                    >
+                      Add image from URL
+                    </button>
+                  </div>
+                </div>
+
                 <label className="flex flex-col gap-2">
                   <span className="text-sm font-semibold text-gray-600">SEO Keywords (comma separated)</span>
                   <textarea
@@ -482,8 +810,19 @@ export default function EditGeneratedPage() {
             </section>
 
             <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-purple-700">Services</h2>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-purple-700">Services</h2>
+                  <label className="flex items-center gap-2 text-xs font-semibold text-purple-600">
+                    <input
+                      type="checkbox"
+                      checked={sectionsEnabled.services}
+                      onChange={(event) => setSectionsEnabled((prev) => ({ ...prev, services: event.target.checked }))}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span>Visible on site</span>
+                  </label>
+                </div>
                 <button
                   type="button"
                   onClick={addService}
@@ -492,6 +831,10 @@ export default function EditGeneratedPage() {
                   + Add Service
                 </button>
               </div>
+
+              {!sectionsEnabled.services && (
+                <p className="text-xs text-gray-500 mb-4">Section hidden. Visitors won’t see services until you toggle it back on.</p>
+              )}
 
               {services.length === 0 && (
                 <p className="text-sm text-gray-500 mb-4">No services listed yet. Add a few to showcase your offerings.</p>
@@ -549,8 +892,19 @@ export default function EditGeneratedPage() {
             </section>
 
             <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-purple-700">Testimonials</h2>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-purple-700">Testimonials</h2>
+                  <label className="flex items-center gap-2 text-xs font-semibold text-purple-600">
+                    <input
+                      type="checkbox"
+                      checked={sectionsEnabled.testimonials}
+                      onChange={(event) => setSectionsEnabled((prev) => ({ ...prev, testimonials: event.target.checked }))}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span>Visible on site</span>
+                  </label>
+                </div>
                 <button
                   type="button"
                   onClick={addTestimonial}
@@ -559,6 +913,10 @@ export default function EditGeneratedPage() {
                   + Add Testimonial
                 </button>
               </div>
+
+              {!sectionsEnabled.testimonials && (
+                <p className="text-xs text-gray-500 mb-4">Testimonials are hidden. Toggle visibility to showcase social proof.</p>
+              )}
 
               {testimonials.length === 0 && (
                 <p className="text-sm text-gray-500 mb-4">Collect a few heartfelt reviews to build instant trust.</p>
@@ -626,8 +984,19 @@ export default function EditGeneratedPage() {
             </section>
 
             <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
-              <div className="flex items-center justify-between mb-6">
-                <h2 className="text-2xl font-bold text-purple-700">Frequently Asked Questions</h2>
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div className="flex items-center gap-3">
+                  <h2 className="text-2xl font-bold text-purple-700">Frequently Asked Questions</h2>
+                  <label className="flex items-center gap-2 text-xs font-semibold text-purple-600">
+                    <input
+                      type="checkbox"
+                      checked={sectionsEnabled.faq}
+                      onChange={(event) => setSectionsEnabled((prev) => ({ ...prev, faq: event.target.checked }))}
+                      className="rounded border-gray-300 text-purple-600 focus:ring-purple-500"
+                    />
+                    <span>Visible on site</span>
+                  </label>
+                </div>
                 <button
                   type="button"
                   onClick={addFaq}
@@ -636,6 +1005,10 @@ export default function EditGeneratedPage() {
                   + Add FAQ
                 </button>
               </div>
+
+              {!sectionsEnabled.faq && (
+                <p className="text-xs text-gray-500 mb-4">FAQs are hidden. Toggle the switch to answer visitor questions publicly.</p>
+              )}
 
               {faqs.length === 0 && (
                 <p className="text-sm text-gray-500 mb-4">Answer common queries upfront to boost conversions.</p>
