@@ -8,6 +8,181 @@ import { useAuth } from '@/app/context/AuthContext';
 import { GeneratedPageData } from '@/app/types';
 import { EditIcon, EyeIcon, TrashIcon } from '@/app/components/Icons';
 
+type MetaField =
+  | 'location'
+  | 'date'
+  | 'deadline'
+  | 'phone'
+  | 'cta'
+  | 'focus'
+  | 'roles'
+  | 'availability'
+  | 'gpa';
+
+type EditorVariant =
+  | 'general'
+  | 'event'
+  | 'portfolio'
+  | 'culinary'
+  | 'fitness'
+  | 'education'
+  | 'beauty'
+  | 'retail'
+  | 'travel'
+  | 'medical'
+  | 'law';
+
+interface EditorPreset {
+  label: string;
+  showSkillGroups: boolean;
+  showServiceCaseStudyFields: boolean;
+  metaFields: MetaField[];
+}
+
+type EditorConfig = EditorPreset & { metaFieldSet: Set<MetaField> };
+
+const BUSINESS_TYPE_VARIANT_RULES: Array<{ variant: EditorVariant; keywords: string[] }> = [
+  { variant: 'event', keywords: ['event', 'festival', 'conference', 'concert', 'summit', 'expo', 'ceremony', 'wedding', 'meetup', 'gala'] },
+  { variant: 'portfolio', keywords: ['portfolio', 'photography', 'resume', 'case study', 'freelancer', 'artist', 'student portfolio', 'creative'] },
+  { variant: 'culinary', keywords: ['restaurant', 'cafe', 'coffee', 'bakery', 'food', 'eatery', 'bistro', 'catering'] },
+  { variant: 'beauty', keywords: ['salon', 'beauty', 'spa', 'makeup', 'grooming'] },
+  { variant: 'fitness', keywords: ['gym', 'fitness', 'wellness', 'yoga', 'pilates', 'bootcamp'] },
+  { variant: 'education', keywords: ['education', 'school', 'college', 'academy', 'training', 'coaching', 'tutor', 'university'] },
+  { variant: 'retail', keywords: ['shop', 'store', 'boutique', 'ecommerce', 'retail', 'market'] },
+  { variant: 'travel', keywords: ['travel', 'tour', 'tourism', 'vacation', 'journey', 'itinerary'] },
+  { variant: 'medical', keywords: ['medical', 'clinic', 'hospital', 'healthcare', 'dental', 'physio'] },
+  { variant: 'law', keywords: ['law', 'legal', 'attorney', 'lawyer', 'advocate'] },
+  { variant: 'general', keywords: ['consulting', 'agency', 'tech', 'startup', 'business', 'service', 'real estate', 'property', 'hotel'] },
+];
+
+const BUSINESS_TYPE_SUGGESTIONS = Array.from(
+  new Set([
+    'general',
+    'consulting',
+    'agency',
+    'tech startup',
+    'event',
+    'festival',
+    'conference',
+    'portfolio',
+    'designer',
+    'photography',
+    'restaurant',
+    'cafe',
+    'bakery',
+    'gym',
+    'fitness',
+    'yoga studio',
+    'education',
+    'coaching',
+    'training institute',
+    'salon',
+    'spa',
+    'beauty studio',
+    'shop',
+    'boutique',
+    'ecommerce',
+    'travel',
+    'tour operator',
+    'medical clinic',
+    'hospital',
+    'law firm',
+    'real estate',
+  ]),
+).sort((a, b) => a.localeCompare(b));
+
+const BUSINESS_TYPE_DATALIST_ID = 'business-type-options';
+
+const EDITOR_PRESETS: Record<EditorVariant, EditorPreset> = {
+  general: {
+    label: 'General business',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone'],
+  },
+  event: {
+    label: 'Event & experiences',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'date', 'deadline', 'cta', 'phone'],
+  },
+  portfolio: {
+    label: 'Portfolio / student',
+    showSkillGroups: true,
+    showServiceCaseStudyFields: true,
+    metaFields: ['location', 'focus', 'roles', 'availability', 'gpa', 'phone', 'cta'],
+  },
+  culinary: {
+    label: 'Restaurant / cafe',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone', 'cta'],
+  },
+  fitness: {
+    label: 'Fitness / wellness',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone', 'availability', 'cta'],
+  },
+  education: {
+    label: 'Education / coaching',
+    showSkillGroups: true,
+    showServiceCaseStudyFields: true,
+    metaFields: ['location', 'phone', 'focus', 'roles', 'availability', 'gpa', 'cta'],
+  },
+  beauty: {
+    label: 'Salon / spa',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone', 'cta'],
+  },
+  retail: {
+    label: 'Retail / shop',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone', 'cta'],
+  },
+  travel: {
+    label: 'Travel / tours',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'date', 'cta', 'phone'],
+  },
+  medical: {
+    label: 'Medical / clinic',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone'],
+  },
+  law: {
+    label: 'Legal / advisory',
+    showSkillGroups: false,
+    showServiceCaseStudyFields: false,
+    metaFields: ['location', 'phone'],
+  },
+};
+
+const META_FIELD_ORDER: MetaField[] = ['location', 'date', 'deadline', 'phone', 'cta', 'focus', 'roles', 'availability', 'gpa'];
+
+function deriveEditorVariant(rawType?: string | null): EditorVariant {
+  if (!rawType) {
+    return 'general';
+  }
+
+  const normalized = rawType.toLowerCase().replace(/[_-]+/g, ' ').trim();
+  if (!normalized) {
+    return 'general';
+  }
+
+  for (const rule of BUSINESS_TYPE_VARIANT_RULES) {
+    if (rule.keywords.some((keyword) => normalized.includes(keyword))) {
+      return rule.variant;
+    }
+  }
+
+  return 'general';
+}
+
 interface EditableImage {
   id: string;
   url: string;
@@ -89,6 +264,18 @@ export default function EditGeneratedPage() {
   const replaceFileInputRef = useRef<HTMLInputElement | null>(null);
   const createImageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
   const createSkillId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const editorVariant = useMemo(() => deriveEditorVariant(form?.businessType), [form?.businessType]);
+  const editorConfig = useMemo<EditorConfig>(() => {
+    const preset = EDITOR_PRESETS[editorVariant];
+    return {
+      ...preset,
+      metaFieldSet: new Set<MetaField>(preset.metaFields),
+    };
+  }, [editorVariant]);
+  const metaFieldSet = editorConfig.metaFieldSet;
+  const shouldRenderMetaSection = metaFieldSet.size > 0;
+  const showSkillSection = editorConfig.showSkillGroups;
+  const showServiceCaseStudyFields = editorConfig.showServiceCaseStudyFields;
 
   const previewHref = useMemo(() => {
     if (pageSlug) {
@@ -165,6 +352,9 @@ export default function EditGeneratedPage() {
           throw new Error('Page data missing');
         }
 
+        const detectedVariant = deriveEditorVariant(pageData.businessType);
+        const detectedPreset = EDITOR_PRESETS[detectedVariant];
+
         setForm(pageData);
         setPageSlug(payload?.page?.slug);
         setContactFieldsText((pageData.contact_fields || []).join('\n'));
@@ -191,17 +381,21 @@ export default function EditGeneratedPage() {
           question: item?.question || '',
           answer: item?.answer || '',
         })));
-        setSkills((pageData.sections?.skills || []).map((group, index) => {
-          const normalizedItems = Array.isArray(group?.items)
-            ? (group?.items as string[]).map((item) => (item || '').trim()).filter(Boolean).join(', ')
-            : '';
+        if (detectedPreset.showSkillGroups) {
+          setSkills((pageData.sections?.skills || []).map((group, index) => {
+            const normalizedItems = Array.isArray(group?.items)
+              ? (group?.items as string[]).map((item) => (item || '').trim()).filter(Boolean).join(', ')
+              : '';
 
-          return {
-            id: `${createSkillId()}-${index}`,
-            category: group?.category || '',
-            items: normalizedItems,
-          };
-        }));
+            return {
+              id: `${createSkillId()}-${index}`,
+              category: group?.category || '',
+              items: normalizedItems,
+            };
+          }));
+        } else {
+          setSkills([]);
+        }
         const initialImages: EditableImage[] = (pageData.pics || []).map((url, index) => ({
           id: createImageId(),
           url,
@@ -288,35 +482,40 @@ export default function EditGeneratedPage() {
         };
 
         if (icon) payloadService.icon = icon;
-        if (timeline) payloadService.timeline = timeline;
-        if (summary) payloadService.summary = summary;
-        if (role) payloadService.role = role;
-        if (team) payloadService.team = team;
-        if (outcome) payloadService.outcome = outcome;
         if (image) payloadService.image = image;
+
+        if (showServiceCaseStudyFields) {
+          if (timeline) payloadService.timeline = timeline;
+          if (summary) payloadService.summary = summary;
+          if (role) payloadService.role = role;
+          if (team) payloadService.team = team;
+          if (outcome) payloadService.outcome = outcome;
+        }
 
         return payloadService;
       })
       .filter((item): item is { title: string; description: string } & Record<string, string> => Boolean(item));
 
-    const skillList = skills
-      .map((group) => {
-        const category = group.category.trim();
-        const items = group.items
-          .split(/[,;\n]+/)
-          .map((entry) => entry.trim())
-          .filter((entry) => entry.length > 0);
+    const skillList = showSkillSection
+      ? skills
+          .map((group) => {
+            const category = group.category.trim();
+            const items = group.items
+              .split(/[,;\n]+/)
+              .map((entry) => entry.trim())
+              .filter((entry) => entry.length > 0);
 
-        if (!category && items.length === 0) {
-          return null;
-        }
+            if (!category && items.length === 0) {
+              return null;
+            }
 
-        return {
-          category: category || 'General',
-          items,
-        };
-      })
-      .filter((group): group is { category: string; items: string[] } => Boolean(group));
+            return {
+              category: category || 'General',
+              items,
+            };
+          })
+          .filter((group): group is { category: string; items: string[] } => Boolean(group))
+      : [];
 
     const testimonialList = testimonials
       .map((testimonial) => ({
@@ -341,6 +540,12 @@ export default function EditGeneratedPage() {
       faq: sectionsEnabled.faq,
     };
 
+    const metaOverrides: Partial<NonNullable<GeneratedPageData['sections']>> = {};
+    metaFieldSet.forEach((field) => {
+      const rawValue = form.sections?.[field];
+      metaOverrides[field] = typeof rawValue === 'string' ? rawValue.trim() : '';
+    });
+
     const payload: GeneratedPageData = {
       ...form,
       contact_fields: contactList,
@@ -349,6 +554,7 @@ export default function EditGeneratedPage() {
       seoKeywords: keywordList,
       sections: {
         ...ensureSectionShape(form.sections),
+        ...metaOverrides,
         features: featureList,
         services: serviceList,
         testimonials: testimonialList,
@@ -380,11 +586,15 @@ export default function EditGeneratedPage() {
       setServices(serviceList);
       setTestimonials(testimonialList);
       setFaqs(faqList);
-      setSkills(skillList.map((group, index) => ({
-        id: `${createSkillId()}-${index}`,
-        category: group.category,
-        items: group.items.join(', '),
-      })));
+      if (showSkillSection) {
+        setSkills(skillList.map((group, index) => ({
+          id: `${createSkillId()}-${index}`,
+          category: group.category,
+          items: group.items.join(', '),
+        })));
+      } else {
+        setSkills([]);
+      }
       setSectionsEnabled(visibilitySettings);
       setImages(normalizedImages.map((image) => ({
         id: createImageId(),
@@ -841,100 +1051,120 @@ export default function EditGeneratedPage() {
               </label>
             </section>
 
-            <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
-              <h2 className="text-2xl font-bold text-purple-700 mb-6">Template Details &amp; Meta</h2>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Primary Location</span>
-                  <input
-                    type="text"
-                    value={form.sections?.location || ''}
-                    onChange={(event) => updateSectionField('location', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Bengaluru, India"
-                  />
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Event / Launch Date</span>
-                  <input
-                    type="text"
-                    value={form.sections?.date || ''}
-                    onChange={(event) => updateSectionField('date', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="12 July 2025"
-                  />
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Registration Deadline</span>
-                  <input
-                    type="text"
-                    value={form.sections?.deadline || ''}
-                    onChange={(event) => updateSectionField('deadline', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="2025-07-10T09:00:00+05:30"
-                  />
-                  <span className="text-xs text-gray-400">Use ISO datetime for countdown timers.</span>
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Contact Phone</span>
-                  <input
-                    type="text"
-                    value={form.sections?.phone || ''}
-                    onChange={(event) => updateSectionField('phone', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="+91 98765 43210"
-                  />
-                </label>
-                <label className="flex flex-col gap-2 md:col-span-2">
-                  <span className="text-sm font-semibold text-gray-600">Hero Stats / CTA Ribbon</span>
-                  <input
-                    type="text"
-                    value={form.sections?.cta || ''}
-                    onChange={(event) => updateSectionField('cta', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="500+ delegates • 40 speakers • 12 workshops"
-                  />
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Focus Areas</span>
-                  <textarea
-                    value={form.sections?.focus || ''}
-                    onChange={(event) => updateSectionField('focus', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
-                    placeholder="Product engineering • UX systems • Data-informed storytelling"
-                  />
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Preferred Roles</span>
-                  <textarea
-                    value={form.sections?.roles || ''}
-                    onChange={(event) => updateSectionField('roles', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
-                    placeholder="Product engineer • UX engineer • Technical PM"
-                  />
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Availability Window</span>
-                  <input
-                    type="text"
-                    value={form.sections?.availability || ''}
-                    onChange={(event) => updateSectionField('availability', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="Available for internships from June 2025"
-                  />
-                </label>
-                <label className="flex flex-col gap-2">
-                  <span className="text-sm font-semibold text-gray-600">Academic Highlight / GPA</span>
-                  <input
-                    type="text"
-                    value={form.sections?.gpa || ''}
-                    onChange={(event) => updateSectionField('gpa', event.target.value)}
-                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
-                    placeholder="CGPA 8.7 / 10"
-                  />
-                </label>
-              </div>
-            </section>
+            {shouldRenderMetaSection && (
+              <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
+                <h2 className="text-2xl font-bold text-purple-700 mb-6">Template Details &amp; Meta</h2>
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                  {metaFieldSet.has('location') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Primary Location</span>
+                      <input
+                        type="text"
+                        value={form.sections?.location || ''}
+                        onChange={(event) => updateSectionField('location', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Bengaluru, India"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('date') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Event / Launch Date</span>
+                      <input
+                        type="text"
+                        value={form.sections?.date || ''}
+                        onChange={(event) => updateSectionField('date', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="12 July 2025"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('deadline') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Registration Deadline</span>
+                      <input
+                        type="text"
+                        value={form.sections?.deadline || ''}
+                        onChange={(event) => updateSectionField('deadline', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="2025-07-10T09:00:00+05:30"
+                      />
+                      <span className="text-xs text-gray-400">Use ISO datetime for countdown timers.</span>
+                    </label>
+                  )}
+                  {metaFieldSet.has('phone') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Contact Phone</span>
+                      <input
+                        type="text"
+                        value={form.sections?.phone || ''}
+                        onChange={(event) => updateSectionField('phone', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="+91 98765 43210"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('cta') && (
+                    <label className="flex flex-col gap-2 md:col-span-2">
+                      <span className="text-sm font-semibold text-gray-600">Hero Stats / CTA Ribbon</span>
+                      <input
+                        type="text"
+                        value={form.sections?.cta || ''}
+                        onChange={(event) => updateSectionField('cta', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="500+ delegates • 40 speakers • 12 workshops"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('focus') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Focus Areas</span>
+                      <textarea
+                        value={form.sections?.focus || ''}
+                        onChange={(event) => updateSectionField('focus', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+                        placeholder="Product engineering • UX systems • Data-informed storytelling"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('roles') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Preferred Roles</span>
+                      <textarea
+                        value={form.sections?.roles || ''}
+                        onChange={(event) => updateSectionField('roles', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+                        placeholder="Product engineer • UX engineer • Technical PM"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('availability') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Availability Window</span>
+                      <input
+                        type="text"
+                        value={form.sections?.availability || ''}
+                        onChange={(event) => updateSectionField('availability', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="Available for internships from June 2025"
+                      />
+                    </label>
+                  )}
+                  {metaFieldSet.has('gpa') && (
+                    <label className="flex flex-col gap-2">
+                      <span className="text-sm font-semibold text-gray-600">Academic Highlight / GPA</span>
+                      <input
+                        type="text"
+                        value={form.sections?.gpa || ''}
+                        onChange={(event) => updateSectionField('gpa', event.target.value)}
+                        className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="CGPA 8.7 / 10"
+                      />
+                    </label>
+                  )}
+                </div>
+              </section>
+            )}
 
             <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
               <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
