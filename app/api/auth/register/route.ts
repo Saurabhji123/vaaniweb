@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import clientPromise from '@/app/lib/mongodb';
 import { hashPassword, generateToken, sanitizeUser, getPlanLimits } from '@/app/lib/auth';
 import { generateOTP, sendOTPEmail } from '@/app/lib/email';
+import { isStrongPassword, validateEmailAddress, PASSWORD_REQUIREMENTS } from '@/app/lib/validation';
 
 export async function POST(req: NextRequest) {
   try {
@@ -15,28 +16,29 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (password.length < 6) {
+    if (!isStrongPassword(password)) {
       return NextResponse.json(
-        { error: 'Password must be at least 6 characters' },
+        { error: PASSWORD_REQUIREMENTS },
         { status: 400 }
       );
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(email)) {
+    const emailCheck = validateEmailAddress(email);
+    if (!emailCheck.valid || !emailCheck.normalized) {
       return NextResponse.json(
-        { error: 'Invalid email format' },
+        { error: emailCheck.message || 'Please use a verified email provider.' },
         { status: 400 }
       );
     }
+
+    const normalizedEmail = emailCheck.normalized;
 
     const client = await clientPromise;
     const db = client.db('vaaniweb');
     const usersCollection = db.collection('users');
 
     // Check if user already exists
-    const existingUser = await usersCollection.findOne({ email: email.toLowerCase() });
+    const existingUser = await usersCollection.findOne({ email: normalizedEmail });
     if (existingUser) {
       return NextResponse.json(
         { error: 'User already exists with this email' },
@@ -53,7 +55,7 @@ export async function POST(req: NextRequest) {
 
     // Create user
     const newUser = {
-      email: email.toLowerCase(),
+      email: normalizedEmail,
       password: hashedPassword,
       name,
       plan: 'free' as const,
@@ -77,10 +79,10 @@ export async function POST(req: NextRequest) {
     // Send OTP email (don't block registration if email fails)
     try {
       console.log('📧 Attempting to send OTP email...');
-      const emailResult = await sendOTPEmail(email, otp, name);
+      const emailResult = await sendOTPEmail(normalizedEmail, otp, name);
       
       if (emailResult.success) {
-        console.log('✅ OTP email sent successfully to:', email);
+        console.log('✅ OTP email sent successfully to:', normalizedEmail);
       } else {
         console.error('❌ Failed to send OTP email:', emailResult.error);
       }

@@ -5,6 +5,7 @@ import { useRouter } from 'next/navigation';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
 import { GoogleLogin, CredentialResponse } from '@react-oauth/google';
+import { validateEmailAddress, isStrongPassword, PASSWORD_REQUIREMENTS } from '@/app/lib/validation';
 
 export default function RegisterPage() {
   const router = useRouter();
@@ -17,6 +18,10 @@ export default function RegisterPage() {
   });
   const [error, setError] = useState('');
   const [loading, setLoading] = useState(false);
+  const [emailMessage, setEmailMessage] = useState<string>('Use a verified email (Gmail, Outlook, Zoho, Yahoo, institute domain).');
+  const [emailIsError, setEmailIsError] = useState(false);
+  const [passwordMessage, setPasswordMessage] = useState<string>(PASSWORD_REQUIREMENTS);
+  const [passwordIsError, setPasswordIsError] = useState(false);
 
   const handleGoogleSuccess = async (credentialResponse: CredentialResponse) => {
     if (!credentialResponse.credential) {
@@ -57,6 +62,48 @@ export default function RegisterPage() {
     setError('Google authentication failed. Please try again.');
   };
 
+  const handleEmailChange = (value: string) => {
+    setFormData(prev => ({ ...prev, email: value }));
+    setError('');
+
+    if (!value) {
+      setEmailIsError(false);
+      setEmailMessage('Use a verified email (Gmail, Outlook, Zoho, Yahoo, institute domain).');
+      return;
+    }
+
+    const validation = validateEmailAddress(value);
+    if (validation.valid) {
+      setEmailIsError(false);
+      setEmailMessage('Looks good! We will send the verification OTP to this address.');
+    } else {
+      const customMessage = validation.reason === 'disposable'
+        ? 'This email looks disposable. Please use your official email (Gmail, Zoho, Yahoo, Outlook, etc.).'
+        : validation.message || 'Please use an official email provider.';
+      setEmailIsError(true);
+      setEmailMessage(customMessage);
+    }
+  };
+
+  const handlePasswordChange = (value: string) => {
+    setFormData(prev => ({ ...prev, password: value }));
+    setError('');
+
+    if (!value) {
+      setPasswordIsError(false);
+      setPasswordMessage(PASSWORD_REQUIREMENTS);
+      return;
+    }
+
+    if (isStrongPassword(value)) {
+      setPasswordIsError(false);
+      setPasswordMessage('Great! This password meets the strength requirements.');
+    } else {
+      setPasswordIsError(true);
+      setPasswordMessage(PASSWORD_REQUIREMENTS);
+    }
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
@@ -72,16 +119,27 @@ export default function RegisterPage() {
       return;
     }
 
-    if (formData.password.length < 6) {
-      setError('Password must be at least 6 characters');
+    if (!isStrongPassword(formData.password)) {
+      setPasswordIsError(true);
+      setPasswordMessage(PASSWORD_REQUIREMENTS);
+      setError(PASSWORD_REQUIREMENTS);
       return;
     }
+    setPasswordIsError(false);
+    setPasswordMessage('Great! This password meets the strength requirements.');
 
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Invalid email format');
+    const emailValidation = validateEmailAddress(formData.email);
+    if (!emailValidation.valid) {
+      const customMessage = emailValidation.reason === 'disposable'
+        ? 'This email looks disposable. Please use your official email (Gmail, Zoho, Yahoo, Outlook, etc.).'
+        : emailValidation.message || 'Please use a verified email address.';
+      setEmailIsError(true);
+      setEmailMessage(customMessage);
+      setError(customMessage);
       return;
     }
+    setEmailIsError(false);
+    setEmailMessage('Looks good! We will send the verification OTP to this address.');
 
     setLoading(true);
 
@@ -99,7 +157,16 @@ export default function RegisterPage() {
       const data = await response.json();
 
       if (!response.ok) {
-        setError(data.message || 'Registration failed');
+        const serverError = data.error || data.message || 'Registration failed';
+        setError(serverError);
+        if (serverError.toLowerCase().includes('email')) {
+          setEmailIsError(true);
+          setEmailMessage(serverError);
+        }
+        if (serverError.toLowerCase().includes('password')) {
+          setPasswordIsError(true);
+          setPasswordMessage(serverError);
+        }
         setLoading(false);
         return;
       }
@@ -183,11 +250,16 @@ export default function RegisterPage() {
                 type="email"
                 id="email"
                 value={formData.email}
-                onChange={(e) => setFormData({ ...formData, email: e.target.value })}
+                onChange={(e) => handleEmailChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
                 placeholder="you@example.com"
                 disabled={loading}
               />
+              {emailMessage && (
+                <p className={`mt-2 text-sm ${emailIsError ? 'text-red-600' : 'text-gray-500'}`}>
+                  {emailMessage}
+                </p>
+              )}
             </div>
 
             <div>
@@ -198,11 +270,16 @@ export default function RegisterPage() {
                 type="password"
                 id="password"
                 value={formData.password}
-                onChange={(e) => setFormData({ ...formData, password: e.target.value })}
+                onChange={(e) => handlePasswordChange(e.target.value)}
                 className="w-full px-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-purple-500 focus:border-transparent"
-                placeholder="Minimum 6 characters"
+                placeholder="Strong passwords only"
                 disabled={loading}
               />
+              {passwordMessage && (
+                <p className={`mt-2 text-sm ${passwordIsError ? 'text-red-600' : 'text-gray-500'}`}>
+                  {passwordMessage}
+                </p>
+              )}
             </div>
 
             <div>

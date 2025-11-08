@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from 'next/server';
 import { connectDB } from '@/app/lib/mongodb';
 import { verifyToken, comparePassword, hashPassword } from '@/app/lib/auth';
 import { ObjectId } from 'mongodb';
+import { isStrongPassword, PASSWORD_REQUIREMENTS } from '@/app/lib/validation';
 
 // Force dynamic rendering for this route
 export const dynamic = 'force-dynamic';
@@ -41,10 +42,10 @@ export async function PUT(request: NextRequest) {
       }, { status: 400 });
     }
 
-    if (newPassword.length < 6) {
+    if (!isStrongPassword(newPassword)) {
       return NextResponse.json({
         success: false,
-        message: 'New password must be at least 6 characters'
+        message: PASSWORD_REQUIREMENTS
       }, { status: 400 });
     }
 
