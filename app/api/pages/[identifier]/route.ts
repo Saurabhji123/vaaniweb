@@ -205,11 +205,48 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
       answer: sanitizeText(item?.answer),
     })).filter((item) => item.question.length > 0 && item.answer.length > 0);
 
-    const serviceItems = updatedJson.sections?.services?.map((service) => ({
-      title: sanitizeText(service?.title),
-      description: sanitizeText(service?.description),
-      icon: service?.icon ? sanitizeText(service.icon) : undefined,
-    })).filter((service) => service.title.length > 0 && service.description.length > 0);
+    const serviceItems = updatedJson.sections?.services?.map((service) => {
+      const title = sanitizeText(service?.title);
+      const description = sanitizeText(service?.description);
+
+      if (title.length === 0 || description.length === 0) {
+        return null;
+      }
+
+      const sanitizedService: {
+        title: string;
+        description: string;
+        icon?: string;
+        timeline?: string;
+        summary?: string;
+        role?: string;
+        team?: string;
+        outcome?: string;
+        image?: string;
+      } = {
+        title,
+        description,
+      };
+
+      const optionalFields: Array<{ key: keyof typeof sanitizedService; value: unknown }> = [
+        { key: 'icon', value: service?.icon },
+        { key: 'timeline', value: service?.timeline },
+        { key: 'summary', value: service?.summary },
+        { key: 'role', value: service?.role },
+        { key: 'team', value: service?.team },
+        { key: 'outcome', value: service?.outcome },
+        { key: 'image', value: service?.image },
+      ];
+
+      optionalFields.forEach(({ key, value }) => {
+        const sanitizedValue = sanitizeText(value, '');
+        if (sanitizedValue.length > 0) {
+          sanitizedService[key] = sanitizedValue;
+        }
+      });
+
+      return sanitizedService;
+    }).filter((service): service is NonNullable<typeof service> => service !== null);
 
     const testimonialItems = updatedJson.sections?.testimonials?.map((testimonial) => ({
       name: sanitizeText(testimonial?.name),
