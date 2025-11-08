@@ -1,4 +1,5 @@
 import type { Metadata } from 'next'
+import Script from 'next/script'
 import './globals.css'
 import { AuthProvider } from './context/AuthContext'
 import GoogleOAuthWrapper from '@/app/components/GoogleOAuthWrapper'
@@ -95,6 +96,18 @@ export default function RootLayout({
           <meta name="google-site-verification" content={searchConsoleVerification} />
         ) : null}
         <link rel="canonical" href={baseUrl} />
+        <Script
+          src="https://www.googletagmanager.com/gtag/js?id=G-MVX56X46WH"
+          strategy="afterInteractive"
+        />
+        <Script id="ga-gtag" strategy="afterInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', 'G-MVX56X46WH');
+          `}
+        </Script>
         <script
           type="application/ld+json"
           dangerouslySetInnerHTML={{ __html: JSON.stringify(organizationSchema) }}
