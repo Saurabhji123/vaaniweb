@@ -210,7 +210,7 @@ export default function Pricing() {
             Simple, Transparent Pricing
           </h1>
           <p className="text-lg sm:text-2xl text-gray-600 mb-6 sm:mb-8 max-w-3xl mx-auto px-4">
-            Start free and upgrade when you're ready. No hidden fees, no surprises.
+            Start free and upgrade when you&rsquo;re ready. No hidden fees, no surprises.
           </p>
           
           {/* Billing Toggle */}
@@ -357,7 +357,7 @@ export default function Pricing() {
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
               <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-3">What happens when I reach my monthly limit?</h3>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                Your existing websites will continue to work. You'll need to wait until next month or upgrade to a 
+                Your existing websites will continue to work. You&rsquo;ll need to wait until next month or upgrade to a 
                 higher plan to create more websites.
               </p>
             </div>
@@ -371,7 +371,7 @@ export default function Pricing() {
             <div className="bg-white rounded-2xl shadow-lg p-6 sm:p-8">
               <h3 className="text-lg sm:text-2xl font-bold text-gray-800 mb-3">Can I get a refund on yearly plans?</h3>
               <p className="text-sm sm:text-base text-gray-600 leading-relaxed">
-                We offer a 7-day money-back guarantee on all yearly plans. If you're not satisfied, contact our 
+                We offer a 7-day money-back guarantee on all yearly plans. If you&rsquo;re not satisfied, contact our 
                 support team for a full refund within 7 days of purchase.
               </p>
             </div>

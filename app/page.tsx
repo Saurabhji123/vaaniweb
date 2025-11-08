@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import Navigation from './components/Navigation';
@@ -428,10 +429,13 @@ export default function Home() {
                   <div className="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-6">
                     {uploadedImages.map((img, index) => (
                       <div key={index} className="relative group">
-                        <img 
-                          src={img} 
-                          alt={`Upload ${index + 1}`} 
+                        <Image
+                          src={img}
+                          alt={`Upload ${index + 1}`}
+                          width={256}
+                          height={128}
                           className="w-full h-32 object-cover rounded-lg shadow-md border-2 border-purple-200"
+                          unoptimized
                         />
                         <button
                           onClick={() => removeImage(index)}

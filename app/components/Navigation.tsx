@@ -1,5 +1,6 @@
 'use client';
 
+import Image from 'next/image';
 import Link from 'next/link';
 import { useAuth } from '@/app/context/AuthContext';
 import { useState, useEffect } from 'react';
@@ -45,10 +46,13 @@ export default function Navigation() {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
         <div className="flex justify-between items-center h-16">
           <Link href="/" className="flex items-center gap-3 group">
-            <img 
-              src="/logo.svg" 
-              alt="VaaniWeb - Voice to Website" 
+            <Image
+              src="/logo.svg"
+              alt="VaaniWeb - Voice to Website"
+              width={160}
+              height={56}
               className="h-10 w-auto transition-transform group-hover:scale-105"
+              priority
             />
           </Link>
           
@@ -79,11 +83,14 @@ export default function Navigation() {
                 title="Profile"
               >
                 {user.profilePicture ? (
-                  <img
+                  <Image
                     src={user.profilePicture}
                     alt={user.name || 'Profile'}
+                    width={40}
+                    height={40}
                     className="h-10 w-10 rounded-full ring-2 ring-purple-200 object-cover hover:ring-purple-400 transition-shadow shadow-sm"
                     referrerPolicy="no-referrer"
+                    unoptimized
                   />
                 ) : (
                   <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold shadow-md">
@@ -154,11 +161,14 @@ export default function Navigation() {
                   className="relative inline-flex items-center gap-3 py-2"
                 >
                   {user.profilePicture ? (
-                    <img
+                    <Image
                       src={user.profilePicture}
                       alt={user.name || 'Profile'}
+                      width={40}
+                      height={40}
                       className="h-10 w-10 rounded-full ring-2 ring-purple-200 object-cover"
                       referrerPolicy="no-referrer"
+                      unoptimized
                     />
                   ) : (
                     <div className="h-10 w-10 rounded-full bg-gradient-to-br from-purple-600 to-pink-600 text-white flex items-center justify-center font-bold shadow-md">

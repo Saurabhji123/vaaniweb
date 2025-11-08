@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState } from 'react';
+import Image from 'next/image';
 import Link from 'next/link';
 import { FeedItem } from '../types';
 import Navigation from '../components/Navigation';
@@ -129,7 +130,7 @@ export default function FeedPage() {
             <div className="flex justify-center mb-6">
               <MicrophoneIcon size={64} className="text-white" />
             </div>
-            <p className="text-white text-2xl font-bold mb-4">You haven't created any pages yet</p>
+            <p className="text-white text-2xl font-bold mb-4">You haven&rsquo;t created any pages yet</p>
             <p className="text-white mb-6">Start creating amazing websites with your voice!</p>
             <a href="/" className="inline-block px-8 py-4 bg-white text-purple-600 font-bold rounded-full hover:bg-gray-100 transition shadow-xl">
               Create Your First Page
@@ -144,15 +145,19 @@ export default function FeedPage() {
               >
                 <div className="h-48 bg-gradient-to-br from-purple-400 to-pink-400 relative">
                   {item.json.pics && item.json.pics.length > 0 ? (
-                    <img
+                    <Image
                       src={item.json.pics[0]}
                       alt={item.json.title}
-                      className="w-full h-full object-cover"
+                      fill
+                      className="object-cover"
                       loading="lazy"
-                      onError={(e) => {
+                      sizes="(max-width: 768px) 100vw, (max-width: 1024px) 50vw, 33vw"
+                      unoptimized
+                      onError={(event) => {
                         // Fallback to keyword-based image if direct URL fails
                         const fallbackKeyword = item.json.businessType || item.json.seoKeywords?.[0] || 'business professional';
-                        (e.target as HTMLImageElement).src = `https://source.unsplash.com/400x300/?${encodeURIComponent(fallbackKeyword)}`;
+                        event.currentTarget.onerror = null;
+                        event.currentTarget.src = `https://source.unsplash.com/400x300/?${encodeURIComponent(fallbackKeyword)}`;
                       }}
                     />
                   ) : (

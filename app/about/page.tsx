@@ -35,7 +35,7 @@ export default function About() {
             </p>
             <p className="text-lg text-gray-600 leading-relaxed">
               So we built VaaniWeb - a platform that combines <strong>voice recognition</strong> with <strong>AI intelligence</strong> to 
-              generate beautiful, professional websites in seconds. Just speak your vision, and we'll bring it to life.
+              generate beautiful, professional websites in seconds. Just speak your vision, and we&rsquo;ll bring it to life.
             </p>
           </div>
         </div>
@@ -56,7 +56,7 @@ export default function About() {
             <div className="text-5xl mb-6">🚀</div>
             <h3 className="text-3xl font-bold mb-4">Our Vision</h3>
             <p className="text-lg opacity-95">
-              To become the world's first voice-powered website builder, making professional web design accessible 
+              To become the world&rsquo;s first voice-powered website builder, making professional web design accessible 
               to millions of businesses globally and revolutionizing how the internet is built.
             </p>
           </div>
@@ -122,7 +122,7 @@ export default function About() {
         <div className="max-w-4xl mx-auto text-center">
           <h2 className="text-5xl font-bold mb-6 text-gray-800">Ready to Create Your Website?</h2>
           <p className="text-xl text-gray-600 mb-10">
-            Join thousands of businesses who've built their online presence with VaaniWeb
+            Join thousands of businesses who&rsquo;ve built their online presence with VaaniWeb
           </p>
           <Link href="/" className="inline-block bg-gradient-to-r from-purple-600 to-pink-600 text-white px-12 py-5 rounded-full text-xl font-bold hover:scale-110 transition transform shadow-2xl">
             Start Building Now →

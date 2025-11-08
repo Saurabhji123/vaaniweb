@@ -1,6 +1,6 @@
 'use client';
 
-import { createContext, useContext, useState, useEffect, ReactNode } from 'react';
+import { createContext, useCallback, useContext, useEffect, useState, ReactNode } from 'react';
 
 interface User {
   _id: string;
@@ -54,41 +54,26 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     setLoading(false);
   }, []);
 
-  // Periodic check: Verify user still exists in database every 30 seconds
-  useEffect(() => {
-    if (!token) return;
-
-    // Initial check after login
-    refreshUser();
-
-    // Check every 30 seconds if user is still valid
-    const interval = setInterval(() => {
-      refreshUser();
-    }, 30000); // 30 seconds
-
-    return () => clearInterval(interval);
-  }, [token]);
-
-  const login = (newToken: string, newUser: User) => {
+  const login = useCallback((newToken: string, newUser: User) => {
     setToken(newToken);
     setUser(newUser);
     localStorage.setItem('token', newToken);
     localStorage.setItem('user', JSON.stringify(newUser));
-  };
+  }, []);
 
-  const logout = () => {
+  const logout = useCallback(() => {
     setToken(null);
     setUser(null);
     localStorage.removeItem('token');
     localStorage.removeItem('user');
-  };
+  }, []);
 
-  const updateUser = (newUser: User) => {
+  const updateUser = useCallback((newUser: User) => {
     setUser(newUser);
     localStorage.setItem('user', JSON.stringify(newUser));
-  };
+  }, []);
 
-  const refreshUser = async () => {
+  const refreshUser = useCallback(async () => {
     if (!token) return;
 
     try {
@@ -126,7 +111,22 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       console.error('Network error while refreshing user:', error);
       // Don't logout on network errors, user might be offline
     }
-  };
+  }, [token, updateUser, logout]);
+
+  // Periodic check: Verify user still exists in database every 30 seconds
+  useEffect(() => {
+    if (!token) return;
+
+    // Initial check after login
+    refreshUser();
+
+    // Check every 30 seconds if user is still valid
+    const interval = setInterval(() => {
+      refreshUser();
+    }, 30000); // 30 seconds
+
+    return () => clearInterval(interval);
+  }, [token, refreshUser]);
 
   return (
     <AuthContext.Provider value={{ user, token, loading, login, logout, updateUser, refreshUser }}>

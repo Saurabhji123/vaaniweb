@@ -3,6 +3,7 @@
 import { useEffect, useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/app/context/AuthContext';
 import Navigation from '../components/Navigation';
 import { 
@@ -340,9 +341,11 @@ export default function ProfilePage() {
             <div className="flex flex-col md:flex-row items-center justify-between gap-4">
               <div className="flex items-center gap-4 text-center md:text-left">
                 {user.profilePicture ? (
-                  <img 
-                    src={user.profilePicture} 
+                  <Image
+                    src={user.profilePicture}
                     alt={user.name}
+                    width={80}
+                    height={80}
                     className="w-20 h-20 rounded-full border-4 border-white shadow-lg object-cover"
                   />
                 ) : (
@@ -591,9 +594,11 @@ export default function ProfilePage() {
                       <div className="flex items-center gap-6">
                         <div className="relative">
                           {imagePreview ? (
-                            <img 
-                              src={imagePreview} 
-                              alt="Profile" 
+                            <Image
+                              src={imagePreview}
+                              alt="Profile"
+                              width={96}
+                              height={96}
                               className="w-24 h-24 rounded-full object-cover border-4 border-purple-200"
                             />
                           ) : (

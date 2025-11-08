@@ -1,3 +1,4 @@
+import Image from 'next/image';
 import Link from 'next/link';
 import { HeartIcon } from './Icons';
 
@@ -14,10 +15,13 @@ export default function Footer() {
         {/* Logo Section */}
         <div className="text-center mb-8">
           <div className="flex items-center justify-center gap-3 mb-4">
-            <img 
-              src="/logo.svg" 
-              alt="VaaniWeb" 
+            <Image
+              src="/logo.svg"
+              alt="VaaniWeb"
+              width={160}
+              height={56}
               className="h-12 sm:h-14 w-auto drop-shadow-lg"
+              priority
             />
           </div>
           <p className="text-base sm:text-lg text-purple-100 max-w-md mx-auto">
