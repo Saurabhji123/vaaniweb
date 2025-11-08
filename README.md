@@ -100,6 +100,17 @@ Open `http://localhost:3000` and start creating!
 
 Copy `.env.example` to `.env.local` and update each value before running the app in production. The password-reset flow relies on `NEXT_PUBLIC_ROOT_URL` to build secure links that point back to your deployment (for example, `https://vaaniweb.com`). Without this value the reset emails will fall back to the generic domain.
 
+- Set `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` once you create a property in Google Search Console. Paste the verification token from the HTML tag method so the meta tag is rendered on every page.
+- A canonical `<link>` tag, OpenGraph/Twitter cards, structured `Organization` data, `robots.txt`, and `sitemap.xml` are generated from `NEXT_PUBLIC_ROOT_URL` automatically.
+
+### SEO & Search Console Checklist
+
+1. Deploy with `NEXT_PUBLIC_ROOT_URL` pointing to your live domain (for example `https://vaaniweb.com`).
+2. Visit `https://your-domain.com/sitemap.xml` and `https://your-domain.com/robots.txt` to confirm both endpoints resolve.
+3. In Google Search Console choose the URL-prefix property type, enter your domain, and pick the HTML tag verification method.
+4. Copy the verification token from the `content` attribute and paste it into `NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION` in `.env.local`, then redeploy.
+5. After redeploying, use the Search Console "Verify" button and submit `sitemap.xml` so Google can crawl your generated pages quickly.
+
 ## 🎯 How It Works
 
 <div align="center">
