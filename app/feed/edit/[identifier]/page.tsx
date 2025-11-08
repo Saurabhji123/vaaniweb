@@ -20,6 +20,18 @@ interface EditableService {
   title: string;
   description: string;
   icon?: string;
+  timeline?: string;
+  summary?: string;
+  role?: string;
+  team?: string;
+  outcome?: string;
+  image?: string;
+}
+
+interface EditableSkillGroup {
+  id: string;
+  category: string;
+  items: string;
 }
 
 interface EditableTestimonial {
@@ -65,6 +77,8 @@ export default function EditGeneratedPage() {
   const [images, setImages] = useState<EditableImage[]>([]);
   const [newImageUrl, setNewImageUrl] = useState('');
   const [newImageAlt, setNewImageAlt] = useState('');
+  const [skills, setSkills] = useState<EditableSkillGroup[]>([]);
+  const [replaceIndex, setReplaceIndex] = useState<number | null>(null);
   const [sectionsEnabled, setSectionsEnabled] = useState({
     features: true,
     services: true,
@@ -72,7 +86,9 @@ export default function EditGeneratedPage() {
     faq: true,
   });
   const fileInputRef = useRef<HTMLInputElement | null>(null);
+  const replaceFileInputRef = useRef<HTMLInputElement | null>(null);
   const createImageId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
+  const createSkillId = () => `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`;
 
   const previewHref = useMemo(() => {
     if (pageSlug) {
@@ -158,6 +174,12 @@ export default function EditGeneratedPage() {
           title: service?.title || '',
           description: service?.description || '',
           icon: service?.icon || '',
+          timeline: service?.timeline || '',
+          summary: service?.summary || '',
+          role: service?.role || '',
+          team: service?.team || '',
+          outcome: service?.outcome || '',
+          image: service?.image || '',
         })));
         setTestimonials((pageData.sections?.testimonials || []).map((testimonial) => ({
           name: testimonial?.name || '',
@@ -169,6 +191,17 @@ export default function EditGeneratedPage() {
           question: item?.question || '',
           answer: item?.answer || '',
         })));
+        setSkills((pageData.sections?.skills || []).map((group, index) => {
+          const normalizedItems = Array.isArray(group?.items)
+            ? (group?.items as string[]).map((item) => (item || '').trim()).filter(Boolean).join(', ')
+            : '';
+
+          return {
+            id: `${createSkillId()}-${index}`,
+            category: group?.category || '',
+            items: normalizedItems,
+          };
+        }));
         const initialImages: EditableImage[] = (pageData.pics || []).map((url, index) => ({
           id: createImageId(),
           url,
@@ -202,6 +235,8 @@ export default function EditGeneratedPage() {
 
     setSaving(true);
     setStatusMessage(null);
+  const MIN_SAVE_DURATION = 1200;
+  const saveStartTime = Date.now();
 
     const listFromText = (value: string, splitter: RegExp) => value
       .split(splitter)
@@ -232,12 +267,56 @@ export default function EditGeneratedPage() {
     }
 
     const serviceList = services
-      .map((service) => ({
-        title: service.title.trim(),
-        description: service.description.trim(),
-        icon: service.icon?.trim() || undefined,
-      }))
-      .filter((service) => service.title.length > 0 && service.description.length > 0);
+      .map((service) => {
+        const title = service.title.trim();
+        const description = service.description.trim();
+        const icon = service.icon?.trim() || undefined;
+        const timeline = service.timeline?.trim() || undefined;
+        const summary = service.summary?.trim() || undefined;
+        const role = service.role?.trim() || undefined;
+        const team = service.team?.trim() || undefined;
+        const outcome = service.outcome?.trim() || undefined;
+        const image = service.image?.trim() || undefined;
+
+        if (!title && !description) {
+          return null;
+        }
+
+        const payloadService: Record<string, string> & { title: string; description: string } = {
+          title,
+          description,
+        };
+
+        if (icon) payloadService.icon = icon;
+        if (timeline) payloadService.timeline = timeline;
+        if (summary) payloadService.summary = summary;
+        if (role) payloadService.role = role;
+        if (team) payloadService.team = team;
+        if (outcome) payloadService.outcome = outcome;
+        if (image) payloadService.image = image;
+
+        return payloadService;
+      })
+      .filter((item): item is { title: string; description: string } & Record<string, string> => Boolean(item));
+
+    const skillList = skills
+      .map((group) => {
+        const category = group.category.trim();
+        const items = group.items
+          .split(/[,;\n]+/)
+          .map((entry) => entry.trim())
+          .filter((entry) => entry.length > 0);
+
+        if (!category && items.length === 0) {
+          return null;
+        }
+
+        return {
+          category: category || 'General',
+          items,
+        };
+      })
+      .filter((group): group is { category: string; items: string[] } => Boolean(group));
 
     const testimonialList = testimonials
       .map((testimonial) => ({
@@ -274,6 +353,7 @@ export default function EditGeneratedPage() {
         services: serviceList,
         testimonials: testimonialList,
         faq: faqList,
+        skills: skillList,
         visibility: visibilitySettings,
       },
     };
@@ -300,6 +380,11 @@ export default function EditGeneratedPage() {
       setServices(serviceList);
       setTestimonials(testimonialList);
       setFaqs(faqList);
+      setSkills(skillList.map((group, index) => ({
+        id: `${createSkillId()}-${index}`,
+        category: group.category,
+        items: group.items.join(', '),
+      })));
       setSectionsEnabled(visibilitySettings);
       setImages(normalizedImages.map((image) => ({
         id: createImageId(),
@@ -311,11 +396,26 @@ export default function EditGeneratedPage() {
       console.error('Failed to save page', err);
       setStatusMessage({ type: 'error', message: err.message || 'Failed to save changes' });
     } finally {
+      const elapsed = Date.now() - saveStartTime;
+      const waitTime = MIN_SAVE_DURATION - elapsed;
+      if (waitTime > 0) {
+        await new Promise((resolve) => setTimeout(resolve, waitTime));
+      }
       setSaving(false);
     }
   };
 
-  const addService = () => setServices((prev) => [...prev, { title: '', description: '', icon: '' }]);
+  const addService = () => setServices((prev) => [...prev, {
+    title: '',
+    description: '',
+    icon: '',
+    timeline: '',
+    summary: '',
+    role: '',
+    team: '',
+    outcome: '',
+    image: '',
+  }]);
   const removeService = (index: number) => setServices((prev) => prev.filter((_, idx) => idx !== index));
   const updateService = (index: number, field: keyof EditableService, value: string) => {
     setServices((prev) => {
@@ -323,6 +423,10 @@ export default function EditGeneratedPage() {
       next[index] = { ...next[index], [field]: value };
       return next;
     });
+  };
+
+  const handleServiceGallerySelect = (serviceIndex: number, url: string) => {
+    updateService(serviceIndex, 'image', url);
   };
 
   const addTestimonial = () => setTestimonials((prev) => [...prev, { name: '', role: '', quote: '', rating: 5 }]);
@@ -343,6 +447,25 @@ export default function EditGeneratedPage() {
       next[index] = { ...next[index], [field]: value };
       return next;
     });
+  };
+
+  const addSkillGroup = () => setSkills((prev) => [...prev, {
+    id: createSkillId(),
+    category: '',
+    items: '',
+  }]);
+
+  const removeSkillGroup = (id: string) => setSkills((prev) => prev.filter((group) => group.id !== id));
+
+  const updateSkillGroup = (id: string, field: keyof Omit<EditableSkillGroup, 'id'>, value: string) => {
+    setSkills((prev) => prev.map((group) => (
+      group.id === id
+        ? {
+            ...group,
+            [field]: value,
+          }
+        : group
+    )));
   };
 
   const handleImageAltChange = (index: number, value: string) => {
@@ -451,6 +574,86 @@ export default function EditGeneratedPage() {
     await Promise.all(uploads);
   };
 
+  const handleReplaceImage = (index: number) => {
+    setReplaceIndex(index);
+    replaceFileInputRef.current?.click();
+  };
+
+  const handleReplaceImageFileChange = async (event: ChangeEvent<HTMLInputElement>) => {
+    const file = event.target.files?.[0];
+    const targetIndex = replaceIndex;
+    setReplaceIndex(null);
+    event.target.value = '';
+
+    if (!file || targetIndex === null) {
+      return;
+    }
+
+    if (!token) {
+      setStatusMessage({ type: 'error', message: 'Please login again to upload images.' });
+      return;
+    }
+
+    const previousImage = images[targetIndex];
+    if (!previousImage) {
+      return;
+    }
+
+    const previewUrl = URL.createObjectURL(file);
+
+    setImages((prev) => prev.map((image, idx) => (
+      idx === targetIndex
+        ? {
+            ...image,
+            url: previewUrl,
+            uploading: true,
+            error: undefined,
+          }
+        : image
+    )));
+
+    try {
+      const formData = new FormData();
+      formData.append('file', file);
+
+      const response = await fetch('/api/uploads', {
+        method: 'POST',
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+        body: formData,
+      });
+
+      if (!response.ok) {
+        const info = await response.json().catch(() => ({}));
+        throw new Error(info?.message || 'Failed to upload image');
+      }
+
+      const result = await response.json();
+
+      setImages((prev) => prev.map((image, idx) => (
+        idx === targetIndex
+          ? {
+              ...image,
+              url: result.url,
+              uploading: false,
+            }
+          : image
+      )));
+    } catch (uploadError: any) {
+      console.error('Image replace failed', uploadError);
+      setStatusMessage({
+        type: 'error',
+        message: uploadError.message || 'Failed to replace image. Please try again.',
+      });
+      setImages((prev) => prev.map((image, idx) => (
+        idx === targetIndex ? { ...previousImage } : image
+      )));
+    } finally {
+      URL.revokeObjectURL(previewUrl);
+    }
+  };
+
   const handleAddImageFromUrl = () => {
     const trimmedUrl = newImageUrl.trim();
     if (!trimmedUrl) {
@@ -514,6 +717,14 @@ export default function EditGeneratedPage() {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-purple-500 via-pink-500 to-red-400 pb-16">
+      {saving && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/40 backdrop-blur-sm">
+          <div className="bg-white/95 rounded-2xl px-6 py-4 shadow-2xl flex items-center gap-3 text-purple-700 font-semibold">
+            <span className="inline-block h-4 w-4 rounded-full border-2 border-purple-500 border-t-transparent animate-spin" aria-hidden="true" />
+            <span>Saving your changes…</span>
+          </div>
+        </div>
+      )}
       <Navigation />
 
       <div className="max-w-6xl mx-auto px-4 sm:px-6 py-8 sm:py-12">
@@ -631,6 +842,159 @@ export default function EditGeneratedPage() {
             </section>
 
             <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
+              <h2 className="text-2xl font-bold text-purple-700 mb-6">Template Details &amp; Meta</h2>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Primary Location</span>
+                  <input
+                    type="text"
+                    value={form.sections?.location || ''}
+                    onChange={(event) => updateSectionField('location', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Bengaluru, India"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Event / Launch Date</span>
+                  <input
+                    type="text"
+                    value={form.sections?.date || ''}
+                    onChange={(event) => updateSectionField('date', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="12 July 2025"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Registration Deadline</span>
+                  <input
+                    type="text"
+                    value={form.sections?.deadline || ''}
+                    onChange={(event) => updateSectionField('deadline', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="2025-07-10T09:00:00+05:30"
+                  />
+                  <span className="text-xs text-gray-400">Use ISO datetime for countdown timers.</span>
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Contact Phone</span>
+                  <input
+                    type="text"
+                    value={form.sections?.phone || ''}
+                    onChange={(event) => updateSectionField('phone', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="+91 98765 43210"
+                  />
+                </label>
+                <label className="flex flex-col gap-2 md:col-span-2">
+                  <span className="text-sm font-semibold text-gray-600">Hero Stats / CTA Ribbon</span>
+                  <input
+                    type="text"
+                    value={form.sections?.cta || ''}
+                    onChange={(event) => updateSectionField('cta', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="500+ delegates • 40 speakers • 12 workshops"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Focus Areas</span>
+                  <textarea
+                    value={form.sections?.focus || ''}
+                    onChange={(event) => updateSectionField('focus', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+                    placeholder="Product engineering • UX systems • Data-informed storytelling"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Preferred Roles</span>
+                  <textarea
+                    value={form.sections?.roles || ''}
+                    onChange={(event) => updateSectionField('roles', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+                    placeholder="Product engineer • UX engineer • Technical PM"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Availability Window</span>
+                  <input
+                    type="text"
+                    value={form.sections?.availability || ''}
+                    onChange={(event) => updateSectionField('availability', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="Available for internships from June 2025"
+                  />
+                </label>
+                <label className="flex flex-col gap-2">
+                  <span className="text-sm font-semibold text-gray-600">Academic Highlight / GPA</span>
+                  <input
+                    type="text"
+                    value={form.sections?.gpa || ''}
+                    onChange={(event) => updateSectionField('gpa', event.target.value)}
+                    className="rounded-xl border border-gray-200 px-4 py-3 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                    placeholder="CGPA 8.7 / 10"
+                  />
+                </label>
+              </div>
+            </section>
+
+            <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between mb-6">
+                <div>
+                  <h2 className="text-2xl font-bold text-purple-700">Skill Stacks &amp; Expertise</h2>
+                  <p className="text-sm text-gray-500">Break down your toolkit for templates that surface grouped skills.</p>
+                </div>
+                <button
+                  type="button"
+                  onClick={addSkillGroup}
+                  className="text-sm font-semibold text-purple-600 hover:text-purple-700"
+                >
+                  + Add Skill Group
+                </button>
+              </div>
+              {skills.length === 0 && (
+                <p className="text-sm text-gray-500 mb-6">No skill groups yet. Add at least one to unlock richer portfolio layouts.</p>
+              )}
+              <div className="space-y-6">
+                {skills.map((group, index) => (
+                  <div key={group.id} className="border border-gray-200 rounded-2xl p-5">
+                    <div className="flex items-start justify-between gap-4 mb-4">
+                      <h3 className="font-semibold text-gray-700">Skill Group #{index + 1}</h3>
+                      <button
+                        type="button"
+                        onClick={() => removeSkillGroup(group.id)}
+                        className="text-gray-400 hover:text-red-500"
+                        title="Remove skill group"
+                      >
+                        <TrashIcon size={18} />
+                      </button>
+                    </div>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                      <label className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-gray-500">Category</span>
+                        <input
+                          type="text"
+                          value={group.category}
+                          onChange={(event) => updateSkillGroup(group.id, 'category', event.target.value)}
+                          className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Frontend"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-2 md:col-span-1">
+                        <span className="text-xs font-semibold text-gray-500">Items (comma or new line)</span>
+                        <textarea
+                          value={group.items}
+                          onChange={(event) => updateSkillGroup(group.id, 'items', event.target.value)}
+                          className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+                          placeholder="React, TypeScript, Tailwind"
+                        />
+                      </label>
+                    </div>
+                    <p className="text-xs text-gray-500 mt-2">Tip: These surface as badges or grouped lists in portfolio templates.</p>
+                  </div>
+                ))}
+              </div>
+            </section>
+
+            <section className="bg-white rounded-2xl shadow-xl border border-purple-100 p-6 sm:p-8">
               <h2 className="text-2xl font-bold text-purple-700 mb-6">Story & Highlights</h2>
               <label className="flex flex-col gap-2 mb-6">
                 <span className="text-sm font-semibold text-gray-600">About Section</span>
@@ -703,6 +1067,13 @@ export default function EditGeneratedPage() {
                         onChange={handleImageFileChange}
                         className="hidden"
                       />
+                      <input
+                        ref={replaceFileInputRef}
+                        type="file"
+                        accept="image/*"
+                        onChange={handleReplaceImageFileChange}
+                        className="hidden"
+                      />
                     </div>
                   </div>
 
@@ -760,13 +1131,23 @@ export default function EditGeneratedPage() {
                               ↓ Move down
                             </button>
                           </div>
-                          <button
-                            type="button"
-                            onClick={() => handleRemoveImage(index)}
-                            className="px-3 py-1 text-xs font-semibold rounded-lg border border-red-200 text-red-500 hover:border-red-400 hover:text-red-600 transition"
-                          >
-                            Remove
-                          </button>
+                          <div className="flex gap-2">
+                            <button
+                              type="button"
+                              onClick={() => handleReplaceImage(index)}
+                              className="px-3 py-1 text-xs font-semibold rounded-lg border border-blue-200 text-blue-500 hover:border-blue-400 hover:text-blue-600 transition disabled:opacity-60"
+                              disabled={image.uploading}
+                            >
+                              Replace
+                            </button>
+                            <button
+                              type="button"
+                              onClick={() => handleRemoveImage(index)}
+                              className="px-3 py-1 text-xs font-semibold rounded-lg border border-red-200 text-red-500 hover:border-red-400 hover:text-red-600 transition"
+                            >
+                              Remove
+                            </button>
+                          </div>
                         </div>
                       </div>
                     ))}
@@ -885,6 +1266,99 @@ export default function EditGeneratedPage() {
                         className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[90px]"
                         placeholder="Describe what clients receive, typical duration, and why it's special."
                       />
+                    </label>
+                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                      <label className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-gray-500">Timeline</span>
+                        <input
+                          type="text"
+                          value={service.timeline || ''}
+                          onChange={(event) => updateService(index, 'timeline', event.target.value)}
+                          className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Jan 2025 – Mar 2025"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-gray-500">Role</span>
+                        <input
+                          type="text"
+                          value={service.role || ''}
+                          onChange={(event) => updateService(index, 'role', event.target.value)}
+                          className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Product Engineer"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-gray-500">Team / Size</span>
+                        <input
+                          type="text"
+                          value={service.team || ''}
+                          onChange={(event) => updateService(index, 'team', event.target.value)}
+                          className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Team of 4"
+                        />
+                      </label>
+                      <label className="flex flex-col gap-2">
+                        <span className="text-xs font-semibold text-gray-500">Outcome / Impact</span>
+                        <input
+                          type="text"
+                          value={service.outcome || ''}
+                          onChange={(event) => updateService(index, 'outcome', event.target.value)}
+                          className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                          placeholder="Adopted by 30+ routes"
+                        />
+                      </label>
+                    </div>
+                    <label className="flex flex-col gap-2 mt-4">
+                      <span className="text-xs font-semibold text-gray-500">Key Takeaways / Summary</span>
+                      <textarea
+                        value={service.summary || ''}
+                        onChange={(event) => updateService(index, 'summary', event.target.value)}
+                        className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500 min-h-[80px]"
+                        placeholder="List the punchline outcomes or lessons learned."
+                      />
+                    </label>
+                    <label className="flex flex-col gap-2 mt-4">
+                      <span className="text-xs font-semibold text-gray-500">Feature Image URL</span>
+                      <input
+                        type="url"
+                        value={service.image || ''}
+                        onChange={(event) => updateService(index, 'image', event.target.value)}
+                        className="rounded-lg border border-gray-200 px-4 py-2 focus:outline-none focus:ring-2 focus:ring-purple-500"
+                        placeholder="https://res.cloudinary.com/..."
+                      />
+                      {images.length > 0 && (
+                        <div className="flex flex-wrap items-center gap-2 text-xs text-gray-500">
+                          <span>Quick insert:</span>
+                          <select
+                            className="rounded-lg border border-gray-200 px-2 py-1 text-xs focus:outline-none focus:ring-2 focus:ring-purple-500"
+                            defaultValue=""
+                            onChange={(event) => {
+                              if (!event.target.value) {
+                                return;
+                              }
+                              handleServiceGallerySelect(index, event.target.value);
+                              event.target.value = '';
+                            }}
+                          >
+                            <option value="">Choose from gallery…</option>
+                            {images.map((img, imgIndex) => (
+                              <option key={`${img.id}-${imgIndex}`} value={img.url}>
+                                Gallery #{imgIndex + 1}{img.alt ? ` — ${img.alt}` : ''}
+                              </option>
+                            ))}
+                          </select>
+                          {service.image && (
+                            <button
+                              type="button"
+                              onClick={() => updateService(index, 'image', '')}
+                              className="px-2 py-1 rounded border border-gray-300 text-gray-500 hover:border-red-300 hover:text-red-500 transition"
+                            >
+                              Clear
+                            </button>
+                          )}
+                        </div>
+                      )}
                     </label>
                   </div>
                 ))}

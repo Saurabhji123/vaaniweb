@@ -218,6 +218,29 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
       rating: typeof testimonial?.rating === 'number' ? testimonial.rating : 5,
     })).filter((testimonial) => testimonial.name.length > 0 && testimonial.quote.length > 0);
 
+    const rawSkillGroups = Array.isArray(updatedJson.sections?.skills)
+      ? updatedJson.sections?.skills
+      : [];
+
+    const skillItems = rawSkillGroups
+      .map((group: any) => {
+          const items = Array.isArray(group?.items)
+            ? group.items.map((item: unknown) => sanitizeText(item, '')).filter((item: string) => item.length > 0)
+            : [];
+          const categoryFallback = items.length > 0 ? 'General' : '';
+          const category = sanitizeText(group?.category, categoryFallback);
+
+          if (category.length === 0 && items.length === 0) {
+            return null;
+          }
+
+          return {
+            category,
+            items,
+          };
+        })
+      .filter((group) => group !== null) as Array<{ category: string; items: string[] }>;
+
     const visibility = {
       features: typeof updatedJson.sections?.visibility?.features === 'boolean'
         ? updatedJson.sections.visibility.features
@@ -249,6 +272,7 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
       picDescriptions,
       contact_fields: contactFields,
       seoKeywords,
+      description: sanitizeText(updatedJson.description, sanitizeText(page.json?.description)),
       sections: {
         ...(existingSections || {}),
         ...updatedJson.sections,
@@ -258,6 +282,16 @@ export async function PUT(req: NextRequest, { params }: { params: { identifier: 
         faq: faqItems,
         services: serviceItems,
         testimonials: testimonialItems,
+        skills: skillItems,
+        location: sanitizeText(updatedJson.sections?.location, sanitizeText(existingSections?.location)),
+        phone: sanitizeText(updatedJson.sections?.phone, sanitizeText(existingSections?.phone)),
+        date: sanitizeText(updatedJson.sections?.date, sanitizeText(existingSections?.date)),
+        deadline: sanitizeText(updatedJson.sections?.deadline, sanitizeText(existingSections?.deadline)),
+        cta: sanitizeText(updatedJson.sections?.cta, sanitizeText(existingSections?.cta)),
+        focus: sanitizeText(updatedJson.sections?.focus, sanitizeText(existingSections?.focus)),
+        roles: sanitizeText(updatedJson.sections?.roles, sanitizeText(existingSections?.roles)),
+        availability: sanitizeText(updatedJson.sections?.availability, sanitizeText(existingSections?.availability)),
+        gpa: sanitizeText(updatedJson.sections?.gpa, sanitizeText(existingSections?.gpa)),
         visibility,
       },
     };
