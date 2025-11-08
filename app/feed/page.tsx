@@ -2,22 +2,22 @@
 
 import { useEffect, useState } from 'react';
 import Image from 'next/image';
-import Link from 'next/link';
+import { useRouter } from 'next/navigation';
 import { FeedItem } from '../types';
 import Navigation from '../components/Navigation';
 import { useAuth } from '../context/AuthContext';
 import { 
   GalleryIcon, 
   EyeIcon, 
-  RefreshIcon, 
+  EditIcon, 
   MicrophoneIcon, 
   ErrorIcon,
-  HeartIcon,
   CameraIcon
 } from '../components/Icons';
 
 export default function FeedPage() {
   const { user, token, loading: authLoading } = useAuth();
+  const router = useRouter();
   const [items, setItems] = useState<FeedItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -60,18 +60,9 @@ export default function FeedPage() {
       });
   }, [token, authLoading]);
 
-  const handleRemix = (item: FeedItem) => {
-    // Create a clean, readable prompt from the existing page data
-    const themeColor = item.json.theme_color || 'teal';
-    const businessType = item.json.businessType || 'business';
-    const keywords = item.json.seoKeywords?.join(', ') || `${businessType}, professional, modern, quality`;
-    const instagram = item.json.instagram ? `Instagram: @${item.json.instagram}` : '';
-    
-    // Create natural language prompt
-    const prompt = `Create a ${themeColor} themed website for ${item.json.title}. ${item.json.tagline}. Keywords: ${keywords}. ${instagram}`.trim();
-    
-    // Redirect to homepage with pre-filled prompt in URL
-    window.location.href = `/?remix=${encodeURIComponent(prompt)}`;
+  const handleEdit = (item: FeedItem) => {
+    const identifier = item.slug || item._id;
+    router.push(`/feed/edit/${identifier}`);
   };
 
   if (loading) {
@@ -210,17 +201,15 @@ export default function FeedPage() {
                       <span>View Page</span>
                     </a>
                     <button
-                      onClick={() => handleRemix(item)}
+                      onClick={() => handleEdit(item)}
                       className="flex-1 bg-gradient-to-r from-teal-500 to-emerald-500 text-white py-3 px-4 rounded-xl hover:from-teal-600 hover:to-emerald-600 transition text-sm font-bold shadow-lg flex items-center justify-center gap-2 group relative"
-                      title="Create a variation of this page with AI"
+                      title="Edit this website"
                     >
-                      <RefreshIcon size={18} />
-                      <span>Remix</span>
-                      
-                      {/* Tooltip */}
+                      <EditIcon size={18} />
+                      <span>Edit</span>
                       <div className="absolute bottom-full left-1/2 -translate-x-1/2 mb-2 hidden group-hover:block">
                         <div className="bg-gray-900 text-white text-xs px-3 py-2 rounded-lg whitespace-nowrap shadow-xl">
-                          Create a new version with AI ✨
+                          Update copy, images, and offers ✏️
                           <div className="absolute top-full left-1/2 -translate-x-1/2 -mt-1">
                             <div className="border-4 border-transparent border-t-gray-900"></div>
                           </div>
