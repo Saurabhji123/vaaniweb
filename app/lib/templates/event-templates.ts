@@ -1,6 +1,35 @@
 import { GeneratedPageData } from '../../types';
 import { generateContactFormScript } from '../form-generator';
 
+const DEFAULT_EVENT_FEATURES: string[] = [
+  'Headline performances from nationally acclaimed artists and creators',
+  'Immersive experience zones featuring AR, VR, and interactive installations',
+  'Industry thought leaders presenting masterclasses and live Q&A sessions',
+  'Hands-on workshops covering storytelling, production, and creative tech',
+  'Food truck boulevard serving curated regional and global cuisines',
+  'Startup demo alley showcasing breakthrough student innovations',
+  'Live art battles and independent film screenings under the stars',
+  'Campus esports championship with professional shoutcasters and prize pool',
+  'Sustainable event marketplace with eco-conscious partners and NGOs'
+];
+
+const DEFAULT_EVENT_SCHEDULE: Array<{ title: string; description: string }> = [
+  { title: 'Check-in, Networking Breakfast & Partner Showcases', description: 'Kickstart the day with gourmet coffee, meet fellow attendees, and explore the innovation pavilion.' },
+  { title: 'Opening Ceremony & Vision Keynote', description: 'Leadership team unveils the event narrative, theme, and impact goals for this year.' },
+  { title: 'Creator Labs & Skill Workshops', description: 'Parallel tracks on short-form video, indie music production, design thinking, and XR storytelling.' },
+  { title: 'Mentor Hours & Investor Office Hours', description: 'Curated one-on-one sessions connecting founders with investors, mentors, and talent scouts.' },
+  { title: 'Prime Time Showcase & Competitions', description: 'Main stage performances, pitch finals, fashion walk, and campus talent awards.' },
+  { title: 'Afterhours Mixer & Artist Collaborations', description: 'Sunset chill zone, indie jam sessions, and collaborative live art installations.' }
+];
+
+const DEFAULT_EVENT_TESTIMONIALS: Array<{ name: string; role: string; quote: string; rating?: number }> = [
+  { name: 'Ritika Sharma', role: 'Marketing Lead, Northwave Studios', quote: 'We signed two new campus partners within a week of the festival thanks to the curated lounges and super-organised volunteer crew.', rating: 5 },
+  { name: 'Aditya Rao', role: 'President, Aurora Cultural Collective', quote: 'The production quality and storytelling around student talent was the best we have seen across national college fests.', rating: 5 },
+  { name: 'Priya Menon', role: 'Head of Community, IndieJam', quote: 'The hybrid schedule blended workshops, creator stalls, and performances seamlessly. Every attendee walked away with actionable learnings.', rating: 5 }
+];
+
+const DEFAULT_EVENT_CONTACT_FIELDS = ['Full Name', 'Email', 'Phone', 'Organization', 'Pass Type', 'Team Size', 'Message'];
+
 function getDescriptions(pics: string[], picDescriptions?: string[]) {
   if (picDescriptions && picDescriptions.length === pics.length) return picDescriptions;
   return pics.map((_, i) => picDescriptions?.[i] || `Event image ${i + 1}`);
@@ -34,9 +63,10 @@ function countdownScript(fallbackDays = 7) {
 export function generateEventNeonLayout(data: GeneratedPageData): string {
   const { title, tagline, theme_color, pics, picDescriptions, contact_fields, sections } = data;
   const descriptions = getDescriptions(pics, picDescriptions);
-  const features = sections?.features || [];
-  const services = sections?.services || [];
-  const testimonials = sections?.testimonials || [];
+  const features = sections?.features?.length ? sections.features : DEFAULT_EVENT_FEATURES;
+  const services = sections?.services?.length ? sections.services : DEFAULT_EVENT_SCHEDULE;
+  const testimonials = sections?.testimonials?.length ? sections.testimonials : DEFAULT_EVENT_TESTIMONIALS;
+  const fields = contact_fields?.length ? contact_fields : DEFAULT_EVENT_CONTACT_FIELDS;
   const formScript = generateContactFormScript();
   const websiteSlug = (data as any).slug || '';
 
@@ -68,7 +98,7 @@ export function generateEventNeonLayout(data: GeneratedPageData): string {
       <div class="lg:col-span-2">
         <h3 class="text-2xl font-bold mb-3">Gallery</h3>
         <div class="grid grid-cols-2 md:grid-cols-3 gap-3">
-          ${pics.slice(1).map((u,i)=>`<div class="overflow-hidden rounded-xl border border-white/10"><img src="${u}" alt="${descriptions[i+1]}" class="w-full h-44 object-cover hover:scale-110 transition" loading="lazy" onerror="this.src='https://picsum.photos/600/400?random=${i+1}'"></div>`).join('')}
+          ${pics.slice(1).map((u,i)=>`<div class="overflow-hidden rounded-xl border border-white/10"><img src="${u}" alt="${descriptions[i+1] || descriptions[0]}" class="w-full h-44 object-cover hover:scale-110 transition" loading="lazy" onerror="this.src='https://picsum.photos/600/400?random=${i+1}'"></div>`).join('')}
         </div>
       </div>
       <aside class="lg:col-span-1">
@@ -80,11 +110,23 @@ export function generateEventNeonLayout(data: GeneratedPageData): string {
     </div>
   </section>
 
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <h3 class="text-2xl font-bold mb-4">What attendees loved</h3>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+      ${testimonials.map(t => `<div class="glass rounded-2xl p-5 border border-white/10">
+        <div class="text-yellow-300 mb-2">${'★'.repeat(t.rating || 5)}</div>
+        <p class="text-white/85 italic">"${t.quote}"</p>
+        <p class="mt-4 font-semibold text-white">${t.name}</p>
+        <p class="text-sm text-${theme_color}-200">${t.role}</p>
+      </div>`).join('')}
+    </div>
+  </section>
+
   <section class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
     <form class="glass border border-white/10 p-6 rounded-2xl" onsubmit="submitContactForm(event)">
       <input type="hidden" name="websiteSlug" value="${websiteSlug}">
       <h3 class="text-2xl font-bold mb-4">Register / RSVP</h3>
-      ${contact_fields.map(f=>`<div class="mb-3"><label class="block text-sm mb-1 text-white/80">${f}</label><input type="${f.toLowerCase().includes('email')?'email':f.toLowerCase().includes('phone')?'tel':'text'}" required class="w-full px-3 py-2 rounded-md bg-black/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-${theme_color}-400"></div>`).join('')}
+      ${fields.map(f=>`<div class="mb-3"><label class="block text-sm mb-1 text-white/80">${f}</label><input type="${f.toLowerCase().includes('email')?'email':f.toLowerCase().includes('phone')?'tel':'text'}" required class="w-full px-3 py-2 rounded-md bg-black/50 border border-white/10 focus:outline-none focus:ring-2 focus:ring-${theme_color}-400"></div>`).join('')}
       <button type="submit" class="w-full py-3 rounded-lg bg-${theme_color}-600 hover:bg-${theme_color}-700 text-white font-semibold">Get Pass</button>
     </form>
   </section>
@@ -101,9 +143,10 @@ export function generateEventNeonLayout(data: GeneratedPageData): string {
 export function generateEventElegantLayout(data: GeneratedPageData): string {
   const { title, tagline, theme_color, pics, picDescriptions, contact_fields, sections } = data;
   const descriptions = getDescriptions(pics, picDescriptions);
-  const features = sections?.features || [];
-  const services = sections?.services || [];
-  const testimonials = sections?.testimonials || [];
+  const features = sections?.features?.length ? sections.features : DEFAULT_EVENT_FEATURES;
+  const services = sections?.services?.length ? sections.services : DEFAULT_EVENT_SCHEDULE;
+  const testimonials = sections?.testimonials?.length ? sections.testimonials : DEFAULT_EVENT_TESTIMONIALS;
+  const fields = contact_fields?.length ? contact_fields : DEFAULT_EVENT_CONTACT_FIELDS;
   const formScript = generateContactFormScript();
   const websiteSlug = (data as any).slug || '';
 
@@ -140,11 +183,35 @@ export function generateEventElegantLayout(data: GeneratedPageData): string {
     </div>
   </section>
 
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-8">
+    <h2 class="text-3xl sm:text-4xl font-bold mb-6">Why attendees return</h2>
+    <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+      ${features.slice(0,6).map((f,i)=>`<div class="rounded-2xl border border-${theme_color}-100 p-6 shadow-sm">
+        <div class="text-${theme_color}-600 text-2xl mb-2">${['🎯','💡','🤝','🎶','🎬','📈'][i%6]}</div>
+        <p class="text-gray-700">${f}</p>
+      </div>`).join('')}
+    </div>
+  </section>
+
+  <section class="max-w-6xl mx-auto px-4 sm:px-6 py-8">
+    <div class="bg-${theme_color}-50 border border-${theme_color}-100 rounded-2xl p-6 sm:p-10">
+      <h3 class="text-2xl sm:text-3xl font-bold mb-6">Voices from the community</h3>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+        ${testimonials.map(t=>`<div class="bg-white rounded-xl border border-${theme_color}-100 p-6 shadow">
+          <div class="text-yellow-400 mb-2">${'★'.repeat(t.rating || 5)}</div>
+          <p class="text-gray-700 italic">"${t.quote}"</p>
+          <p class="mt-3 font-semibold text-${theme_color}-800">${t.name}</p>
+          <p class="text-sm text-gray-500">${t.role}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
   <section class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
     <form class="bg-white border border-${theme_color}-200 p-6 rounded-2xl shadow-sm" onsubmit="submitContactForm(event)">
       <input type="hidden" name="websiteSlug" value="${websiteSlug}">
       <h3 class="text-2xl font-bold mb-4">Get Tickets</h3>
-      ${contact_fields.map(f=>`<div class="mb-3"><label class="block text-sm font-medium mb-1 text-gray-700">${f}</label><input type="${f.toLowerCase().includes('email')?'email':f.toLowerCase().includes('phone')?'tel':'text'}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${theme_color}-400"></div>`).join('')}
+      ${fields.map(f=>`<div class="mb-3"><label class="block text-sm font-medium mb-1 text-gray-700">${f}</label><input type="${f.toLowerCase().includes('email')?'email':f.toLowerCase().includes('phone')?'tel':'text'}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${theme_color}-400"></div>`).join('')}
       <button type="submit" class="w-full py-3 rounded-lg bg-${theme_color}-600 hover:bg-${theme_color}-700 text-white font-semibold">Book Now</button>
     </form>
   </section>
@@ -160,12 +227,13 @@ export function generateEventElegantLayout(data: GeneratedPageData): string {
 export function generateEventCampusCarnivalLayout(data: GeneratedPageData): string {
   const { title, tagline, theme_color, pics, picDescriptions, contact_fields, sections } = data;
   const descriptions = getDescriptions(pics, picDescriptions);
-  const features = sections?.features || [];
-  const services = sections?.services || [];
+  const features = sections?.features?.length ? sections.features : DEFAULT_EVENT_FEATURES;
+  const services = sections?.services?.length ? sections.services : DEFAULT_EVENT_SCHEDULE;
+  const fields = contact_fields?.length ? contact_fields : DEFAULT_EVENT_CONTACT_FIELDS;
   const formScript = generateContactFormScript();
   const websiteSlug = (data as any).slug || '';
 
-  const zones = features.slice(0,6).map((f,i)=>({name: f.split(':')[0].slice(0,24) || `Zone ${i+1}`, icon: ['🎮','🎨','🎤','⚽','📷','🍔'][i%6]}));
+  const zones = features.slice(0,6).map((f,i)=>({name: f.split(':')[0].slice(0,32) || `Zone ${i+1}`, icon: ['🎮','🎨','🎤','⚽','📷','🍔'][i%6]}));
 
   return `<!DOCTYPE html><html lang="en"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes"><title>${title}</title><script src="https://cdn.tailwindcss.com"></script>${formScript}<style>.mesh{background: radial-gradient(ellipse at 20% 10%, rgba(79,70,229,.15), transparent 35%), radial-gradient(ellipse at 80% 0%, rgba(236,72,153,.15), transparent 35%), radial-gradient(ellipse at 50% 100%, rgba(16,185,129,.15), transparent 35%)}</style></head><body class="bg-white text-gray-900">
   <header class="mesh">
@@ -190,7 +258,7 @@ export function generateEventCampusCarnivalLayout(data: GeneratedPageData): stri
   <section class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
     <h2 class="text-3xl font-bold mb-4">Highlights</h2>
     <div class="grid grid-cols-2 md:grid-cols-4 gap-3">
-      ${pics.slice(0,8).map((u,i)=>`<div class="overflow-hidden rounded-xl border border-gray-200"><img src="${u}" alt="${descriptions[i]}" class="w-full h-44 object-cover hover:scale-110 transition" loading="lazy" onerror="this.src='https://picsum.photos/600/400?random=${i}'"></div>`).join('')}
+  ${pics.slice(0,8).map((u,i)=>`<div class="overflow-hidden rounded-xl border border-gray-200"><img src="${u}" alt="${descriptions[i] || title}" class="w-full h-44 object-cover hover:scale-110 transition" loading="lazy" onerror="this.src='https://picsum.photos/600/400?random=${i}'"></div>`).join('')}
     </div>
   </section>
 
@@ -205,11 +273,23 @@ export function generateEventCampusCarnivalLayout(data: GeneratedPageData): stri
     </div>
   </section>
 
+  <section class="max-w-7xl mx-auto px-4 sm:px-6 py-6">
+    <div class="bg-${theme_color}-50 border border-${theme_color}-100 rounded-2xl p-6 sm:p-8">
+      <h2 class="text-3xl font-bold mb-4">Campus-wide takeaways</h2>
+      <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-4">
+        ${features.slice(0,6).map((f,i)=>`<div class="rounded-2xl border border-${theme_color}-100 bg-white p-5 shadow-sm">
+          <div class="text-${theme_color}-600 text-2xl mb-2">${['🏅','🧠','🎉','🤝','📣','🌱'][i%6]}</div>
+          <p class="text-gray-700">${f}</p>
+        </div>`).join('')}
+      </div>
+    </div>
+  </section>
+
   <section class="max-w-2xl mx-auto px-4 sm:px-6 py-10">
     <form class="bg-white border border-${theme_color}-200 p-6 rounded-2xl shadow-sm" onsubmit="submitContactForm(event)">
       <input type="hidden" name="websiteSlug" value="${websiteSlug}">
       <h3 class="text-2xl font-bold mb-4">Volunteer / Register</h3>
-      ${contact_fields.map(f=>`<div class="mb-3"><label class="block text-sm font-medium mb-1 text-gray-700">${f}</label><input type="${f.toLowerCase().includes('email')?'email':f.toLowerCase().includes('phone')?'tel':'text'}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${theme_color}-400"></div>`).join('')}
+      ${fields.map(f=>`<div class="mb-3"><label class="block text-sm font-medium mb-1 text-gray-700">${f}</label><input type="${f.toLowerCase().includes('email')?'email':f.toLowerCase().includes('phone')?'tel':'text'}" required class="w-full px-3 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-${theme_color}-400"></div>`).join('')}
       <button type="submit" class="w-full py-3 rounded-lg bg-${theme_color}-600 hover:bg-${theme_color}-700 text-white font-semibold">Submit</button>
     </form>
   </section>

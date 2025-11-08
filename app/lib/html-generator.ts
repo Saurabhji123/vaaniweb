@@ -12,13 +12,13 @@ import {
   generatePhotographyProLayout,
   generateRealEstateLuxuryLayout 
 } from './templates/unique-templates';
-import {
+import { 
   generateTravelAdventureLayout,
   generateLawFirmLayout,
   generateSpaWellnessLayout,
   generateTechStartupLayout
 } from './templates/unique-templates-part2';
-import {
+import { 
   generateEventNeonLayout,
   generateEventElegantLayout,
   generateEventCampusCarnivalLayout
@@ -29,15 +29,54 @@ import {
   generatePortfolioMinimalMasonryLayout
 } from './templates/portfolio-templates';
 
+// Normalize descriptive business types so template selection stays accurate
+function normalizeBusinessType(rawType?: string): string {
+  if (!rawType) return 'general';
+
+  const normalized = rawType.toLowerCase().replace(/[_-]+/g, ' ').trim();
+  if (!normalized) return 'general';
+
+    const synonymMap: Array<{ keywords: string[]; type: string }> = [
+      { type: 'event', keywords: ['fest', 'festival', 'college fest', 'college festival', 'campus fest', 'carnival', 'concert', 'conference', 'summit', 'expo', 'gala', 'symposium', 'meetup', 'ceremony', 'wedding'] },
+      { type: 'photography', keywords: ['photography', 'photographer', 'photo studio', 'photo ', 'photo-', 'photoshoot', 'videography', 'media studio', 'production house', 'film studio'] },
+      { type: 'portfolio', keywords: ['portfolio', 'creative portfolio', 'artist portfolio', 'digital portfolio', 'freelancer portfolio', 'resume portfolio', 'curriculum vitae', 'cv portfolio', 'model portfolio'] },
+      { type: 'yoga', keywords: ['yoga', 'meditation studio', 'meditation center', 'mindfulness', 'ashtanga'] },
+      { type: 'wellness', keywords: ['wellness', 'holistic', 'ayurveda', 'detox', 'healing retreat'] },
+      { type: 'fitness', keywords: ['fitness', 'bootcamp', 'training program', 'workout studio'] },
+      { type: 'gym', keywords: ['gym', 'strength studio', 'weightlifting', 'martial arts', 'pilates'] },
+      { type: 'restaurant', keywords: ['restaurant', 'food', 'dining', 'cuisine', 'eatery', 'bistro', 'catering', 'tiffin service'] },
+      { type: 'cafe', keywords: ['cafe', 'coffee', 'espresso', 'latte', 'brew'] },
+      { type: 'bakery', keywords: ['bakery', 'cake', 'dessert', 'pastry', 'patisserie', 'bakehouse'] },
+      { type: 'shop', keywords: ['shop', 'store', 'retail', 'market', 'commerce', 'ecommerce', 'e-commerce', 'boutique'] },
+      { type: 'salon', keywords: ['salon', 'spa', 'beauty', 'parlour', 'parlor', 'makeup', 'grooming'] },
+      { type: 'travel', keywords: ['travel', 'tour', 'tourism', 'trip', 'vacation', 'journey', 'itinerary'] },
+      { type: 'law', keywords: ['law', 'legal', 'attorney', 'lawyer', 'advocate'] },
+      { type: 'tech', keywords: ['tech', 'software', 'app', 'digital', 'it service', 'technology', 'startup'] },
+      { type: 'real estate', keywords: ['real estate', 'realestate', 'property', 'realtor', 'realty', 'estate agent'] },
+      { type: 'consulting', keywords: ['consulting', 'consultancy', 'advisor', 'advisory', 'agency'] },
+      { type: 'education', keywords: ['education', 'school', 'academy', 'training institute', 'coaching', 'tutor', 'college'] },
+      { type: 'medical', keywords: ['medical', 'clinic', 'hospital', 'dental', 'healthcare', 'physio', 'therapy'] }
+    ];
+
+  for (const { keywords, type } of synonymMap) {
+    if (keywords.some(keyword => normalized.includes(keyword))) {
+      return type;
+    }
+  }
+
+  return normalized;
+}
+
 export function generateHTML(data: GeneratedPageData): string {
   const { businessType = 'general', title = '' } = data;
+  const type = normalizeBusinessType(businessType);
   
   // Generate unique seed based on title for consistent but varied selection
   const seed = title.split('').reduce((acc, char) => acc + char.charCodeAt(0), 0);
   const templateIndex = seed % 20; // 20+ different templates now
   
   // Business-type specific templates with NEW templates
-  if (businessType === 'bakery' || businessType === 'cafe' || businessType === 'restaurant') {
+  if (type === 'bakery' || type === 'cafe' || type === 'restaurant') {
     const templates = [
       generateCafeLayout, 
       generateCafeModernLayout, 
@@ -46,10 +85,10 @@ export function generateHTML(data: GeneratedPageData): string {
       generateBakerySweetLayout
     ];
     return templates[templateIndex % templates.length](data);
-  } else if (businessType === 'gym' || businessType === 'fitness' || businessType === 'yoga' || businessType === 'wellness') {
+  } else if (type === 'gym' || type === 'fitness' || type === 'yoga' || type === 'wellness') {
     const templates = [generateGymLayout, generateGymBoldLayout, generateYogaZenLayout, generateSpaWellnessLayout];
     return templates[templateIndex % templates.length](data);
-  } else if (businessType === 'photography' || businessType === 'portfolio') {
+  } else if (type === 'photography' || type === 'portfolio') {
     const templates = [
       generatePhotographyLayout,
       generatePortfolioGridLayout,
@@ -59,30 +98,30 @@ export function generateHTML(data: GeneratedPageData): string {
       generatePortfolioMinimalMasonryLayout
     ];
     return templates[templateIndex % templates.length](data);
-  } else if (businessType === 'event' || businessType === 'festival' || businessType === 'college' || businessType === 'conference' || businessType === 'concert') {
+  } else if (type === 'event' || type === 'festival' || type === 'college' || type === 'conference' || type === 'concert') {
     const templates = [
       generateEventNeonLayout,
       generateEventElegantLayout,
       generateEventCampusCarnivalLayout
     ];
     return templates[templateIndex % templates.length](data);
-  } else if (businessType === 'shop' || businessType === 'boutique' || businessType === 'store') {
+  } else if (type === 'shop' || type === 'boutique' || type === 'store') {
     const templates = [
       generateShopElegantLayout,
       generateShopVibrantLayout,
       generateShopModernLayout
     ];
     return templates[templateIndex % templates.length](data);
-  } else if (businessType === 'salon' || businessType === 'spa' || businessType === 'beauty') {
+  } else if (type === 'salon' || type === 'spa' || type === 'beauty') {
     const templates = [generateSalonLuxuryLayout, generateSalonChicLayout, generateSpaWellnessLayout];
     return templates[templateIndex % templates.length](data);
-  } else if (businessType === 'travel' || businessType === 'tour' || businessType === 'tourism') {
+  } else if (type === 'travel' || type === 'tour' || type === 'tourism') {
     return generateTravelAdventureLayout(data);
-  } else if (businessType === 'law' || businessType === 'legal' || businessType === 'attorney' || businessType === 'lawyer') {
+  } else if (type === 'law' || type === 'legal' || type === 'attorney' || type === 'lawyer') {
     return generateLawFirmLayout(data);
-  } else if (businessType === 'tech' || businessType === 'software' || businessType === 'startup' || businessType === 'technology') {
+  } else if (type === 'tech' || type === 'software' || type === 'startup' || type === 'technology') {
     return generateTechStartupLayout(data);
-  } else if (businessType === 'realestate' || businessType === 'property' || businessType === 'real estate') {
+  } else if (type === 'realestate' || type === 'property' || type === 'real estate') {
     return generateRealEstateLuxuryLayout(data);
   } else {
     // For general businesses, use wider variety of templates
