@@ -1,6 +1,7 @@
 ﻿'use client';
 
 import { useState, useRef, useEffect } from 'react';
+import type { MouseEvent as ReactMouseEvent, TouchEvent as ReactTouchEvent, KeyboardEvent as ReactKeyboardEvent } from 'react';
 import Image from 'next/image';
 import Link from 'next/link';
 import { useRouter } from 'next/navigation';
@@ -28,6 +29,7 @@ export default function Home() {
   const recognitionRef = useRef<any>(null);
   const isInitializedRef = useRef(false);
   const isStartingRef = useRef(false);
+  const pressActiveRef = useRef(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -110,15 +112,23 @@ export default function Home() {
     }
   };
 
-  const startRecording = async () => {
-    if (isStartingRef.current || isRecording) return;
+  const startRecording = async (): Promise<boolean> => {
+    if (!user || !token) {
+      setStatus('❌ Please login or register to use voice recording.');
+      return false;
+    }
+
+    if (isStartingRef.current || isRecording) return false;
+
     if (!recognitionRef.current) {
       setStatus('Speech recognition not supported. Please use Chrome or Edge.');
-      return;
+      return false;
     }
+
+    let started = false;
+
     try {
       isStartingRef.current = true;
-      // Proactively ask for permission to reduce failures
       await ensureMicPermission();
       try { recognitionRef.current.abort?.(); } catch {}
       try { recognitionRef.current.stop?.(); } catch {}
@@ -127,13 +137,19 @@ export default function Home() {
       setStatus('Listening... Speak now!');
       setIsRecording(true);
       recognitionRef.current.start();
+      started = true;
     } catch (error: any) {
       console.error('startRecording error:', error);
       setIsRecording(false);
       setStatus(error?.message || 'Failed to start microphone.');
     } finally {
       isStartingRef.current = false;
+      if (!started) {
+        pressActiveRef.current = false;
+      }
     }
+
+    return started;
   };
 
   const stopRecording = async () => {
@@ -143,6 +159,50 @@ export default function Home() {
     } catch {}
     setIsRecording(false);
     setStatus('Recording stopped! You can edit the text below and click "Generate Website".');
+  };
+
+  const handleRecordPressStart = async (
+    event: ReactMouseEvent<HTMLButtonElement> | ReactTouchEvent<HTMLButtonElement>
+  ) => {
+    if (event.type === 'mousedown' && 'button' in event && event.button !== 0) {
+      return;
+    }
+
+    if (event.type === 'mousedown' && 'buttons' in event && typeof event.buttons === 'number' && event.buttons !== 1) {
+      return;
+    }
+
+    if (pressActiveRef.current) return;
+
+    pressActiveRef.current = true;
+    const started = await startRecording();
+    if (!started) {
+      pressActiveRef.current = false;
+    }
+  };
+
+  const handleRecordPressEnd = () => {
+    if (!pressActiveRef.current) return;
+    pressActiveRef.current = false;
+    stopRecording();
+  };
+
+  const handleRecordKeyDown = async (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    if (event.repeat) return;
+    if (event.key !== ' ' && event.key !== 'Enter') return;
+    event.preventDefault();
+    if (pressActiveRef.current) return;
+    pressActiveRef.current = true;
+    const started = await startRecording();
+    if (!started) {
+      pressActiveRef.current = false;
+    }
+  };
+
+  const handleRecordKeyUp = (event: ReactKeyboardEvent<HTMLButtonElement>) => {
+    if (event.key !== ' ' && event.key !== 'Enter') return;
+    event.preventDefault();
+    handleRecordPressEnd();
   };
 
   const handleImageUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -336,12 +396,14 @@ export default function Home() {
             </ul>
             <div className="space-y-4">
               <button
-                onMouseDown={startRecording}
-                onMouseUp={stopRecording}
-                onMouseLeave={stopRecording}
-                onTouchStart={startRecording}
-                onTouchEnd={stopRecording}
-                onTouchCancel={stopRecording}
+                onMouseDown={handleRecordPressStart}
+                onMouseUp={handleRecordPressEnd}
+                onMouseLeave={handleRecordPressEnd}
+                onTouchStart={handleRecordPressStart}
+                onTouchEnd={handleRecordPressEnd}
+                onTouchCancel={handleRecordPressEnd}
+                onKeyDown={handleRecordKeyDown}
+                onKeyUp={handleRecordKeyUp}
                 className={`w-full py-5 sm:py-6 px-6 rounded-2xl font-bold text-lg sm:text-xl text-white transition-all duration-200 transform active:scale-95 flex items-center justify-center gap-3 ${
                   isRecording 
                     ? 'bg-gradient-to-r from-red-500 to-pink-500 shadow-lg shadow-red-500/50 animate-pulse' 

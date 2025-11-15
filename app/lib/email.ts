@@ -68,47 +68,54 @@ function escapeHtml(value: string | undefined | null): string {
 const EMAIL_BASE_STYLES = `
 :root { color-scheme: only light; supported-color-schemes: light; }
 * { box-sizing: border-box; }
-body { margin: 0; padding: 0; background: #f4f3ff; font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #312e81; }
+body { margin: 0; padding: 0; background: #050013; font-family: 'Inter', 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; color: #e0e7ff; }
 a { color: inherit; }
-.email-wrapper { width: 100%; background: #f4f3ff; padding: 24px 16px; }
-.email-container { max-width: 640px; margin: 0 auto; background: #ffffff; border-radius: 24px; overflow: hidden; box-shadow: 0 20px 40px rgba(79, 70, 229, 0.18); }
-.brand-header { background: linear-gradient(135deg, #6d28d9 0%, #7c3aed 45%, #ec4899 100%); padding: 40px 32px 32px; text-align: center; color: #f8fafc; }
-.brand-logo { width: 52px; height: 52px; margin: 0 auto 16px; display: block; }
-.brand-name { margin: 0; font-size: 28px; font-weight: 800; letter-spacing: 0.4px; }
-.brand-headline { margin: 12px 0 0; font-size: 22px; font-weight: 600; }
-.brand-tagline { margin: 12px auto 0; max-width: 360px; font-size: 16px; line-height: 1.55; opacity: 0.92; }
-.email-content { padding: 36px 40px; background: #ffffff; }
-.body-text { margin: 0 0 18px; font-size: 16px; line-height: 1.7; color: #4338ca; }
-.callout { margin: 28px 0; padding: 22px 24px; background: linear-gradient(120deg, rgba(109, 40, 217, 0.08), rgba(236, 72, 153, 0.12)); border: 1px solid rgba(88, 28, 135, 0.16); border-radius: 18px; text-align: center; }
-.callout-label { margin: 0 0 8px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #6d28d9; font-weight: 700; }
-.callout-meta { margin: 12px 0 0; font-size: 13px; color: #6b21a8; }
-.otp-code { font-size: 34px; font-weight: 800; letter-spacing: 10px; color: #1e1b4b; font-family: 'Roboto Mono', 'Courier New', monospace; }
-.primary-button { display: inline-block; padding: 16px 36px; background: linear-gradient(135deg, #6d28d9, #ec4899); color: #ffffff !important; font-weight: 700; font-size: 16px; text-decoration: none; border-radius: 999px; box-shadow: 0 14px 30px rgba(109, 40, 217, 0.25); }
-.info-card { margin: 0 0 18px; padding: 18px 20px; border-radius: 16px; background: #f5f3ff; color: #382d8b; border: 1px solid rgba(124, 58, 237, 0.1); text-align: left; }
-.info-card-title { margin: 0 0 10px; font-weight: 700; color: #4338ca; }
-.list { margin: 0 0 18px; padding-left: 20px; color: #4338ca; font-size: 15px; }
+.email-wrapper { width: 100%; background: #050013; padding: 24px 16px; }
+.email-container { max-width: 640px; margin: 0 auto; background: #0f0a28; border-radius: 28px; overflow: hidden; border: 1px solid rgba(129, 140, 248, 0.25); box-shadow: 0 30px 70px rgba(20, 10, 60, 0.55); }
+.brand-header { background:
+	radial-gradient(circle at 18% 18%, rgba(99, 102, 241, 0.48), transparent 52%),
+	radial-gradient(circle at 82% 12%, rgba(236, 72, 153, 0.35), transparent 58%),
+	linear-gradient(135deg, rgba(12, 6, 40, 0.94), rgba(10, 6, 32, 0.88));
+  padding: 44px 36px 32px;
+  text-align: center;
+  color: #f8fafc;
+}
+.brand-logo { width: 56px; height: 56px; margin: 0 auto 16px; display: block; }
+.brand-name { margin: 0; font-size: 30px; font-weight: 800; letter-spacing: 0.4px; }
+.brand-headline { margin: 14px 0 0; font-size: 24px; font-weight: 700; }
+.brand-tagline { margin: 14px auto 0; max-width: 380px; font-size: 16px; line-height: 1.6; opacity: 0.92; }
+.email-content { padding: 38px 42px; background: rgba(14, 10, 36, 0.9); }
+.body-text { margin: 0 0 20px; font-size: 16px; line-height: 1.7; color: #c7d2fe; }
+.callout { margin: 28px 0; padding: 24px 26px; background: rgba(99, 102, 241, 0.12); border: 1px solid rgba(139, 92, 246, 0.28); border-radius: 20px; text-align: center; backdrop-filter: blur(12px); }
+.callout-label { margin: 0 0 8px; font-size: 12px; letter-spacing: 2px; text-transform: uppercase; color: #a855f7; font-weight: 700; }
+.callout-meta { margin: 12px 0 0; font-size: 13px; color: #e0e7ff; opacity: 0.75; }
+.otp-code { font-size: 36px; font-weight: 800; letter-spacing: 12px; color: #f8fafc; font-family: 'Roboto Mono', 'Courier New', monospace; }
+.primary-button { display: inline-block; padding: 16px 38px; background: linear-gradient(135deg, #6366f1, #ec4899); color: #ffffff !important; font-weight: 700; font-size: 16px; text-decoration: none; border-radius: 999px; box-shadow: 0 18px 34px rgba(99, 102, 241, 0.35); }
+.info-card { margin: 0 0 20px; padding: 20px 22px; border-radius: 18px; background: rgba(39, 26, 79, 0.7); color: #c7d2fe; border: 1px solid rgba(99, 102, 241, 0.2); text-align: left; }
+.info-card-title { margin: 0 0 12px; font-weight: 700; color: #f5f3ff; }
+.list { margin: 0 0 18px; padding-left: 20px; color: #e0e7ff; font-size: 15px; }
 .list-item { margin-bottom: 10px; line-height: 1.6; }
-.meta-text { font-size: 14px; color: #4c1d95; margin: 18px 0; line-height: 1.6; }
+.meta-text { font-size: 14px; color: #cbd5f5; margin: 20px 0; line-height: 1.6; }
 .preview { display: none !important; visibility: hidden; opacity: 0; color: transparent; height: 0; width: 0; overflow: hidden; mso-hide: all; }
-.footer { padding: 32px 40px; background: #f9f5ff; text-align: center; border-top: 1px solid rgba(124, 58, 237, 0.15); }
-.footer-text { margin: 0 0 12px; font-size: 14px; color: #5b21b6; }
+.footer { padding: 34px 42px; background: rgba(12, 7, 34, 0.96); text-align: center; border-top: 1px solid rgba(129, 140, 248, 0.22); }
+.footer-text { margin: 0 0 12px; font-size: 14px; color: #cbd5f5; }
 .footer-text a { color: inherit; text-decoration: underline; }
-.footer-meta { margin: 0; font-size: 12px; color: #6d28d9; line-height: 1.6; }
+.footer-meta { margin: 0; font-size: 12px; color: #94a3ff; line-height: 1.6; }
 
 @media only screen and (max-width: 600px) {
-	.email-wrapper { padding: 16px 10px; }
-	.email-container { border-radius: 20px; }
-	.brand-header { padding: 32px 22px 24px; }
-	.brand-logo { width: 46px; height: 46px; }
-	.brand-name { font-size: 24px; }
-	.brand-headline { font-size: 20px; }
+	.email-wrapper { padding: 18px 12px; }
+	.email-container { border-radius: 22px; }
+	.brand-header { padding: 34px 24px 24px; }
+	.brand-logo { width: 48px; height: 48px; }
+	.brand-name { font-size: 26px; }
+	.brand-headline { font-size: 22px; }
 	.brand-tagline { font-size: 14px; }
-	.email-content { padding: 28px 22px; }
+	.email-content { padding: 30px 24px; }
 	.body-text { font-size: 15px; }
-	.callout { padding: 20px 16px; }
-	.otp-code { font-size: 28px; letter-spacing: 8px; }
+	.callout { padding: 22px 18px; }
+	.otp-code { font-size: 30px; letter-spacing: 10px; }
 	.primary-button { width: 100%; padding: 16px 24px; font-size: 15px; }
-	.footer { padding: 26px 18px; }
+	.footer { padding: 28px 22px; }
 }
 `;
 
